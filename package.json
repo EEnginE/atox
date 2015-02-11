@@ -1,0 +1,17 @@
+{
+  "name": "atox",
+  "main": "./lib/atox",
+  "version": "0.0.1",
+  "description": "Tox plugin for atom",
+  "activationCommands": {
+    "atom-workspace": "atox:toggle"
+  },
+  "repository": "https://github.com/mensinda/atox",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=0.174.0 <2.0.0"
+  },
+  "dependencies": {
+    
+  }
+}
