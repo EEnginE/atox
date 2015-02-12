@@ -1,4 +1,5 @@
 MainWindow = require './atox-mainWin'
+{View, $, $$} = require 'space-pen'
 
 module.exports =
    config:
@@ -13,7 +14,8 @@ module.exports =
       atom.commands.add 'atom-workspace', 'atox:toggle', => @toggle()
 
       @startup() if atom.config.get 'atox.autostart'
-      mainWin = new MainWindow
+      @mainWin = new MainWindow
+      #@mainWin.attatch()
 
    deactivate: ->
       console.log "aTox deactivate"
