@@ -1,3 +1,5 @@
+{MainWindow} = require './atox-mainWin'
+
 module.exports =
    config:
       autostart:
@@ -7,17 +9,20 @@ module.exports =
          default: true
 
    activate: ->
-      console.log( "aTox activate" )
+      console.log "aTox activate"
       atom.commands.add 'atom-workspace', 'atox:toggle', => @toggle()
 
+      @startup() if atom.config.get 'atox.autostart'
+      mainWin = new MainWindow
+
    deactivate: ->
-      console.log( "aTox deactivate" )
+      console.log "aTox deactivate"
 
    toggle: ->
-      console.log( "toggle" )
+      console.log "toggle"
 
    startup: ->
-      console.log( "startup" )
+      console.log "startup"
 
    shutdown: ->
-      console.log( "shutdown" );
+      console.log "shutdown"
