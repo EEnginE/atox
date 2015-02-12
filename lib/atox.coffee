@@ -1,4 +1,4 @@
-{MainWindow} = require './atox-mainWin'
+MainWindow = require './atox-mainWin'
 
 module.exports =
    config:
