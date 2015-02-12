@@ -9,8 +9,47 @@
 }
 
 #aTox-main-window {
-  position: absolute;
-  bottom: 10%; right: 10%;
+  @aTox-main-width: 450px;
+  @aTox-main-height: 250px;
+  @aTox-main-space: 8px;
+  /* reset */
+  h1, h2, h3, h4, p, table, ul {
+    margin: 0;
+    padding: 0;
+  }
+  background-color: @app-background-color;
+  opacity: 0.7;
+  position: fixed;
+  bottom: 50px; right: 50px;
+  width: @aTox-main-width;
+  height: @aTox-main-height;
   z-index: 100;
-  color: @text-color
+  color: @text-color;
+  //border: 2px solid #000;
+  border-radius: 10px;
+  padding: @aTox-main-space;
+  #aTox-main-window-header {
+    background-color: #000;
+    display: block;
+    height: @aTox-main-height * 0.15;
+  }
+  #aTox-main-window-contacts {
+    background-color: #f00;
+    border-radius: 5px;
+    display: block;
+    margin-top: @aTox-main-space;
+    width: @aTox-main-width * 0.25;
+    height: @aTox-main-height * 0.85 - @aTox-main-space * 3;
+    float: left;
+  }
+  #aTox-main-window-mbox {
+    background-color: #0f0;
+    border-radius: 5px;
+    margin-top: @aTox-main-space;
+    margin-left: @aTox-main-space;
+    display: block;
+    float: left;
+    width: @aTox-main-width - @aTox-main-width * 0.25 - @aTox-main-space * 3 - 1px;
+    height: @aTox-main-height * 0.85 - @aTox-main-space * 3;
+  }
 }
