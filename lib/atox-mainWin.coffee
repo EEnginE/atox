@@ -3,12 +3,12 @@
 module.exports =
 class MainWindow extends View
   @content: ->
-    @div =>
-      @h1 "Spacecraft"
+    @div id: 'aTox-main-window', =>
+      @h1 "aTox - Main Window"
       @ol outlet: "list", =>
-        @li "Apollo"
-        @li "Soyuz"
-        @li "Space Shuttle"
+        @li "Arvius"
+        @li "Mensinda"
+        @li "Taiterio"
 
   initialize: ->
     atom.views.getView atom.workspace
