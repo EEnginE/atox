@@ -9,3 +9,4 @@
 # https://atom.io/docs/latest/advanced/keymaps
 'atom-workspace':
   'ctrl-alt-t': 'atox:toggle'
+  'ctrl-alt-b': 'atox:addP1'

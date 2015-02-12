@@ -1,4 +1,5 @@
 MainWindow = require './atox-mainWin'
+PopUpHelper = require './atox-PopUp'
 {View, $, $$} = require 'atom-space-pen-views'
 
 module.exports =
@@ -17,8 +18,10 @@ module.exports =
 
   activate: ->
     atom.commands.add 'atom-workspace', 'atox:toggle', => @toggle()
+    atom.commands.add 'atom-workspace', 'atox:addP1',  => @addP1()
 
     @mainWin = new MainWindow
+    @popUps  = new PopUpHelper
 
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
@@ -28,6 +31,9 @@ module.exports =
 
   toggle: ->
     @mainWin.toggle()
+
+  addP1: ->
+    @popUps.add "info", "MAIN", "Hello PopUp", "none"
 
   startup: ->
 
