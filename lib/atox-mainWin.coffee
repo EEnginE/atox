@@ -1,4 +1,4 @@
-{View, $, $$} = require 'space-pen'
+{View, $, $$} = require 'atom-space-pen-views'
 
 module.exports =
 class MainWindow extends View
@@ -14,11 +14,18 @@ class MainWindow extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-  constructor: ->
-    console.log "Constr."
-    super()
+    @isOn = true
 
-  attatch: ->
-    console.warn "AAA"
-    workspaceElement = atom.views.getView(atom.workspace)
-    workspaceElement.appendChild @content
+  show: ->
+    @isOn = true
+    super() # Calls jQuery's show
+
+  hide: ->
+    @isOn = false
+    super() # Calls jQuery's hide
+
+  toggle: ->
+    if @isOn
+      @hide()
+    else
+      @show()
