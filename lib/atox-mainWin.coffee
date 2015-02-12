@@ -4,11 +4,15 @@ module.exports =
 class MainWindow extends View
   @content: ->
     @div id: 'aTox-main-window', =>
-      @h1 "aTox - Main Window"
-      @ol outlet: "list", =>
-        @li "Arvius"
-        @li "Mensinda"
-        @li "Taiterio"
+      @div id: 'aTox-main-window-header', =>
+        @h1 "aTox - Main Window"
+      @div id: 'aTox-main-window-contacts', =>
+        @p "XY"
+      @div id: 'aTox-main-window-mbox', =>
+        @ol outlet: "list", =>
+          @li "Arvius"
+          @li "Mensinda"
+          @li "Taiterio"
 
   initialize: ->
     atom.views.getView atom.workspace
