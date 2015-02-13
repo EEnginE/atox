@@ -26,20 +26,21 @@ class PopUpHelper extends View
 
   add: (type, name, content, img) ->
     temp = new PopUp( @currentID, type, name, content, img )
+    @currentID++
+
     temp.hide()
     temp.appendTo this
-    temp.fadeIn atom.config.get 'atox.fadeDuration'
-
-    @PopUps.push temp
+    temp.fadeIn   atom.config.get 'atox.fadeDuration'
 
     setTimeout =>
        @shift()
     , ( atom.config.get 'atox.popupTimeout' ) * 1000
 
-    @currentID++
-
+    @PopUps.push temp
 
   shift: ->
-    @PopUps[0].fadeOut (atom.config.get 'atox.fadeDuration'), =>
-       @PopUps[0].remove()
-       @PopUps.shift()
+    temp = @PopUps[0]
+    @PopUps.shift()
+
+    temp.fadeOut (atom.config.get 'atox.fadeDuration'), =>
+       temp.remove()
