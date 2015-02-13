@@ -1,0 +1,129 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+@aTox-Stop1: 6px;
+@aTox-Stop2: 10px;
+@aTox-Stop3: 75%;
+
+@aTox-Mix1:  75%;
+@aTox-Mix2:  20%;
+
+@aTox-Margin: 15px;
+
+@aTox-Height: 60px;
+@aTox-Max-Num: 12;
+
+#aTox-PopUp-root {
+  position: absolute;
+
+  top: 50px;
+  right: 20px;
+
+  width: 300px;
+  height: @aTox-Max-Num * ( @aTox-Margin + @aTox-Height ) - @aTox-Margin;
+
+  z-index: 100;
+
+  pointer-events: none;
+  opacity: 0.75;
+
+  overflow: hidden;
+
+  .aTox-PopUp-inf {
+    background: -webkit-linear-gradient(
+      left,
+      @background-color-info 0px,
+      mix( @background-color-info, @overlay-background-color, @aTox-Mix1 ) @aTox-Stop1,
+      mix( @background-color-info, @overlay-background-color, @aTox-Mix2 ) @aTox-Stop2,
+      rgba( 0, 0, 0, 0 ) @aTox-Stop3);
+
+    height:        @aTox-Height;
+    margin-bottom: @aTox-Margin;
+    padding-top:   5px;
+    padding-left:  @aTox-Stop2 + @aTox-Height / 10;
+
+    border-radius: 10px;
+
+    .aTox-PopUp-img {
+      display: none
+    }
+
+    .aTox-PopUp-name {
+      color:         @text-color-info;
+      font-size:     150%;
+      margin-bottom: @aTox-Margin / 4;
+    }
+
+    .aTox-PopUp-content {
+      color:         @text-color;
+      font-size:     110%;
+    }
+  }
+
+
+  .aTox-PopUp-warn {
+    background: -webkit-linear-gradient(
+      left,
+      @background-color-warning 0px,
+      mix( @background-color-warning, @overlay-background-color, @aTox-Mix1 ) @aTox-Stop1,
+      mix( @background-color-warning, @overlay-background-color, @aTox-Mix2 ) @aTox-Stop2,
+      rgba( 0, 0, 0, 0 ) @aTox-Stop3);
+
+    height:        @aTox-Height;
+    margin-bottom: @aTox-Margin;
+    padding-top:   5px;
+    padding-left:  @aTox-Stop2 + @aTox-Height / 10;
+
+    border-radius: 10px;
+
+    .aTox-PopUp-img {
+      display: none
+    }
+
+    .aTox-PopUp-name {
+      color:         @text-color-warning;
+      font-size:     150%;
+      margin-bottom: @aTox-Margin / 4;
+    }
+
+    .aTox-PopUp-content {
+      color:         @text-color;
+      font-size:     110%;
+    }
+  }
+
+
+  .aTox-PopUp-err {
+    background: -webkit-linear-gradient(
+      left,
+      @background-color-error 0px,
+      mix( @background-color-error, @overlay-background-color, @aTox-Mix1 ) @aTox-Stop1,
+      mix( @background-color-error, @overlay-background-color, @aTox-Mix2 ) @aTox-Stop2,
+      rgba( 0, 0, 0, 0 ) @aTox-Stop3);
+
+    height:        @aTox-Height;
+    margin-bottom: @aTox-Margin;
+    padding-top:   5px;
+    padding-left:  @aTox-Stop2 + @aTox-Height / 10;
+
+    border-radius: 10px;
+
+    .aTox-PopUp-img {
+      display: none
+    }
+
+    .aTox-PopUp-name {
+      color:         @text-color-error;
+      font-size:     150%;
+      margin-bottom: @aTox-Margin / 4;
+    }
+
+    .aTox-PopUp-content {
+      color:         @text-color;
+      font-size:     110%;
+    }
+  }
+}

@@ -2,24 +2,44 @@
 
 class PopUp extends View
   @content: (id, type, name, content, img) ->
-    name = "aTox-PopUp-#{id}_#{type}"
-    type = "aTox-PopUp-#{type}"
+    tName = "aTox-PopUp-#{id}_#{type}"
+    tType = "aTox-PopUp"
 
-    @div id: "#{name}", class: "#{type}", =>
-      @div id: "#{name}-name",    class: "#{type}-name",    => @raw "#{name}"
-      @div id: "#{name}-content", class: "#{type}-content", => @raw "#{content}"
-      @div id: "#{name}-img",     class: "#{type}-img",     => @raw "#{img}"
+    @div id: "#{tName}", class: "#{tType}-#{type}", =>
+      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{name}"
+      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{content}"
+      @div id: "#{tName}-img",     class: "#{tType}-img",     => @raw "#{img}"
 
 
 module.exports =
-class PopUpHelper
-  constructor: ->
+class PopUpHelper extends View
+  @content: ->
+    @div id: "aTox-PopUp-root"
+
+  initialize: ->
     @currentID = 0
     @PopUps = []
+    @run = true
+
+    atom.views.getView atom.workspace
+      .appendChild @element
 
   add: (type, name, content, img) ->
-    temp = new PopUp( 0, type, name, content, img )
-    temp.appendTo atom.views.getView atom.workspace
+    temp = new PopUp( @currentID, type, name, content, img )
+    temp.hide()
+    temp.appendTo this
+    temp.fadeIn atom.config.get 'atox.fadeDuration'
+
     @PopUps.push temp
-    console.log "Added #{type} popup '#{name}' [#{@currentID}]"
+
+    setTimeout =>
+       @shift()
+    , ( atom.config.get 'atox.popupTimeout' ) * 1000
+
     @currentID++
+
+
+  shift: ->
+    @PopUps[0].fadeOut (atom.config.get 'atox.fadeDuration'), =>
+       @PopUps[0].remove()
+       @PopUps.shift()
