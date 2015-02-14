@@ -4,6 +4,11 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
+@aTox-opacity: 0.75;
+
+@aTox-font1:   150%;
+@aTox-font2:   130%;
+
 @aTox-Stop1: 6px;
 @aTox-Stop2: 10px;
 @aTox-Stop3: 75%;
@@ -13,7 +18,7 @@
 
 @aTox-Margin: 15px;
 
-@aTox-Height: 60px;
+@aTox-Height: 63px;
 @aTox-Max-Num: 12;
 
 #aTox-PopUp-root {
@@ -53,13 +58,13 @@
 
     .aTox-PopUp-name {
       color:         @text-color-info;
-      font-size:     150%;
+      font-size:     @aTox-font1;
       margin-bottom: @aTox-Margin / 4;
     }
 
     .aTox-PopUp-content {
       color:         @text-color;
-      font-size:     110%;
+      font-size:     @aTox-font2;
     }
   }
 
@@ -85,13 +90,13 @@
 
     .aTox-PopUp-name {
       color:         @text-color-warning;
-      font-size:     150%;
+      font-size:     @aTox-font1;
       margin-bottom: @aTox-Margin / 4;
     }
 
     .aTox-PopUp-content {
       color:         @text-color;
-      font-size:     110%;
+      font-size:     @aTox-font2;
     }
   }
 
@@ -117,13 +122,13 @@
 
     .aTox-PopUp-name {
       color:         @text-color-error;
-      font-size:     150%;
+      font-size:     @aTox-font1;
       margin-bottom: @aTox-Margin / 4;
     }
 
     .aTox-PopUp-content {
       color:         @text-color;
-      font-size:     110%;
+      font-size:     @aTox-font2;
     }
   }
 }

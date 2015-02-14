@@ -1,0 +1,84 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+@ButtonHeight: 40px;
+@ButtonWidht:  80px;
+
+.aTox-Button-yes {
+  position:    absolute;
+  height:      @ButtonHeight;
+  line-height: @ButtonHeight;
+  width:       @ButtonWidht;
+
+  @basColor: mix( @background-color-info, @overlay-background-color, 25% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @basColor, 2% ) 0px,
+    lighten( @basColor, 2% ) 49%,
+    darken(  @basColor, 1% ) 51%,
+    darken(  @basColor, 4% ) 100%);
+
+  border-radius: 10px;
+  z-index:       100;
+
+  color:      @text-color;
+  font-size:  150%;
+  text-align: center;
+
+  transition: background 175ms, color 175ms;
+}
+
+.aTox-Button-yes:hover {
+  @basColor: mix( @background-color-info, @overlay-background-color, 75% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @basColor, 2% ) 0px,
+    lighten( @basColor, 2% ) 49%,
+    darken(  @basColor, 1% ) 51%,
+    darken(  @basColor, 4% ) 100%);
+
+  color: darken( @text-color, 75% );
+}
+
+.aTox-Button-no {
+  position:    absolute;
+  height:      @ButtonHeight;
+  line-height: @ButtonHeight;
+  width:       @ButtonWidht;
+
+  @basColor: mix( @background-color-error, @overlay-background-color, 25% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @basColor, 2% ) 0px,
+    lighten( @basColor, 2% ) 49%,
+    darken(  @basColor, 1% ) 51%,
+    darken(  @basColor, 4% ) 100%);
+
+  border-radius: 10px;
+  z-index:       100;
+
+  color:      @text-color;
+  font-size:  150%;
+  text-align: center;
+
+  transition: background 175ms, color 175ms;
+}
+
+.aTox-Button-no:hover {
+  @basColor: mix( @background-color-error, @overlay-background-color, 75% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @basColor, 2% ) 0px,
+    lighten( @basColor, 2% ) 49%,
+    darken(  @basColor, 1% ) 51%,
+    darken(  @basColor, 4% ) 100%);
+
+  color: darken( @text-color, 75% );
+}

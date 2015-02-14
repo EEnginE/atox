@@ -1,5 +1,6 @@
-MainWindow = require './atox-mainWin'
-PopUpHelper = require './atox-PopUp'
+MainWindow    = require './atox-mainWin'
+PopUpHelper   = require './atox-PopUp'
+YesNoQuestion = require './atox-questions'
 {View, $, $$} = require 'atom-space-pen-views'
 
 module.exports =
@@ -33,6 +34,7 @@ module.exports =
     atom.commands.add 'atom-workspace', 'atox:addP1',  => @addP1()
     atom.commands.add 'atom-workspace', 'atox:addP2',  => @addP2()
     atom.commands.add 'atom-workspace', 'atox:addP3',  => @addP3()
+    atom.commands.add 'atom-workspace', 'atox:ask',    => @ask()
 
     @mainWin = new MainWindow
     @popUps  = new PopUpHelper
@@ -54,6 +56,15 @@ module.exports =
 
   addP3: ->
     @popUps.add "err", "Error", "Hello PopUp", "none"
+
+  ask: ->
+    q1 = new YesNoQuestion "Test Question", "Do you want a cookie?", "YES!!", "no"
+    q1.callbacks =>
+      @popUps.add "inf", "&#60;Cookie/&#62;", "It is delicious!", "none"
+    , =>
+      @popUps.add "err", ":(", "Why not !?", "none"
+
+    q1.ask()
 
   startup: ->
 

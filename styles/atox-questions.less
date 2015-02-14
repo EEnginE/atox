@@ -1,0 +1,61 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+@BaseWidth:  300px;
+@BaseHeight: 150px;
+
+@BaseBorder: 5px;
+
+.aTox-YNQ {
+  width:  @BaseWidth;
+  height: @BaseHeight;
+
+  border-radius: 10px;
+
+  position: absolute;
+  left:     0;
+  right:    0;
+
+  margin:   auto;
+
+  top:      50px;
+
+  z-index:  100;
+  opacity:  0.9;
+
+  background:   @overlay-background-color;
+  border:       @BaseBorder solid @background-color-highlight;
+
+  //overflow:     hidden;
+
+  .aTox-YNQ-n {
+    color: @text-color-info;
+    font-size: 200%;
+
+    position: absolute;
+    left:     15px;
+    top:      7px;
+
+    margin-bottom: 10px;
+  }
+
+  .aTox-YNQ-q {
+    color: @text-color;
+    font-size: 150%;
+
+    position:      absolute;
+    left:          10px;
+    top:           37px;
+    margin-bottom: 5px;
+  }
+
+  .aTox-YNQ-b {
+    position: absolute;
+    width:    @BaseWidth - 2 * @BaseBorder;
+    bottom:   20px;
+    height:   40px;
+  }
+}
