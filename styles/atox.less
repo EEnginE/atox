@@ -32,6 +32,63 @@
     background-color: #000;
     display: block;
     height: @aTox-main-height * 0.15;
+    h1 {
+      display: inline-block;
+      float: left;
+      line-height: @aTox-main-height * 0.15;
+    }
+    #aTox-main-window-header-status-container {
+      display: block;
+      float: right;
+      height: 20px;
+      width: 20px;
+      border-radius: 10px;
+      margin-top: (@aTox-main-height * 0.15 - 20px) / 2;
+      margin-right: (@aTox-main-height * 0.15 - 20px) / 2;
+      .aTox-main-window-header-status {
+        height: 10px;
+        width: 10px;
+        display: none;
+      }
+      #aTox-main-window-header-status-container-online {
+        background-color: #0f0;
+        border-top-left-radius: 10px;
+        float: left;
+      }
+      #aTox-main-window-header-status-container-offline {
+        background-color: #000;
+        border-top-right-radius: 10px;
+        float: right;
+      }
+      #aTox-main-window-header-status-container-busy {
+        background-color: #f00;
+        border-bottom-left-radius: 10px;
+        float: left;
+      }
+      #aTox-main-window-header-status-container-away {
+        background-color: #00f;
+        border-bottom-right-radius: 10px;
+        float: right;
+      }
+    }
+    #aTox-main-window-header-status-container.online {
+      background-color: #0f0;
+    }
+    #aTox-main-window-header-status-container.offline {
+      background-color: #000;
+    }
+    #aTox-main-window-header-status-container.busy {
+      background-color: #f00;
+    }
+    #aTox-main-window-header-status-container.away {
+      background-color: #00f;
+    }
+    #aTox-main-window-header-status-container:hover {
+      background-color: transparent;
+      .aTox-main-window-header-status {
+        display: block;
+      }
+    }
   }
   #aTox-main-window-contacts {
     background-color: #f00;
