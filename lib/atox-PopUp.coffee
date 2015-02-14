@@ -21,11 +21,17 @@ class PopUpHelper extends View
     @PopUps = []
     @run = true
     @lts = 0
+    @ani = false
 
     atom.views.getView atom.workspace
       .appendChild @element
 
   add: (type, name, content, img) ->
+    if @ani is true
+      setTimeout =>
+        @add type, name, content, img
+      , 100
+      return
     temp = new PopUp( @currentID, type, name, content, img )
     @currentID++
 
@@ -47,13 +53,14 @@ class PopUpHelper extends View
     @PopUps.push temp
 
   shift: ->
+    @ani = true
     temp = @PopUps[0]
     @PopUps.shift()
-    console.log (atom.config.get 'atox.fadeDuration')
     temp.animate {opacity: 0}, (atom.config.get 'atox.fadeDuration'), =>
        e.css ({position: 'relative'}) for e in @PopUps
        e.animate {top: '-75px'}, 1000 for e in @PopUps
        setTimeout =>
          temp.remove()
          e.css {position: 'static', top: '0'} for e in @PopUps
+         @ani = false
        , 1100
