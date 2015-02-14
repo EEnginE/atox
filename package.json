@@ -10,6 +10,8 @@
   },
   "dependencies": {
      "atom-space-pen-views": "*",
-     "event-kit":            "*"
+     "event-kit":            "*",
+     "jquery-ui":            "*",
+     "jquery":               "*"
   }
 }

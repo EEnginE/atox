@@ -1,9 +1,12 @@
 {View, $, $$} = require 'atom-space-pen-views'
+jQuery = require 'jquery'
+require 'jquery-ui/draggable'
 
 module.exports =
 class MainWindow extends View
   @content: ->
     @div id: 'aTox-main-window', =>
+      @div id: 'aTox-main-window-dragbar'
       @div id: 'aTox-main-window-header', =>
         @h1 "aTox - Main Window"
         @div id: 'aTox-main-window-header-status-container', class: 'online', =>
@@ -22,6 +25,7 @@ class MainWindow extends View
   initialize: ->
     atom.views.getView atom.workspace
       .appendChild @element
+    jQuery('#aTox-main-window').draggable {handle: '#aTox-main-window-dragbar'}
 
     @isOn = true
 
