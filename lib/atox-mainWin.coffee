@@ -6,6 +6,11 @@ class MainWindow extends View
     @div id: 'aTox-main-window', =>
       @div id: 'aTox-main-window-header', =>
         @h1 "aTox - Main Window"
+        @div id: 'aTox-main-window-header-status-container', class: 'online', =>
+          @div id: 'aTox-main-window-header-status-container-online', class: 'aTox-main-window-header-status'
+          @div id: 'aTox-main-window-header-status-container-offline', class: 'aTox-main-window-header-status'
+          @div id: 'aTox-main-window-header-status-container-busy', class: 'aTox-main-window-header-status'
+          @div id: 'aTox-main-window-header-status-container-away', class: 'aTox-main-window-header-status'
       @div id: 'aTox-main-window-contacts', =>
         @p "XY"
       @div id: 'aTox-main-window-mbox', =>
