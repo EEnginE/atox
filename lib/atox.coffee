@@ -25,7 +25,7 @@ module.exports =
       title: "Pop Up fade duration"
       description: "Pop Up fade duration in milliseconds"
       type: "number"
-      default: 400
+      default: 250
       minimum: 1
     notificationSpeed:
       title: "Notification animation speed"
