@@ -3,15 +3,17 @@
 // See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
 // for a full listing of what's available.
 @import "ui-variables";
-
-@BaseWidth:  300px;
-@BaseHeight: 150px;
-
-@BaseBorder: 5px;
+@import "./atox-vars";
 
 .aTox-YNQ {
-  width:  @BaseWidth;
-  height: @BaseHeight;
+  h1, h2, h3, h4, p, div, table, ul, li, span {
+    margin: 0;
+    padding: 0;
+    .ui;
+  }
+
+  width:  @aTox-Base-Q-Width;
+  height: @aTox-Base-Q-Height;
 
   border-radius: 10px;
 
@@ -27,7 +29,7 @@
   opacity:  0.9;
 
   background:   @overlay-background-color;
-  border:       @BaseBorder solid @background-color-highlight;
+  border:       @aTox-Base-Q-Border solid @background-color-highlight;
 
   //overflow:     hidden;
 
@@ -54,7 +56,7 @@
 
   .aTox-YNQ-b {
     position: absolute;
-    width:    @BaseWidth - 2 * @BaseBorder;
+    width:    @aTox-Base-Q-Width - 2 * @aTox-Base-Q-Border;
     bottom:   20px;
     height:   40px;
   }

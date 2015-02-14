@@ -12,7 +12,7 @@ class PopUp extends View
 
 
 module.exports =
-class PopUpHelper extends View
+class Notifications extends View
   @content: ->
     @div id: "aTox-PopUp-root"
 

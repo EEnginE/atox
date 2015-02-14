@@ -3,15 +3,14 @@
 // See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
 // for a full listing of what's available.
 @import "ui-variables";
+@import "./atox-vars";
 
-@ButtonHeight: 40px;
-@ButtonWidht:  80px;
 
 .aTox-Button-yes {
   position:    absolute;
-  height:      @ButtonHeight;
-  line-height: @ButtonHeight;
-  width:       @ButtonWidht;
+  height:      @aTox-Button-Height;
+  line-height: @aTox-Button-Height;
+  width:       @aTox-Button-Widht;
 
   @basColor: mix( @background-color-info, @overlay-background-color, 25% );
 
@@ -47,9 +46,9 @@
 
 .aTox-Button-no {
   position:    absolute;
-  height:      @ButtonHeight;
-  line-height: @ButtonHeight;
-  width:       @ButtonWidht;
+  height:      @aTox-Button-Height;
+  line-height: @aTox-Button-Height;
+  width:       @aTox-Button-Widht;
 
   @basColor: mix( @background-color-error, @overlay-background-color, 25% );
 

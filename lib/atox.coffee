@@ -1,5 +1,5 @@
 MainWindow    = require './atox-mainWin'
-PopUpHelper   = require './atox-PopUp'
+Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
 {View, $, $$} = require 'atom-space-pen-views'
 
@@ -27,6 +27,12 @@ module.exports =
       type: "number"
       default: 400
       minimum: 1
+    notificationSpeed:
+      title: "Notification animation speed"
+      description: "Notification animation speed in milliseconds"
+      type: "number"
+      default: 300
+      minimum: 1
 
 
   activate: ->
@@ -36,8 +42,8 @@ module.exports =
     atom.commands.add 'atom-workspace', 'atox:addP3',  => @addP3()
     atom.commands.add 'atom-workspace', 'atox:ask',    => @ask()
 
-    @mainWin = new MainWindow
-    @popUps  = new PopUpHelper
+    @mainWin       = new MainWindow
+    @notifications = new Notifications
 
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
@@ -49,20 +55,20 @@ module.exports =
     @mainWin.toggle()
 
   addP1: ->
-    @popUps.add "inf", "Info", "Hello PopUp", "none"
+    @notifications.add "inf", "Info", "Hello PopUp", "none"
 
   addP2: ->
-    @popUps.add "warn", "Warning", "Hello PopUp", "none"
+    @notifications.add "warn", "Warning", "Hello PopUp", "none"
 
   addP3: ->
-    @popUps.add "err", "Error", "Hello PopUp", "none"
+    @notifications.add "err", "Error", "Hello PopUp", "none"
 
   ask: ->
     q1 = new YesNoQuestion "Test Question", "Do you want a cookie?", "YES!!", "no"
     q1.callbacks =>
-      @popUps.add "inf", "&#60;Cookie/&#62;", "It is delicious!", "none"
+      @notifications.add "inf", "&#60;Cookie/&#62;", "It is delicious!", "none"
     , =>
-      @popUps.add "err", ":(", "Why not !?", "none"
+      @notifications.add "err", ":(", "Why not !?", "none"
 
     q1.ask()
 
