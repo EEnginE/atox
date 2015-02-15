@@ -10,7 +10,6 @@ module.exports =
 class MainWindow extends View
   @content: ->
     @div id: 'aTox-main-window', outlet: 'mainWin', =>
-      @div id: 'aTox-main-window-dragbar'
       @div id: 'aTox-main-window-header', =>
         @h1 "aTox - Main Window"
         @div id: 'aTox-main-window-header-status-container', class: 'online', =>
@@ -19,17 +18,12 @@ class MainWindow extends View
           @div id: 'aTox-main-window-header-status-container-busy', class: 'aTox-main-window-header-status'
           @div id: 'aTox-main-window-header-status-container-away', class: 'aTox-main-window-header-status'
       @div id: 'aTox-main-window-contacts', outlet: 'contacts'
-      @div id: 'aTox-main-window-mbox', =>
-        @ol outlet: "list", =>
-          @li "Arvius"
-          @li "Mensinda"
-          @li "Taiterio"
 
   initialize: ->
     atom.views.getView atom.workspace
       .appendChild @element
 
-    jQuery( "#aTox-main-window"     ).draggable {handle: '#aTox-main-window-dragbar'}
+    jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
     @contacts.mousewheel (event) => @scrollHandler event
 

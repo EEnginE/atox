@@ -13,9 +13,8 @@
     .ui;
   }
   background-color: @app-background-color;
-  opacity: 0.7;
+  opacity: 0.8;
   position: fixed;
-  bottom: 50px; right: 30px;
   width: @aTox-main-width;
   height: @aTox-main-height;
   z-index: 100;
@@ -23,21 +22,20 @@
   //border: 2px solid #000;
   border-radius: 10px;
   padding: @aTox-main-space;
-  padding-top: 0;
   overflow: hidden;
 
-  #aTox-main-window-dragbar {
-    height: 8px;
-    cursor: move;
-  }
   #aTox-main-window-header {
-    background-color: #000;
+    background-color: @tool-panel-background-color;
     display: block;
-    height: @aTox-main-height * 0.15;
+    height: @aTox-main-height * 0.1;
+    border-radius: 5px;
+    cursor: move;
     h1 {
+      cursor: move;
+      margin-left: 7px;
       display: inline-block;
       float: left;
-      line-height: @aTox-main-height * 0.15;
+      line-height: @aTox-main-height * 0.1;
     }
     #aTox-main-window-header-status-container {
       display: block;
@@ -45,8 +43,8 @@
       height: 20px;
       width: 20px;
       border-radius: 10px;
-      margin-top: (@aTox-main-height * 0.15 - 20px) / 2;
-      margin-right: (@aTox-main-height * 0.15 - 20px) / 2;
+      margin-top: (@aTox-main-height * 0.1 - 20px) / 2;
+      margin-right: (@aTox-main-height * 0.1 - 20px) / 2;
       .aTox-main-window-header-status {
         height: 10px;
         width: 10px;
@@ -97,8 +95,14 @@
     background:    @tool-panel-background-color;
     border-radius: 5px;
     display:       block;
-    height:        @aTox-main-height * 0.85 - 3 * @aTox-main-space;
+    height:        @aTox-main-height * 0.9 - 3 * @aTox-main-space;
     margin-top:    @aTox-main-space;
     overflow:      hidden;
   }
+
+  transition: opacity 300ms;
+}
+
+#aTox-main-window.ui-draggable-dragging {
+  opacity: 0.3;
 }

@@ -48,6 +48,15 @@ module.exports =
       type: "number"
       default: 0.5
 
+    mainWinTop:
+      title: "Main Window Top"
+      type: "string"
+      default: "60%"
+    mainWinLeft:
+      title: "Main Window Left"
+      type: "string"
+      default: "80%"
+
 
   activate: ->
     atom.commands.add 'atom-workspace', 'atox:toggle', => @toggle()
@@ -59,7 +68,18 @@ module.exports =
     @mainWin       = new MainWindow
     @notifications = new Notifications
 
-    console.warn atom.config.get 'atox.userAvatar'
+    @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
+    @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
+
+    @mainWin.mouseup =>
+      atom.config.set 'atox.mainWinTop',  @mainWin.css 'top'
+      atom.config.set 'atox.mainWinLeft', @mainWin.css 'left'
+
+    atom.config.observe 'atox.mainWinTop',  (newValue) =>
+      @mainWin.css 'top',  newValue
+
+    atom.config.observe 'atox.mainWinLeft', (newValue) =>
+      @mainWin.css 'left', newValue
 
     @addUserHelper "Test1", 'offline'
     @addUserHelper "Test2", 'online'
@@ -71,7 +91,6 @@ module.exports =
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
 
   deactivate: ->
-    console.log "aTox deactivate"
 
   addUserHelper: (name, online) ->
     @mainWin.addContact {
