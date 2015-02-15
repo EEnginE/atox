@@ -1,14 +1,20 @@
 {View, $, $$} = require 'atom-space-pen-views'
 
 class PopUp extends View
-  @content: (id, type, name, content, img) ->
-    tName = "aTox-PopUp-#{id}_#{type}"
+  @content: (attr) ->
+    tName = "aTox-PopUp-#{attr.id}_#{attr.type}"
     tType = "aTox-PopUp"
 
-    @div id: "#{tName}", class: "#{tType}-#{type}", =>
-      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{name}"
-      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{content}"
-      @div id: "#{tName}-img",     class: "#{tType}-img",     => @raw "#{img}"
+    @div id: "#{tName}", class: "#{tType}-#{attr.type}", =>
+      @img id: "#{tName}-img",     class: "#{tType}-img", outlet: 'img'
+      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{attr.name}"
+      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{attr.content}"
+
+  initialize: (attr) ->
+    if attr.img != 'none'
+      @img.css { "background-image": "url(\"#{attr.img}\")" }
+    else
+      @img.css { "display": "none" }
 
 
 module.exports =
@@ -32,7 +38,7 @@ class Notifications extends View
         @add type, name, content, img
       , 100
       return
-    temp = new PopUp( @currentID, type, name, content, img )
+    temp = new PopUp { id: @currentID, type: type, name: name, content: content, img: img }
     @currentID++
 
     temp.hide()
@@ -40,7 +46,7 @@ class Notifications extends View
     temp.fadeIn atom.config.get 'atox.fadeDuration'
 
     stimeout = ( atom.config.get 'atox.popupTimeout' ) * 1000
-    aduration = ( atom.config.get 'atox.fadeDuration' ) + 1200
+    aduration = ( atom.config.get 'atox.fadeDuration' ) + ( atom.config.get 'atox.notificationSpeed' ) + 200
     if ((Date.now() + stimeout) - @lts) < aduration
       timeout = stimeout + aduration - ((Date.now() + stimeout) - @lts)
     else
@@ -58,9 +64,9 @@ class Notifications extends View
     @PopUps.shift()
     temp.animate {opacity: 0}, (atom.config.get 'atox.fadeDuration'), =>
        e.css ({position: 'relative'}) for e in @PopUps
-       e.animate {top: '-75px'}, 1000 for e in @PopUps
+       e.animate {top: '-75px'}, ( atom.config.get 'atox.notificationSpeed' ) for e in @PopUps
        setTimeout =>
          temp.remove()
          e.css {position: 'static', top: '0'} for e in @PopUps
          @ani = false
-       , 1100
+       , ( atom.config.get 'atox.notificationSpeed' ) + 100

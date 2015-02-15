@@ -21,14 +21,7 @@
 
   overflow: hidden;
 
-  .aTox-PopUp-inf {
-    background: -webkit-linear-gradient(
-      left,
-      @background-color-info 0px,
-      mix( @background-color-info, @overlay-background-color, @aTox-not-Mix1 ) @aTox-not-Stop1,
-      mix( @background-color-info, @overlay-background-color, @aTox-not-Mix2 ) @aTox-not-Stop2,
-      rgba( 0, 0, 0, 0 ) @aTox-not-Stop3);
-
+  .aTox-PopUp-BASE {
     height:        @aTox-not-Height;
     margin-bottom: @aTox-not-Margin;
     padding-top:   5px;
@@ -37,19 +30,40 @@
     border-radius: 10px;
 
     .aTox-PopUp-img {
-      display: none
+      width:    @aTox-not-Height / 1.5;
+      height:   @aTox-not-Height / 1.5;
+
+      background-size: 100% 100%;
+      margin-top:      (@aTox-not-Height / 2) - ( @aTox-not-Height / 1.5 ) / 2 - 5px;
+
+      float:  right;
     }
 
     .aTox-PopUp-name {
-      color:         @text-color-info;
       font-size:     @aTox-not-font1;
       margin-bottom: @aTox-not-Margin / 4;
+      float:         left;
     }
 
     .aTox-PopUp-content {
       color:         @text-color;
       font-size:     @aTox-not-font2;
+      float:         left;
+      clear:         left;
     }
+  }
+
+  .aTox-PopUp-inf {
+    background: -webkit-linear-gradient(
+      left,
+      @background-color-info 0px,
+      mix( @background-color-info, @overlay-background-color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+      mix( @background-color-info, @overlay-background-color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+      rgba( 0, 0, 0, 0 ) @aTox-not-Stop3);
+
+    .aTox-PopUp-BASE;
+
+    .aTox-PopUp-name { color: @text-color-info; }
   }
 
 
@@ -61,27 +75,9 @@
       mix( @background-color-warning, @overlay-background-color, @aTox-not-Mix2 ) @aTox-not-Stop2,
       rgba( 0, 0, 0, 0 ) @aTox-not-Stop3);
 
-    height:        @aTox-not-Height;
-    margin-bottom: @aTox-not-Margin;
-    padding-top:   5px;
-    padding-left:  @aTox-not-Stop2 + @aTox-not-Height / 10;
+    .aTox-PopUp-BASE;
 
-    border-radius: 10px;
-
-    .aTox-PopUp-img {
-      display: none
-    }
-
-    .aTox-PopUp-name {
-      color:         @text-color-warning;
-      font-size:     @aTox-not-font1;
-      margin-bottom: @aTox-not-Margin / 4;
-    }
-
-    .aTox-PopUp-content {
-      color:         @text-color;
-      font-size:     @aTox-not-font2;
-    }
+    .aTox-PopUp-name { color: @text-color-warning; }
   }
 
 
@@ -93,26 +89,8 @@
       mix( @background-color-error, @overlay-background-color, @aTox-not-Mix2 ) @aTox-not-Stop2,
       rgba( 0, 0, 0, 0 ) @aTox-not-Stop3);
 
-    height:        @aTox-not-Height;
-    margin-bottom: @aTox-not-Margin;
-    padding-top:   5px;
-    padding-left:  @aTox-not-Stop2 + @aTox-not-Height / 10;
+    .aTox-PopUp-BASE;
 
-    border-radius: 10px;
-
-    .aTox-PopUp-img {
-      display: none
-    }
-
-    .aTox-PopUp-name {
-      color:         @text-color-error;
-      font-size:     @aTox-not-font1;
-      margin-bottom: @aTox-not-Margin / 4;
-    }
-
-    .aTox-PopUp-content {
-      color:         @text-color;
-      font-size:     @aTox-not-font2;
-    }
+    .aTox-PopUp-name { color: @text-color-error; }
   }
 }

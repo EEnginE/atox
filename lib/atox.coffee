@@ -26,7 +26,7 @@ module.exports =
       title: "Pop Up fade duration"
       description: "Pop Up fade duration in milliseconds"
       type: "number"
-      default: 400
+      default: 250
       minimum: 1
     notificationSpeed:
       title: "Notification animation speed"
@@ -34,6 +34,29 @@ module.exports =
       type: "number"
       default: 300
       minimum: 1
+    userAvatar:
+      title: "Avatar"
+      description: "A full path to your Avatar"
+      type: "string"
+      default: "none"
+    userName:
+      title: "User Name"
+      description: "Your username"
+      type: "string"
+      default: "User"
+    scrollFactor:
+      title: "Scroll Factor"
+      type: "number"
+      default: 0.5
+
+    mainWinTop:
+      title: "Main Window Top"
+      type: "string"
+      default: "60%"
+    mainWinLeft:
+      title: "Main Window Left"
+      type: "string"
+      default: "80%"
 
 
   activate: ->
@@ -47,12 +70,43 @@ module.exports =
     @mainWin       = new MainWindow
     @notifications = new Notifications
 
+    @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
+    @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
+
+    @mainWin.mouseup =>
+      atom.config.set 'atox.mainWinTop',  @mainWin.css 'top'
+      atom.config.set 'atox.mainWinLeft', @mainWin.css 'left'
+
+    atom.config.observe 'atox.mainWinTop',  (newValue) =>
+      @mainWin.css 'top',  newValue
+
+    atom.config.observe 'atox.mainWinLeft', (newValue) =>
+      @mainWin.css 'left', newValue
+
+    @addUserHelper "Test1", 'online'
+    @addUserHelper "Test2", 'offline'
+    @addUserHelper "Test3", 'away'
+    @addUserHelper "Test4", 'busy'
+    @addUserHelper "Test5", 'group'
+
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
 
   deactivate: ->
-    console.log "aTox deactivated"
+
+  addUserHelper: (name, online) ->
+    @mainWin.addContact {
+      name: name,
+      status: "Test Status",
+      online: online,
+      img: (atom.config.get 'atox.userAvatar'),
+      selectCall: (attr) =>
+        if attr.selected
+          @notifications.add 'inf', "Selected '#{attr.name}'", attr.status, attr.img
+        else
+          @notifications.add 'warn', "Deselected '#{attr.name}'", attr.status, attr.img
+     }
 
   toggle: ->
     @mainWin.toggle()
@@ -78,10 +132,9 @@ module.exports =
   chat: ->
     if @hasOpenChat
       @chatbox.remove()
-      @hasOpenChat = false
     else
       @chatbox = new ChatBox "The Developers"
-      @hasOpenChat = true
+    @hasOpenChat = !@hasOpenChat
     @mainWin.toggle()
 
   startup: ->
