@@ -30,17 +30,26 @@
     border-radius: 10px;
 
     .aTox-PopUp-img {
-      display: none
+      width:    @aTox-not-Height / 1.5;
+      height:   @aTox-not-Height / 1.5;
+
+      background-size: 100% 100%;
+      margin-top:      (@aTox-not-Height / 2) - ( @aTox-not-Height / 1.5 ) / 2 - 5px;
+
+      float:  right;
     }
 
     .aTox-PopUp-name {
       font-size:     @aTox-not-font1;
       margin-bottom: @aTox-not-Margin / 4;
+      float:         left;
     }
 
     .aTox-PopUp-content {
       color:         @text-color;
       font-size:     @aTox-not-font2;
+      float:         left;
+      clear:         left;
     }
   }
 

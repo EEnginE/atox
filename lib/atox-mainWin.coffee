@@ -1,4 +1,4 @@
-{View, ScrollView, $} = require 'atom-space-pen-views'
+{View, $} = require 'atom-space-pen-views'
 
 jQuery = require 'jquery'
 require 'jquery-ui/draggable'

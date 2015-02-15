@@ -61,17 +61,30 @@ module.exports =
 
     console.warn atom.config.get 'atox.userAvatar'
 
-    @mainWin.addContact { name: "Mister Mense", status: "palying Dwarf Fortress", online: 'offline', img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test2", status: "Test Status", online: 'online',  img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test3", status: "Test Status", online: 'away',    img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test4", status: "Test Status", online: 'bussy',   img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test5", status: "Test Status", online: 'groub',   img: (atom.config.get 'atox.userAvatar') }
+    @addUserHelper "Test1", 'offline'
+    @addUserHelper "Test2", 'online'
+    @addUserHelper "Test3", 'away'
+    @addUserHelper "Test4", 'bussy'
+    @addUserHelper "Test5", 'groub'
 
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
 
   deactivate: ->
     console.log "aTox deactivate"
+
+  addUserHelper: (name, online) ->
+    @mainWin.addContact {
+      name: name,
+      status: "Test Status",
+      online: online,
+      img: (atom.config.get 'atox.userAvatar'),
+      selectCall: (attr) =>
+        if attr.selected
+          @notifications.add 'inf', "Selected '#{attr.name}'", attr.status, attr.img
+        else
+          @notifications.add 'warn', "Deselected '#{attr.name}'", attr.status, attr.img
+     }
 
   toggle: ->
     @mainWin.toggle()
