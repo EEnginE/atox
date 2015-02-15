@@ -32,7 +32,7 @@ class YesNoQuestion extends View
     @buttons.append @noB
 
     @canAsk     = true
-    @wasAnswerd = false
+    @wasAnswered = false
     @event      = new Emitter
 
   ask: ->
@@ -41,15 +41,15 @@ class YesNoQuestion extends View
     @fadeIn atom.config.get 'atox.fadeDuration'
 
   yes: ->
-    return if @wasAnswerd
-    @wasAnswerd = true
+    return if @wasAnswered
+    @wasAnswered = true
 
     @event.emit 'yes'
     @delQ()
 
   no: ->
-    return if @wasAnswerd
-    @wasAnswerd = true
+    return if @wasAnswered
+    @wasAnswered = true
 
     @event.emit 'no'
     @delQ()

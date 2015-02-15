@@ -1,18 +1,19 @@
 MainWindow    = require './atox-mainWin'
 Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
+ChatBox       = require './atox-chatbox'
 {View, $, $$} = require 'atom-space-pen-views'
 
 module.exports =
   config:
     autostart:
       title: "Autologin"
-      description: "Automaticaly starts tox when package is loaded"
+      description: "Automatically starts aTox when the package is loaded"
       type: "boolean"
       default: true
     showDefault:
       title: "Show on startup"
-      description: "Automaticaly displays the main window on startup"
+      description: "Automatically displays the main window on startup"
       type: "boolean"
       default: true
     popupTimeout:
@@ -41,15 +42,17 @@ module.exports =
     atom.commands.add 'atom-workspace', 'atox:addP2',  => @addP2()
     atom.commands.add 'atom-workspace', 'atox:addP3',  => @addP3()
     atom.commands.add 'atom-workspace', 'atox:ask',    => @ask()
+    atom.commands.add 'atom-workspace', 'atox:chat',   => @chat()
 
     @mainWin       = new MainWindow
     @notifications = new Notifications
 
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
+    @hasOpenChat   = false
 
   deactivate: ->
-    console.log "aTox deactivate"
+    console.log "aTox deactivated"
 
   toggle: ->
     @mainWin.toggle()
@@ -71,6 +74,15 @@ module.exports =
       @notifications.add "err", ":(", "Why not !?", "none"
 
     q1.ask()
+
+  chat: ->
+    if @hasOpenChat
+      @chatbox.remove()
+      @hasOpenChat = false
+    else
+      @chatbox = new ChatBox "The Developers"
+      @hasOpenChat = true
+    @mainWin.toggle()
 
   startup: ->
 

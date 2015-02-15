@@ -13,3 +13,4 @@
   'ctrl-alt-t ctrl-alt-w': 'atox:addP2'
   'ctrl-alt-t ctrl-alt-e': 'atox:addP3'
   'ctrl-alt-t ctrl-alt-a': 'atox:ask'
+  'ctrl-alt-t ctrl-alt-c': 'atox:chat'
