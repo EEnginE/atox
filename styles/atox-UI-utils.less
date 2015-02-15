@@ -5,21 +5,11 @@
 @import "ui-variables";
 @import "./atox-vars";
 
-
-.aTox-Button-yes {
+.aTox-Button-BASE {
   position:    absolute;
   height:      @aTox-Button-Height;
   line-height: @aTox-Button-Height;
   width:       @aTox-Button-Widht;
-
-  @basColor: mix( @background-color-info, @overlay-background-color, 25% );
-
-  background: -webkit-linear-gradient(
-    top,
-    darken(  @basColor, 2% ) 0px,
-    lighten( @basColor, 2% ) 49%,
-    darken(  @basColor, 1% ) 51%,
-    darken(  @basColor, 4% ) 100%);
 
   border-radius: 10px;
   z-index:       100;
@@ -29,6 +19,20 @@
   text-align: center;
 
   transition: background 175ms, color 175ms;
+}
+
+
+.aTox-Button-yes {
+  @basColor: mix( @background-color-info, @overlay-background-color, 25% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @basColor, 2% ) 0px,
+    lighten( @basColor, 2% ) 49%,
+    darken(  @basColor, 1% ) 51%,
+    darken(  @basColor, 4% ) 100%);
+
+  .aTox-Button-BASE;
 }
 
 .aTox-Button-yes:hover {
@@ -45,11 +49,6 @@
 }
 
 .aTox-Button-no {
-  position:    absolute;
-  height:      @aTox-Button-Height;
-  line-height: @aTox-Button-Height;
-  width:       @aTox-Button-Widht;
-
   @basColor: mix( @background-color-error, @overlay-background-color, 25% );
 
   background: -webkit-linear-gradient(
@@ -59,14 +58,7 @@
     darken(  @basColor, 1% ) 51%,
     darken(  @basColor, 4% ) 100%);
 
-  border-radius: 10px;
-  z-index:       100;
-
-  color:      @text-color;
-  font-size:  150%;
-  text-align: center;
-
-  transition: background 175ms, color 175ms;
+  .aTox-Button-BASE;
 }
 
 .aTox-Button-no:hover {

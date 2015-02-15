@@ -33,6 +33,20 @@ module.exports =
       type: "number"
       default: 300
       minimum: 1
+    userAvatar:
+      title: "Avatar"
+      description: "A full path to your Avatar"
+      type: "string"
+      default: "none"
+    userName:
+      title: "User Name"
+      description: "Your user name"
+      type: "string"
+      default: "User"
+    scrollFactor:
+      title: "Scroll Factor"
+      type: "number"
+      default: 0.5
 
 
   activate: ->
@@ -44,6 +58,14 @@ module.exports =
 
     @mainWin       = new MainWindow
     @notifications = new Notifications
+
+    console.warn atom.config.get 'atox.userAvatar'
+
+    @mainWin.addContact { name: "Mister Mense", status: "palying Dwarf Fortress", online: 'offline', img: (atom.config.get 'atox.userAvatar') }
+    @mainWin.addContact { name: "Test2", status: "Test Status", online: 'online',  img: (atom.config.get 'atox.userAvatar') }
+    @mainWin.addContact { name: "Test3", status: "Test Status", online: 'away',    img: (atom.config.get 'atox.userAvatar') }
+    @mainWin.addContact { name: "Test4", status: "Test Status", online: 'bussy',   img: (atom.config.get 'atox.userAvatar') }
+    @mainWin.addContact { name: "Test5", status: "Test Status", online: 'groub',   img: (atom.config.get 'atox.userAvatar') }
 
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'

@@ -15,7 +15,7 @@
   background-color: @app-background-color;
   opacity: 0.7;
   position: fixed;
-  bottom: 50px; right: 50px;
+  bottom: 50px; right: 30px;
   width: @aTox-main-width;
   height: @aTox-main-height;
   z-index: 100;
@@ -24,6 +24,8 @@
   border-radius: 10px;
   padding: @aTox-main-space;
   padding-top: 0;
+  overflow: hidden;
+
   #aTox-main-window-dragbar {
     height: 8px;
     cursor: move;
@@ -91,22 +93,12 @@
     }
   }
   #aTox-main-window-contacts {
-    background-color: #f00;
+    position:      relative;
+    background:    @tool-panel-background-color;
     border-radius: 5px;
-    display: block;
-    margin-top: @aTox-main-space;
-    width: @aTox-main-width * 0.25;
-    height: @aTox-main-height * 0.85 - @aTox-main-space * 3;
-    float: left;
-  }
-  #aTox-main-window-mbox {
-    background-color: #0f0;
-    border-radius: 5px;
-    margin-top: @aTox-main-space;
-    margin-left: @aTox-main-space;
-    display: block;
-    float: left;
-    width: @aTox-main-width - @aTox-main-width * 0.25 - @aTox-main-space * 3 - 1px;
-    height: @aTox-main-height * 0.85 - @aTox-main-space * 3;
+    display:       block;
+    height:        @aTox-main-height * 0.85 - 3 * @aTox-main-space;
+    margin-top:    @aTox-main-space;
+    overflow:      hidden;
   }
 }

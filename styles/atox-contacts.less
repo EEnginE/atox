@@ -1,0 +1,95 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@import "./atox-vars";
+
+@height: @aTox-not-Height / 1;
+
+#aTox-main-window {
+  #aTox-main-window-contacts {
+    .aTox-Contact-BASE {
+      position:      relative;
+      margin:        7px;
+      margin-bottom: 5px;
+      height:        @height;
+      border-radius: 5px;
+      overflow:      visible;
+
+      padding-top:   5px;
+      padding-left:  @aTox-not-Stop2 + @height / 10;
+
+      .aTox-Contact-img {
+        position: absolute;
+        width:    @height / 2;
+        height:   @height / 2;
+
+        background-size: 100% 100%;
+
+        top:   5px;
+        right: 5px;
+      }
+
+      .aTox-Contact-name {
+        font-size:     @aTox-not-font1;
+        margin-bottom: @aTox-not-Margin / 2.5;
+      }
+
+      .aTox-Contact-status {
+        color:         @text-color;
+        font-size:     @aTox-not-font2;
+      }
+    }
+
+    .aTox-Contact-offline {
+      .aTox-Contact-BASE;
+
+      background: @aTox-Contacts-Base-Color;
+    }
+
+    .aTox-Contact-groub {
+      .aTox-Contact-BASE;
+
+      background: -webkit-linear-gradient(
+        left,
+        @background-color-info 0px,
+        mix( @background-color-info, @aTox-Contacts-Base-Color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+        mix( @background-color-info, @aTox-Contacts-Base-Color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+        @aTox-Contacts-Base-Color @aTox-not-Stop3);
+    }
+
+    .aTox-Contact-online {
+      .aTox-Contact-BASE;
+
+      background: -webkit-linear-gradient(
+        left,
+        @background-color-success 0px,
+        mix( @background-color-success, @aTox-Contacts-Base-Color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+        mix( @background-color-success, @aTox-Contacts-Base-Color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+        @aTox-Contacts-Base-Color @aTox-not-Stop3);
+    }
+
+    .aTox-Contact-away {
+      .aTox-Contact-BASE;
+
+      background: -webkit-linear-gradient(
+        left,
+        @background-color-warning 0px,
+        mix( @background-color-warning, @aTox-Contacts-Base-Color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+        mix( @background-color-warning, @aTox-Contacts-Base-Color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+        @aTox-Contacts-Base-Color @aTox-not-Stop3);
+    }
+
+    .aTox-Contact-bussy {
+      .aTox-Contact-BASE;
+
+      background: -webkit-linear-gradient(
+        left,
+        @background-color-error 0px,
+        mix( @background-color-error, @aTox-Contacts-Base-Color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+        mix( @background-color-error, @aTox-Contacts-Base-Color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+        @aTox-Contacts-Base-Color @aTox-not-Stop3);
+    }
+  }
+}
