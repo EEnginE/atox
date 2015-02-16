@@ -123,22 +123,17 @@ module.exports =
       @contactsArray[data.id].hideChat()
 
   addUserHelper: (name, online) ->
-    temp = new Contact {
+    @contactsArray.push new Contact {
       name:   name,
       status: "Test Status",
       online: online,
       img:   (atom.config.get 'atox.userAvatar'),
       event:  @mainEvent,
       id:     @internalContactId
+      win:    @mainWin
     }
 
-    first = false
-    first = true if @internalContactId == 0
-
-    @mainWin.addContact temp, first
-
     @internalContactId++
-    @contactsArray.push temp
 
   toggle: ->
     @mainWin.toggle()
