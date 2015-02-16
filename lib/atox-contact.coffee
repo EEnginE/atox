@@ -15,7 +15,7 @@ class Contact
     @event    = attr.event
 
     @contactView = new ContactView { id: @id, handle: => @handleClick() }
-    @chatBox     = new ChatBox { name: @name, id: @id, event: @event }
+    @chatBox     = new ChatBox { name: @name, id: @id, event: @event, online: @online }
 
     @update()
 

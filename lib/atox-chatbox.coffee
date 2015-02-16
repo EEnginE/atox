@@ -6,11 +6,11 @@ module.exports =
 class ChatBox extends View
   @content: (attr) ->
     @ID = "aTox-chatbox-#{attr.name}-#{attr.id}"
+    @HEADER = "aTox-chatbox-header-#{attr.online}"
 
     @div id: "#{@ID}", class: 'aTox-chatbox', outlet: 'mainBox', =>
-      @div id: "#{@ID}-dragbar", class: 'aTox-chatbox-dragbar'
-      @div id: "#{@ID}-header", class: 'aTox-chatbox-header', =>
-        @h1 "aTox - #{attr.name}"
+      @div id: "#{@ID}-header", class: "#{@HEADER}", outlet: "header", =>
+        @h1 "#{attr.name}"
       @div id: "#{@ID}-chathistory", class: "aTox-chatbox-chathistory", outlet: "chathistory"
       @div id: "#{@ID}-textfield", class: 'aTox-chatbox-textfield', =>
         @subview "inputfield", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
@@ -29,11 +29,13 @@ class ChatBox extends View
     @id = attr.id
 
     ID = "chatbox-#{attr.name}-#{attr.id}"
-    jQuery("#aTox-#{ID}").draggable {handle: "#aTox-#{ID}-dragbar"}
+    jQuery("#aTox-#{ID}").draggable {handle: @header}
     jQuery("#aTox-#{ID}-textfield").keydown( (event) =>
-      if event.which == 13 and @inputfield.getText() != ""
+      if event.which is 13 and @inputfield.getText() != ""
         @event.emit "user-write-#{attr.id}", { msg: @inputfield.getText() }
         @inputfield.setText("");
+      else if event.which is 27
+        @hide()
     )
     @chatname = attr.name
     @isOn = true
@@ -45,7 +47,6 @@ class ChatBox extends View
 
   show: ->
     @isOn = true
-    console.log "show"
     super() # Calls jQuery's show
 
   hide: ->

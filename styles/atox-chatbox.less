@@ -5,6 +5,13 @@
 @import "ui-variables";
 @import "./atox-vars";
 
+@m1: @aTox-not-Mix1;
+@m2: @aTox-not-Mix2;
+
+@s1: @aTox-not-Stop1;
+@s2: @aTox-not-Stop2;
+@s3: @aTox-not-Stop3;
+
 .aTox-chatbox {
   /* reset */
   h1, h2, h3, h4, p, div, table, ul, li, span {
@@ -13,7 +20,7 @@
     .ui;
   }
   background-color: @app-background-color;
-  opacity: 0.7;
+  opacity: 0.8;
   position: fixed;
   bottom: 50px; right: 50px;
   width: @aTox-chatbox-width;
@@ -23,40 +30,102 @@
   //border: 2px solid #000;
   border-radius: 10px;
   padding: @aTox-chatbox-space;
-  padding-top: 0;
-  .aTox-chatbox-dragbar {
-    height: 8px;
-    cursor: move;
-  }
+
   .aTox-chatbox-header {
-    background-color: #000;
+    border-radius: 10px;
+    overflow:      visible;
     display: block;
-    height: @aTox-chatbox-height * 0.15;
+    height: @aTox-chatbox-height * 0.1;
+    cursor: move;
     h1 {
       display: inline-block;
-      margin-left: 5px;
+      margin-left: 15px;
       float: left;
-      line-height: @aTox-chatbox-height * 0.15;
+      cursor: move;
+      line-height: @aTox-chatbox-height * 0.1;
     }
   }
+
+
+
+  .aTox-chatbox-header-online {
+    .aTox-chatbox-header;
+
+    @c0: @background-color-success;
+    @c1: mix( @c0, @bg, @m1 );
+    @c2: mix( @c0, @bg, @m2 );
+    @bg: @aTox-Contacts-Base-Color;
+
+    h1 {color: @text-color-success;}
+    background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
+  }
+
+  .aTox-chatbox-header-offline {
+    .aTox-chatbox-header;
+
+    background: @aTox-Contacts-Base-Color;
+  }
+
+  .aTox-chatbox-header-away {
+    .aTox-chatbox-header;
+
+    @c0: @background-color-warning;
+    @c1: mix( @c0, @bg, @m1 );
+    @c2: mix( @c0, @bg, @m2 );
+    @bg: @aTox-Contacts-Base-Color;
+
+    h1 {color: @text-color-warning;}
+    background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
+  }
+
+  .aTox-chatbox-header-busy {
+    .aTox-chatbox-header;
+
+    @c0: @background-color-error;
+    @c1: mix( @c0, @bg, @m1 );
+    @c2: mix( @c0, @bg, @m2 );
+    @bg: @aTox-Contacts-Base-Color;
+
+    h1 {color: @text-color-error;}
+    background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
+  }
+
+  .aTox-chatbox-header-group {
+    .aTox-chatbox-header;
+
+    @c0: @background-color-info;
+    @c1: mix( @c0, @bg, @m1 );
+    @c2: mix( @c0, @bg, @m2 );
+    @bg: @aTox-Contacts-Base-Color;
+
+    h1 {color: @text-color-info;}
+    background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
+  }
+
+
+
   .aTox-chatbox-chathistory {
     background-color: #444;
     border-radius: 5px;
     margin-top: @aTox-chatbox-space;
-    margin-left: @aTox-chatbox-space;
     display: block;
     float: left;
-    width: @aTox-chatbox-width - @aTox-chatbox-space * 4;
-    height: @aTox-chatbox-height * 0.6;
+    width: @aTox-chatbox-width - @aTox-chatbox-space * 2;
+    height: @aTox-chatbox-height - @aTox-chatbox-space * 4 - @aTox-chatbox-height * 0.1 - 28px;
     overflow-y: scroll;
   }
   .aTox-chatbox-textfield {
     border-radius: 5px;
     margin-top: @aTox-chatbox-space;
-    margin-left: @aTox-chatbox-space;
     display: block;
     float: left;
-    width: @aTox-chatbox-width - @aTox-chatbox-space * 4;
-    height: @aTox-chatbox-height * 0.11;
+    width: @aTox-chatbox-width - @aTox-chatbox-space * 2;
+    height: 28px;
   }
+
+  transition: opacity 300ms;
+}
+
+.aTox-chatbox.ui-draggable-dragging {
+  opacity: 0.3;
 }
