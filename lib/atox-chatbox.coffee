@@ -4,13 +4,13 @@ require 'jquery-ui'
 
 module.exports =
 class ChatBox extends View
-  @content: (chatname) ->
-    @ID = "aTox-chatbox-#{chatname}"
+  @content: (chatname, onlinestatus) ->
+    @ID     = "aTox-chatbox-#{chatname}"
+    @HEADER = "aTox-chatbox-header-#{onlinestatus}"
 
     @div id: "#{@ID}", class: 'aTox-chatbox', outlet: 'mainBox', =>
-      @div id: "#{@ID}-dragbar", class: 'aTox-chatbox-dragbar'
-      @div id: "#{@ID}-header", class: 'aTox-chatbox-header', =>
-        @h1 "aTox - #{chatname}"
+      @div id: "#{@ID}-header", class: "#{@HEADER}", outlet: "header", =>
+        @h1 "#{chatname}"
       @div id: "#{@ID}-chathistory", class: "aTox-chatbox-chathistory", outlet: "chathistory"
       @div id: "#{@ID}-textfield", class: 'aTox-chatbox-textfield', =>
         @subview "inputfield", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
@@ -21,7 +21,7 @@ class ChatBox extends View
   initialize: (chatname) ->
     atom.views.getView atom.workspace
       .appendChild @element
-    jQuery("#aTox-chatbox-#{chatname}").draggable {handle: "#aTox-chatbox-#{chatname}-dragbar"}
+    jQuery("#aTox-chatbox-#{chatname}").draggable {handle: @header}
     jQuery("#aTox-chatbox-#{chatname}-textfield").keydown( (event) =>
       if event.which == 13 and @inputfield.getText() != ""
         @addToHistory("white", "You", @inputfield.getText());

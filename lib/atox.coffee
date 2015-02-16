@@ -42,7 +42,7 @@ module.exports =
       type: "string"
       default: "none"
     userName:
-      title: "User Name"
+      title: "Username"
       description: "Your username"
       type: "string"
       default: "User"
@@ -50,12 +50,10 @@ module.exports =
       title: "Scroll Factor"
       type: "number"
       default: 0.5
-
     chatColor:
-      title: "Your char color"
+      title: "Your chat's color"
       type:  "color"
       default: "#09c709"
-
     mainWinTop:
       title: "Main Window Top"
       type: "string"

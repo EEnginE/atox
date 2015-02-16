@@ -28,7 +28,7 @@ class Contact extends View
 
     @click => @handleClick()
 
-    @chatBox = new ChatBox @Name
+    @chatBox = new ChatBox @Name, @onlineSt
 
   handleClick: ->
     @selectToggle()
