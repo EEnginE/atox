@@ -73,6 +73,7 @@ module.exports =
     atom.commands.add 'atom-workspace', 'atox:addP3',  => @addP3()
     atom.commands.add 'atom-workspace', 'atox:ask',    => @ask()
     atom.commands.add 'atom-workspace', 'atox:chat',   => @chat()
+    atom.commands.add 'atom-workspace', 'atox:history',   => @toggleHistory()
 
     @mainEvent     = new Emitter
 
@@ -129,6 +130,9 @@ module.exports =
 
   toggle: ->
     @mainWin.toggle()
+
+  toggleHistory: ->
+    @chatpanel.toggleHistory()
 
   addP1: ->
     @notifications.add "inf", "Info", "Hello PopUp", "none"

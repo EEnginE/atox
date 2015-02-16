@@ -8,7 +8,8 @@ module.exports =
 class Chatpanel extends View
   @content: (params) ->
     @div class: 'aTox-chatpanel', =>
-      @div id: 'aTox-chatpanel-history-box', outlet: 'hbox', =>
+      @div class: 'aTox-chatpanel-history-box', outlet: 'hbox', =>
+        @div class: 'icon icon-gear aTox-chatpanel-settings'
         @div class: 'aTox-chatpanel-border ui-resizable-handle ui-resizable-n', outlet: 'rborder'
         @div class: 'aTox-chatpanel-chathistory', outlet: 'history'
       @div class: 'aTox-chatpanel-input', outlet: 'input', =>
@@ -62,3 +63,7 @@ class Chatpanel extends View
       @hide()
     else
       @show()
+
+  toggleHistory: ->
+    jQuery(@hbox).toggle "blind", 1000, =>
+      @scrollBot()
