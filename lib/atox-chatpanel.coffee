@@ -1,39 +1,53 @@
-{ScrollView, TextEditorView, $, $$} = require 'atom-space-pen-views'
+{View, TextEditorView, $, $$} = require 'atom-space-pen-views'
+jQuery = require 'jquery'
+require 'jquery-ui'
 
 StatusSelector = require './atox-statusSelector'
 
 module.exports =
-class Chatpanel extends ScrollView
+class Chatpanel extends View
   @content: (params) ->
-    @div id: 'aTox-chatpanel', =>
-      @div id: 'aTox-chatpanel-chathistory', outlet: 'history'
-      @div id: 'aTox-chatpanel-input', =>
-        @div id: 'aTox-chatpanel-input-status-con', outlet: 'status'
-        @button class: 'btn', id: 'aTox-chatpanel-btn', "Send"
-        @subview 'inputField', new TextEditorView(mini: false, placeholderText: 'Type to write something.')
+    @div class: 'aTox-chatpanel', =>
+      @div id: 'aTox-chatpanel-history-box', outlet: 'hbox', =>
+        @div class: 'aTox-chatpanel-border ui-resizable-handle ui-resizable-n', outlet: 'rborder'
+        @div class: 'aTox-chatpanel-chathistory', outlet: 'history'
+      @div class: 'aTox-chatpanel-input', outlet: 'input', =>
+        @div class: 'aTox-chatpanel-input-status-con', outlet: 'status'
+        @button class: 'btn aTox-chatpanel-btn', outlet: 'btn', "Send"
+        @subview 'inputField', new TextEditorView(mini: true, placeholderText: 'Type to write something.')
 
   addMessage: (params) ->
     if params.msg is ''
       return
-    @history.append '<p><span style="' + "color: #{params.color}" + '">' + "#{params.name}: </span>#{params.msg}</p>"
-    $('#aTox-chatpanel-chathistory').scrollTop($('#aTox-chatpanel-chathistory')[0].scrollHeight);
+    @history.append '<p><span style="' + "color: rgba(#{params.color.red}, #{params.color.green}, #{params.color.blue}, #{params.color.alpha})" + '">' + "#{params.name}: </span>#{params.msg}</p>"
+    @scrollBot()
 
   initialize: (params) ->
     @event = params.event
 
     atom.workspace.addBottomPanel {item: @element}
-    $('#aTox-chatpanel-input').on 'keydown', (e) =>
+    @input.on 'keydown', (e) =>
       if e.keyCode is 13
         e.preventDefault()
-        @addMessage {color: (atom.config.get 'atox.chatColor'), name: params.uname, msg: @inputField.getText()}
+        @addMessage {color: (atom.config.get 'atox.chatColor'), name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
         @inputField.setText ''
-    $('#aTox-chatpanel-btn').click =>
-      @addMessage {color: (atom.config.get 'atox.chatColor'), name: params.uname, msg: @inputField.getText()}
+      else if e.keyCode is 27
+        @hide()
+    @btn.click =>
+      @addMessage {color: (atom.config.get 'atox.chatColor'), name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
       @inputField.setText ''
+
+    jQuery(@hbox).resizable
+      handles: {n: @rborder}
+      resize: (event, ui) =>
+        @scrollBot()
     @isOn = true
 
     @statusSelector = new StatusSelector 'panel', @event
     @statusSelector.appendTo @status
+
+  scrollBot: ->
+    @history.scrollTop(@history[0].scrollHeight);
 
   show: ->
     @isOn = true

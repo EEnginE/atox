@@ -102,9 +102,10 @@ module.exports =
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
 
-    @chatpanel    = new Chatpanel {uname: 'Arvius', event: @mainEvent}
-
     @mainEvent.on 'atox.new-online-status', (newS) => @changeOnlineStatus newS
+
+    $ =>
+      @chatpanel    = new Chatpanel {event: @mainEvent}
 
   changeOnlineStatus: (newStatus) ->
     @notifications.add(
