@@ -16,7 +16,7 @@ class ChatBox extends View
         @subview "inputfield", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
 
   addToHistory: (color, user, message) ->
-      @chathistory.append " <p><span style='font-weight:bold;color:#{color};margin-left:5px;margin-top:5px'>#{user}: </span>#{message}"
+      @chathistory.append " <p><span style='font-weight:bold;color:#{color};margin-left:5px;margin-top:5px'>#{user}: </span><span style=cursor:text;-webkit-user-select: text>#{message}</span></p>"
 
   initialize: (chatname) ->
     atom.views.getView atom.workspace
@@ -25,9 +25,6 @@ class ChatBox extends View
     jQuery("#aTox-chatbox-#{chatname}-textfield").keydown( (event) =>
       if event.which == 13 and @inputfield.getText() != ""
         @addToHistory("white", "You", @inputfield.getText());
-        @addToHistory("red", "Taiterio", "Heyo");
-        @addToHistory("red", "Arvius", "Neyo");
-        @addToHistory("red", "Mister Mense", "Meyo");
         jQuery("#aTox-chatbox-#{chatname}-chathistory").scrollTop(jQuery("#aTox-chatbox-#{chatname}-chathistory")[0].scrollHeight);
         @inputfield.setText("");
     )
