@@ -6,7 +6,7 @@ class PopUp extends View
     tType = "aTox-PopUp"
 
     @div id: "#{tName}", class: "#{tType}-#{attr.type}", =>
-      @img id: "#{tName}-img",     class: "#{tType}-img", outlet: 'img'
+      @div id: "#{tName}-img",     class: "#{tType}-img", outlet: 'img'
       @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{attr.name}"
       @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{attr.content}"
 
