@@ -1,10 +1,6 @@
-{View, ScrollView, TextEditorView, $, $$} = require 'atom-space-pen-views'
+{View, TextEditorView, $, $$} = require 'atom-space-pen-views'
 jQuery = require 'jquery'
-require 'jquery-ui/draggable'
-
-class History extends ScrollView
-  @content: ->
-    @div id: 'aTox-chatbox-chathistory'
+require 'jquery-ui'
 
 module.exports =
 class ChatBox extends View
@@ -24,9 +20,8 @@ class ChatBox extends View
     atom.views.getView atom.workspace
       .appendChild @element
     jQuery('#aTox-chatbox').draggable {handle: '#aTox-chatbox-dragbar'}
-
     jQuery('#aTox-chatbox-textfield').keydown( (event) =>
-      if event.which == 13
+      if event.which == 13 and @inputfield.getText() != ""
         @addToHistory("white", "You", @inputfield.getText());
         @addToHistory("red", "Taiterio", "Heyo");
         @addToHistory("red", "Arvius", "Neyo");
