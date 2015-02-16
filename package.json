@@ -1,5 +1,5 @@
 {
-  "name": "atox",
+  "name": "aTox",
   "main": "./lib/atox",
   "version": "0.0.1",
   "description": "Tox plugin for atom",
@@ -13,7 +13,6 @@
      "event-kit":            "*",
      "jquery-ui":            "*",
      "jquery":               "*",
-     "jquery-mousewheel":    "*",
-     "toxcore":              "/home/daniel/projects/aTox-dep/node-toxcore/"
+     "jquery-mousewheel":    "*"
   }
 }

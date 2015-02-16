@@ -19,11 +19,6 @@ class MainWindow extends View
           @div id: 'aTox-main-window-header-status-container-busy', class: 'aTox-main-window-header-status'
           @div id: 'aTox-main-window-header-status-container-away', class: 'aTox-main-window-header-status'
       @div id: 'aTox-main-window-contacts', outlet: 'contacts'
-      @div id: 'aTox-main-window-mbox', =>
-        @ol outlet: "list", =>
-          @li "Arvius"
-          @li "Mensinda"
-          @li "Taiterio"
 
   initialize: ->
     atom.views.getView atom.workspace
