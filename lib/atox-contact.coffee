@@ -1,4 +1,5 @@
 {View, $, $$} = require 'atom-space-pen-views'
+{Emitter}     = require 'event-kit'
 
 module.exports =
 class Contact extends View
@@ -14,8 +15,26 @@ class Contact extends View
       @div id: "#{ID}-online", class: "#{CLASS}-os",     outlet: 'online'
 
   initialize: (attr) ->
+    @selected = false;
+
     @updateImg "#{attr.img}"
     @updateOnline "#{attr.online}"
+
+    @Name   = attr.name
+    @Status = attr.status
+    @event  = new Emitter
+    @event.on 'aTox:select', attr.selectCall
+
+    @click => @handleClick()
+
+  handleClick: ->
+    @selectToggle()
+    @event.emit 'aTox:select', {
+      name: @Name,
+      status: @Status,
+      selected: @selected,
+      online: @onlineSt,
+      img: @Img}
 
   updateName: (name) ->
     @status.text "#{name}"
@@ -24,7 +43,27 @@ class Contact extends View
     @name.text "#{name}"
 
   updateOnline: (online) ->
-    @attr "class", "aTox-Contact-#{online}"
+    @onlineSt = "#{online}"
+    @updateClass()
+
+  updateClass: ->
+    if @selected
+      @attr "class", "aTox-Contact-#{@onlineSt}-select"
+    else
+      @attr "class", "aTox-Contact-#{@onlineSt}"
 
   updateImg: (img) ->
+    @Img = img
     @img.css { "background-image": "url(\"#{img}\")" }
+
+  select: ->
+    @selected = true;
+    @updateClass()
+
+  deselect: ->
+    @selected = false;
+    @updateClass()
+
+  selectToggle: ->
+    @selected = !@selected;
+    @updateClass()

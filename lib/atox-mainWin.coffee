@@ -1,4 +1,4 @@
-{View, ScrollView, $} = require 'atom-space-pen-views'
+{View, $} = require 'atom-space-pen-views'
 
 jQuery = require 'jquery'
 require 'jquery-ui/draggable'
@@ -10,7 +10,6 @@ module.exports =
 class MainWindow extends View
   @content: ->
     @div id: 'aTox-main-window', outlet: 'mainWin', =>
-      @div id: 'aTox-main-window-dragbar'
       @div id: 'aTox-main-window-header', =>
         @h1 "aTox - Main Window"
         @div id: 'aTox-main-window-header-status-container', class: 'online', =>
@@ -24,7 +23,7 @@ class MainWindow extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-    jQuery( "#aTox-main-window"     ).draggable {handle: '#aTox-main-window-dragbar'}
+    jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
     @contacts.mousewheel (event) => @scrollHandler event
 

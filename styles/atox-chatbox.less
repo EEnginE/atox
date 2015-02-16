@@ -1,0 +1,62 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@import "./atox-vars";
+
+#aTox-chatbox {
+  /* reset */
+  h1, h2, h3, h4, p, div, table, ul, li, span {
+    margin: 0;
+    padding: 0;
+    .ui;
+  }
+  background-color: @app-background-color;
+  opacity: 0.7;
+  position: fixed;
+  bottom: 50px; right: 50px;
+  width: @aTox-chatbox-width;
+  height: @aTox-chatbox-height;
+  z-index: 100;
+  color: @text-color;
+  //border: 2px solid #000;
+  border-radius: 10px;
+  padding: @aTox-chatbox-space;
+  padding-top: 0;
+  #aTox-chatbox-dragbar {
+    height: 8px;
+    cursor: move;
+  }
+  #aTox-chatbox-header {
+    background-color: #000;
+    display: block;
+    height: @aTox-chatbox-height * 0.15;
+    h1 {
+      display: inline-block;
+      margin-left: 5px;
+      float: left;
+      line-height: @aTox-chatbox-height * 0.15;
+    }
+  }
+  #aTox-chatbox-chathistory {
+    background-color: #444;
+    border-radius: 5px;
+    margin-top: @aTox-chatbox-space;
+    margin-left: @aTox-chatbox-space;
+    display: block;
+    float: left;
+    width: @aTox-chatbox-width - @aTox-chatbox-space * 4;
+    height: @aTox-chatbox-height * 0.6;
+    overflow-y: scroll;
+  }
+  #aTox-chatbox-textfield {
+    border-radius: 5px;
+    margin-top: @aTox-chatbox-space;
+    margin-left: @aTox-chatbox-space;
+    display: block;
+    float: left;
+    width: @aTox-chatbox-width - @aTox-chatbox-space * 4;
+    height: @aTox-chatbox-height * 0.15;
+  }
+}

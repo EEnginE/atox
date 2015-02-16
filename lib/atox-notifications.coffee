@@ -1,14 +1,20 @@
 {View, $, $$} = require 'atom-space-pen-views'
 
 class PopUp extends View
-  @content: (id, type, name, content, img) ->
-    tName = "aTox-PopUp-#{id}_#{type}"
+  @content: (attr) ->
+    tName = "aTox-PopUp-#{attr.id}_#{attr.type}"
     tType = "aTox-PopUp"
 
-    @div id: "#{tName}", class: "#{tType}-#{type}", =>
-      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{name}"
-      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{content}"
-      @div id: "#{tName}-img",     class: "#{tType}-img",     => @raw "#{img}"
+    @div id: "#{tName}", class: "#{tType}-#{attr.type}", =>
+      @img id: "#{tName}-img",     class: "#{tType}-img", outlet: 'img'
+      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{attr.name}"
+      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{attr.content}"
+
+  initialize: (attr) ->
+    if attr.img != 'none'
+      @img.css { "background-image": "url(\"#{attr.img}\")" }
+    else
+      @img.css { "display": "none" }
 
 
 module.exports =
@@ -32,7 +38,7 @@ class Notifications extends View
         @add type, name, content, img
       , 100
       return
-    temp = new PopUp( @currentID, type, name, content, img )
+    temp = new PopUp { id: @currentID, type: type, name: name, content: content, img: img }
     @currentID++
 
     temp.hide()

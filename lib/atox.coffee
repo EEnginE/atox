@@ -1,19 +1,23 @@
 MainWindow    = require './atox-mainWin'
 Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
+<<<<<<< HEAD
 Chatpanel     = require './atox-chatpanel.coffee'
+=======
+ChatBox       = require './atox-chatbox'
+>>>>>>> 95b5077b6cbb698559be80fde7eae0193b95860f
 {View, $, $$} = require 'atom-space-pen-views'
 
 module.exports =
   config:
     autostart:
       title: "Autologin"
-      description: "Automaticaly starts tox when package is loaded"
+      description: "Automatically starts aTox when the package is loaded"
       type: "boolean"
       default: true
     showDefault:
       title: "Show on startup"
-      description: "Automaticaly displays the main window on startup"
+      description: "Automatically displays the main window on startup"
       type: "boolean"
       default: true
     popupTimeout:
@@ -41,13 +45,22 @@ module.exports =
       default: "none"
     userName:
       title: "User Name"
-      description: "Your user name"
+      description: "Your username"
       type: "string"
       default: "User"
     scrollFactor:
       title: "Scroll Factor"
       type: "number"
       default: 0.5
+
+    mainWinTop:
+      title: "Main Window Top"
+      type: "string"
+      default: "60%"
+    mainWinLeft:
+      title: "Main Window Left"
+      type: "string"
+      default: "80%"
 
 
   activate: ->
@@ -56,25 +69,50 @@ module.exports =
     atom.commands.add 'atom-workspace', 'atox:addP2',  => @addP2()
     atom.commands.add 'atom-workspace', 'atox:addP3',  => @addP3()
     atom.commands.add 'atom-workspace', 'atox:ask',    => @ask()
+    atom.commands.add 'atom-workspace', 'atox:chat',   => @chat()
 
     @mainWin       = new MainWindow
     @notifications = new Notifications
 
-    console.warn atom.config.get 'atox.userAvatar'
+    @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
+    @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
 
-    @mainWin.addContact { name: "Mister Mense", status: "palying Dwarf Fortress", online: 'offline', img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test2", status: "Test Status", online: 'online',  img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test3", status: "Test Status", online: 'away',    img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test4", status: "Test Status", online: 'bussy',   img: (atom.config.get 'atox.userAvatar') }
-    @mainWin.addContact { name: "Test5", status: "Test Status", online: 'groub',   img: (atom.config.get 'atox.userAvatar') }
+    @mainWin.mouseup =>
+      atom.config.set 'atox.mainWinTop',  @mainWin.css 'top'
+      atom.config.set 'atox.mainWinLeft', @mainWin.css 'left'
+
+    atom.config.observe 'atox.mainWinTop',  (newValue) =>
+      @mainWin.css 'top',  newValue
+
+    atom.config.observe 'atox.mainWinLeft', (newValue) =>
+      @mainWin.css 'left', newValue
+
+    @addUserHelper "Test1", 'online'
+    @addUserHelper "Test2", 'offline'
+    @addUserHelper "Test3", 'away'
+    @addUserHelper "Test4", 'busy'
+    @addUserHelper "Test5", 'group'
 
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
+    @hasOpenChat   = false
 
     @chatpanel    = new Chatpanel {uname: 'Arvius', color: '#0f0'}
 
   deactivate: ->
-    console.log "aTox deactivate"
+
+  addUserHelper: (name, online) ->
+    @mainWin.addContact {
+      name: name,
+      status: "Test Status",
+      online: online,
+      img: (atom.config.get 'atox.userAvatar'),
+      selectCall: (attr) =>
+        if attr.selected
+          @notifications.add 'inf', "Selected '#{attr.name}'", attr.status, attr.img
+        else
+          @notifications.add 'warn', "Deselected '#{attr.name}'", attr.status, attr.img
+     }
 
   toggle: ->
     @mainWin.toggle()
@@ -96,6 +134,14 @@ module.exports =
       @notifications.add "err", ":(", "Why not !?", "none"
 
     q1.ask()
+
+  chat: ->
+    if @hasOpenChat
+      @chatbox.remove()
+    else
+      @chatbox = new ChatBox "The Developers"
+    @hasOpenChat = !@hasOpenChat
+    @mainWin.toggle()
 
   startup: ->
 
