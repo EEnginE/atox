@@ -114,10 +114,10 @@ module.exports =
 
   contactSelected: (data) ->
     if data.selected
-      @notifications.add 'inf',  "Selected #{data.name}",   "Opening chat window", data.img
+      @notifications.add 'inf',  "Now chatting with #{data.name}",   "Opening chat window", data.img
       @contactsArray[data.id].showChat()
     else
-      @notifications.add 'warn', "Deselected #{data.name}", "Closing chat window", data.img
+      @notifications.add 'warn', "Stopped chatting with #{data.name}", "Closing chat window", data.img
       @contactsArray[data.id].hideChat()
 
   addUserHelper: (name, online) ->
