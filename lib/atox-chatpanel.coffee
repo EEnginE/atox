@@ -5,34 +5,42 @@ require 'jquery-ui'
 module.exports =
 class Chatpanel extends View
   @content: (params) ->
-    @div id: 'aTox-chatpanel', =>
-      @div id: 'aTox-chatpanel-history-box', =>
-        @div id: 'aTox-chatpanel-border', outlet: 'rborder', class: 'ui-resizable-handle ui-resizable-n'
-        @div id: 'aTox-chatpanel-chathistory', outlet: 'history'
-      @div id: 'aTox-chatpanel-input', =>
-        @div id: 'aTox-chatpanel-input-status-con', =>
-          @div id: 'aTox-chatpanel-input-status', outlet: 'status'
-        @button class: 'btn', id: 'aTox-chatpanel-btn', "Send"
+    @div class: 'aTox-chatpanel', =>
+      @div id: 'aTox-chatpanel-history-box', outlet: 'hbox', =>
+        @div class: 'aTox-chatpanel-border ui-resizable-handle ui-resizable-n', outlet: 'rborder'
+        @div class: 'aTox-chatpanel-chathistory', outlet: 'history'
+      @div class: 'aTox-chatpanel-input', outlet: 'input', =>
+        @div class: 'aTox-chatpanel-input-status-con', =>
+          @div class: 'aTox-chatpanel-input-status', outlet: 'status'
+        @button class: 'btn aTox-chatpanel-btn', outlet: 'btn', "Send"
         @subview 'inputField', new TextEditorView(mini: true, placeholderText: 'Type to write something.')
 
   addMessage: (params) ->
     if params.msg is ''
       return
     @history.append '<p><span style="' + "color: #{params.color}" + '">' + "#{params.name}: </span>#{params.msg}</p>"
-    $('#aTox-chatpanel-chathistory').scrollTop($('#aTox-chatpanel-chathistory')[0].scrollHeight);
+    @scrollBot()
 
   initialize: (params) ->
     atom.workspace.addBottomPanel {item: @element}
-    $('#aTox-chatpanel-input').on 'keydown', (e) =>
+    @input.on 'keydown', (e) =>
       if e.keyCode is 13
         e.preventDefault()
         @addMessage {color: params.color, name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
         @inputField.setText ''
-    $('#aTox-chatpanel-btn').click =>
+      else if e.keyCode is 27
+        @hide()
+    @btn.click =>
       @addMessage {color: params.color, name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
       @inputField.setText ''
-    jQuery('#aTox-chatpanel-history-box').resizable({handles: {n: jQuery('#aTox-chatpanel-border')}})
+    jQuery(@hbox).resizable
+      handles: {n: @rborder}
+      resize: (event, ui) =>
+        @scrollBot()
     @isOn = true
+
+  scrollBot: ->
+    @history.scrollTop(@history[0].scrollHeight);
 
   changeStatus: (status) ->
     if status is 'online'
