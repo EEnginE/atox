@@ -1,11 +1,12 @@
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
 
+ChatBox       = require './atox-chatbox'
+
 module.exports =
 class Contact extends View
   @content: (attr) ->
-    num   = parseInt ( Math.random() * 100000000 ), 10
-    ID    = "aTox-Contact-#{attr.name}-#{num}"
+    ID    = "aTox-Contact-#{attr.name}-#{attr.id}"
     CLASS = "aTox-Contact"
 
     @div id: "#{ID}", class: 'aTox-Contact-offline', outlet: 'mainWin', =>
@@ -20,27 +21,32 @@ class Contact extends View
     @updateImg "#{attr.img}"
     @updateOnline "#{attr.online}"
 
+    @id     = attr.id
     @Name   = attr.name
     @Status = attr.status
-    @event  = new Emitter
-    @event.on 'aTox:select', attr.selectCall
+    @event  = attr.event
 
     @click => @handleClick()
 
+    @chatBox = new ChatBox @Name
+
   handleClick: ->
     @selectToggle()
-    @event.emit 'aTox:select', {
+    @event.emit 'aTox.select', {
       name: @Name,
       status: @Status,
       selected: @selected,
       online: @onlineSt,
-      img: @Img}
+      img: @Img,
+      id: @id}
 
   updateName: (name) ->
+    @Name = name
     @status.text "#{name}"
 
   updateStatus: (status) ->
-    @name.text "#{name}"
+    @Status = status
+    @status.text "#{status}"
 
   updateOnline: (online) ->
     @onlineSt = "#{online}"
@@ -63,6 +69,12 @@ class Contact extends View
   deselect: ->
     @selected = false;
     @updateClass()
+
+  showChat: ->
+    @chatBox.show()
+
+  hideChat: ->
+    @chatBox.hide()
 
   selectToggle: ->
     @selected = !@selected;

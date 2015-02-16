@@ -2,7 +2,7 @@ MainWindow    = require './atox-mainWin'
 Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
-ChatBox       = require './atox-chatbox'
+Contact       = require './atox-contact'
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
 
@@ -68,10 +68,6 @@ module.exports =
 
   activate: ->
     atom.commands.add 'atom-workspace', 'atox:toggle', => @toggle()
-    atom.commands.add 'atom-workspace', 'atox:addP1',  => @addP1()
-    atom.commands.add 'atom-workspace', 'atox:addP2',  => @addP2()
-    atom.commands.add 'atom-workspace', 'atox:addP3',  => @addP3()
-    atom.commands.add 'atom-workspace', 'atox:ask',    => @ask()
     atom.commands.add 'atom-workspace', 'atox:chat',   => @chat()
 
     @mainEvent     = new Emitter
@@ -92,6 +88,9 @@ module.exports =
     atom.config.observe 'atox.mainWinLeft', (newValue) =>
       @mainWin.css 'left', newValue
 
+    @internalContactId = 0
+    @contactsArray     = []
+
     @addUserHelper "Test1", 'online'
     @addUserHelper "Test2", 'offline'
     @addUserHelper "Test3", 'away'
@@ -103,6 +102,7 @@ module.exports =
     @hasOpenChat   = false
 
     @mainEvent.on 'atox.new-online-status', (newS) => @changeOnlineStatus newS
+    @mainEvent.on 'aTox.select',            (data) => @contactSelected    data
 
     $ =>
       @chatpanel    = new Chatpanel {event: @mainEvent}
@@ -114,46 +114,33 @@ module.exports =
       "You are now #{newStatus}",
       atom.config.get 'atox.userAvatar')
 
+  contactSelected: (data) ->
+    if data.selected
+      @notifications.add 'inf',  "Selected #{data.name}",   "Opening chat window", data.img
+      @contactsArray[data.id].showChat()
+    else
+      @notifications.add 'warn', "Deselected #{data.name}", "Closing chat window", data.img
+      @contactsArray[data.id].hideChat()
+
   addUserHelper: (name, online) ->
-    @mainWin.addContact {
-      name: name,
+    temp = new Contact {
+      name:   name,
       status: "Test Status",
       online: online,
-      img: (atom.config.get 'atox.userAvatar'),
-      selectCall: (attr) =>
-        if attr.selected
-          @notifications.add 'inf', "Selected '#{attr.name}'", attr.status, attr.img
-        else
-          @notifications.add 'warn', "Deselected '#{attr.name}'", attr.status, attr.img
-     }
+      img:   (atom.config.get 'atox.userAvatar'),
+      event:  @mainEvent,
+      id:     @internalContactId
+    }
+
+    first = false
+    first = true if @internalContactId == 0
+
+    @mainWin.addContact temp, first
+
+    @internalContactId++
+    @contactsArray.push temp
 
   toggle: ->
-    @mainWin.toggle()
-
-  addP1: ->
-    @notifications.add "inf", "Info", "Hello PopUp", "none"
-
-  addP2: ->
-    @notifications.add "warn", "Warning", "Hello PopUp", "none"
-
-  addP3: ->
-    @notifications.add "err", "Error", "Hello PopUp", "none"
-
-  ask: ->
-    q1 = new YesNoQuestion "Test Question", "Do you want a cookie?", "YES!!", "no"
-    q1.callbacks =>
-      @notifications.add "inf", "&#60;Cookie/&#62;", "It is delicious!", "none"
-    , =>
-      @notifications.add "err", ":(", "Why not !?", "none"
-
-    q1.ask()
-
-  chat: ->
-    if @hasOpenChat
-      @chatbox.remove()
-    else
-      @chatbox = new ChatBox "The Developers"
-    @hasOpenChat = !@hasOpenChat
     @mainWin.toggle()
 
   startup: ->

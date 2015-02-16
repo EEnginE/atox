@@ -4,7 +4,6 @@ jQuery = require 'jquery'
 require 'jquery-ui/draggable'
 require('jquery-mousewheel')($)
 
-Contact        = require './atox-contact'
 StatusSelector = require './atox-statusSelector'
 
 module.exports =
@@ -28,8 +27,9 @@ class MainWindow extends View
     @statusSelector = new StatusSelector "main-window", @mainEvent
     @statusSelector.appendTo @header
 
-    @isOn          = true
     @contactsArray = []
+
+    @isOn          = true
     @deltaScroll   = 0
     @maxScroll     = 0
 
@@ -61,9 +61,8 @@ class MainWindow extends View
     else
       @show()
 
-  addContact: (name, status, img) ->
-    temp = new Contact name, status, img
-    temp.appendTo @contacts
-    @contactsArray.push temp
-    @maxScroll += temp.outerHeight() + parseInt temp.css( "margin" ), 10
-    @maxScroll += ( parseInt temp.css( "margin" ), 10 ) if @contactsArray.length == 1
+  addContact: (contact, first) ->
+    contact.appendTo @contacts
+    @maxScroll += contact.outerHeight() + parseInt contact.css( "margin" ), 10
+    @maxScroll += ( parseInt contact.css( "margin" ), 10 ) if first
+    @contactsArray.push contact

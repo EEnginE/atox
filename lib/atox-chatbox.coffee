@@ -5,13 +5,15 @@ require 'jquery-ui'
 module.exports =
 class ChatBox extends View
   @content: (chatname) ->
-    @div id: 'aTox-chatbox', =>
-      @div id: 'aTox-chatbox-dragbar'
-      @div id: 'aTox-chatbox-header', =>
-        @h1 "aTox Chat - #{chatname}"
-      @div id: 'aTox-chatbox-chathistory', class: 'aTox-chatbox-chathistory', outlet: "chathistory"
-      @div id: 'aTox-chatbox-textfield', =>
-        @subview 'inputfield', new TextEditorView(mini: true, placeholderText: 'Type here to write something.')
+    @ID = "aTox-chatbox-#{chatname}"
+
+    @div id: "#{@ID}", class: 'aTox-chatbox', outlet: 'mainBox', =>
+      @div id: "#{@ID}-dragbar", class: 'aTox-chatbox-dragbar'
+      @div id: "#{@ID}-header", class: 'aTox-chatbox-header', =>
+        @h1 "aTox - #{chatname}"
+      @div id: "#{@ID}-chathistory", class: "aTox-chatbox-chathistory", outlet: "chathistory"
+      @div id: "#{@ID}-textfield", class: 'aTox-chatbox-textfield', =>
+        @subview "inputfield", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
 
   addToHistory: (color, user, message) ->
       @chathistory.append " <p><span style='font-weight:bold;color:#{color};margin-left:5px;margin-top:5px'>#{user}: </span>#{message}"
@@ -19,21 +21,24 @@ class ChatBox extends View
   initialize: (chatname) ->
     atom.views.getView atom.workspace
       .appendChild @element
-    jQuery('#aTox-chatbox').draggable {handle: '#aTox-chatbox-dragbar'}
-    jQuery('#aTox-chatbox-textfield').keydown( (event) =>
+    jQuery("#aTox-chatbox-#{chatname}").draggable {handle: "#aTox-chatbox-#{chatname}-dragbar"}
+    jQuery("#aTox-chatbox-#{chatname}-textfield").keydown( (event) =>
       if event.which == 13 and @inputfield.getText() != ""
         @addToHistory("white", "You", @inputfield.getText());
         @addToHistory("red", "Taiterio", "Heyo");
         @addToHistory("red", "Arvius", "Neyo");
         @addToHistory("red", "Mister Mense", "Meyo");
-        jQuery('#aTox-chatbox-chathistory').scrollTop(jQuery('#aTox-chatbox-chathistory')[0].scrollHeight);
+        jQuery("#aTox-chatbox-#{chatname}-chathistory").scrollTop(jQuery("#aTox-chatbox-#{chatname}-chathistory")[0].scrollHeight);
         @inputfield.setText("");
     )
     @chatname = chatname
     @isOn = true
 
+    @hide()
+
   show: ->
     @isOn = true
+    console.log "show"
     super() # Calls jQuery's show
 
   hide: ->
