@@ -11,15 +11,26 @@
     margin: 0;
     padding: 0;
   }
-  #aTox-chatpanel-chathistory {
+  #aTox-chatpanel-history-box {
     height: 70px;
-    padding: 2px;
-    font-size: @font-size;
-    p {
-      color: @text-color;
+    overflow-y: hidden;
+    #aTox-chatpanel-border {
+      height: 2px;
+      background-color: @tool-panel-border-color;
+      cursor: row-resize;
     }
-    overflow-y: scroll;
+    #aTox-chatpanel-chathistory {
+      height: inherit;
+      padding: 2px;
+      padding-bottom: 4px;
+      font-size: @font-size;
+      p {
+        color: @text-color;
+      }
+      overflow-y: scroll;
+    }
   }
+
   #aTox-chatpanel-input {
     height: 28px;
     border-top: 1px solid rgba(0, 0, 0, 0.5);

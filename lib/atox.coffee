@@ -94,7 +94,8 @@ module.exports =
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
 
-    @chatpanel    = new Chatpanel {uname: 'Arvius', color: '#0f0'}
+    $ ->
+      @chatpanel    = new Chatpanel {color: '#0f0'}
 
   deactivate: ->
 

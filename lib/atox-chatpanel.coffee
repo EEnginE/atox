@@ -1,15 +1,19 @@
-{ScrollView, TextEditorView, $, $$} = require 'atom-space-pen-views'
+{View, TextEditorView, $, $$} = require 'atom-space-pen-views'
+jQuery = require 'jquery'
+require 'jquery-ui'
 
 module.exports =
-class Chatpanel extends ScrollView
+class Chatpanel extends View
   @content: (params) ->
     @div id: 'aTox-chatpanel', =>
-      @div id: 'aTox-chatpanel-chathistory', outlet: 'history'
+      @div id: 'aTox-chatpanel-history-box', =>
+        @div id: 'aTox-chatpanel-border', outlet: 'rborder', class: 'ui-resizable-handle ui-resizable-n'
+        @div id: 'aTox-chatpanel-chathistory', outlet: 'history'
       @div id: 'aTox-chatpanel-input', =>
         @div id: 'aTox-chatpanel-input-status-con', =>
           @div id: 'aTox-chatpanel-input-status', outlet: 'status'
         @button class: 'btn', id: 'aTox-chatpanel-btn', "Send"
-        @subview 'inputField', new TextEditorView(mini: false, placeholderText: 'Type to write something.')
+        @subview 'inputField', new TextEditorView(mini: true, placeholderText: 'Type to write something.')
 
   addMessage: (params) ->
     if params.msg is ''
@@ -22,11 +26,12 @@ class Chatpanel extends ScrollView
     $('#aTox-chatpanel-input').on 'keydown', (e) =>
       if e.keyCode is 13
         e.preventDefault()
-        @addMessage {color: params.color, name: params.uname, msg: @inputField.getText()}
+        @addMessage {color: params.color, name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
         @inputField.setText ''
     $('#aTox-chatpanel-btn').click =>
-      @addMessage {color: params.color, name: params.uname, msg: @inputField.getText()}
+      @addMessage {color: params.color, name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
       @inputField.setText ''
+    jQuery('#aTox-chatpanel-history-box').resizable({handles: {n: jQuery('#aTox-chatpanel-border')}})
     @isOn = true
 
   changeStatus: (status) ->
