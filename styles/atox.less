@@ -4,6 +4,7 @@
 // for a full listing of what's available.
 @import "ui-variables";
 @import "./atox-vars";
+@import "./atox-statusSelector";
 
 #aTox-main-window {
   /* reset */
@@ -22,10 +23,10 @@
   //border: 2px solid #000;
   border-radius: 10px;
   padding: @aTox-main-space;
-  overflow: hidden;
+  overflow: visible;
 
   #aTox-main-window-header {
-    background-color: @tool-panel-background-color;
+    background:    @tool-panel-background-color;
     display: block;
     height: @aTox-main-height * 0.1;
     border-radius: 5px;
@@ -34,65 +35,19 @@
       cursor: move;
       margin-left: 7px;
       display: inline-block;
-      margin-left: 5px;
       float: left;
       line-height: @aTox-main-height * 0.1;
     }
-    #aTox-main-window-header-status-container {
-      display: block;
+
+    .aTox-status-selector {
+      .aTox-status-selector;
+
       float: right;
-      height: 20px;
-      width: 20px;
-      border-radius: 10px;
-      margin-top: (@aTox-main-height * 0.1 - 20px) / 2;
-      margin-right: (@aTox-main-height * 0.1 - 20px) / 2;
-      .aTox-main-window-header-status {
-        height: 10px;
-        width: 10px;
-        display: none;
-      }
-      #aTox-main-window-header-status-container-online {
-        background-color: #0f0;
-        border-top-left-radius: 10px;
-        float: left;
-      }
-      #aTox-main-window-header-status-container-offline {
-        background-color: #000;
-        border-top-right-radius: 10px;
-        float: right;
-      }
-      #aTox-main-window-header-status-container-busy {
-        background-color: #f00;
-        border-bottom-left-radius: 10px;
-        float: left;
-      }
-      #aTox-main-window-header-status-container-away {
-        background-color: #00f;
-        border-bottom-right-radius: 10px;
-        float: right;
-      }
-    }
-    #aTox-main-window-header-status-container.online {
-      background-color: #0f0;
-    }
-    #aTox-main-window-header-status-container.offline {
-      background-color: #000;
-    }
-    #aTox-main-window-header-status-container.busy {
-      background-color: #f00;
-    }
-    #aTox-main-window-header-status-container.away {
-      background-color: #00f;
-    }
-    #aTox-main-window-header-status-container:hover {
-      background-color: transparent;
-      .aTox-main-window-header-status {
-        display: block;
-      }
+      margin: -( (@aTox-main-status-size - (@aTox-main-height * 0.1)) / 2 );
     }
   }
+
   #aTox-main-window-contacts {
-    position:      relative;
     background:    @tool-panel-background-color;
     border-radius: 5px;
     display:       block;

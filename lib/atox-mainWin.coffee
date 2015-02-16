@@ -4,28 +4,29 @@ jQuery = require 'jquery'
 require 'jquery-ui/draggable'
 require('jquery-mousewheel')($)
 
-Contact = require './atox-contact'
+Contact        = require './atox-contact'
+StatusSelector = require './atox-statusSelector'
 
 module.exports =
 class MainWindow extends View
   @content: ->
     @div id: 'aTox-main-window', outlet: 'mainWin', =>
-      @div id: 'aTox-main-window-header', =>
-        @h1 "aTox - Main Window"
-        @div id: 'aTox-main-window-header-status-container', class: 'online', =>
-          @div id: 'aTox-main-window-header-status-container-online', class: 'aTox-main-window-header-status'
-          @div id: 'aTox-main-window-header-status-container-offline', class: 'aTox-main-window-header-status'
-          @div id: 'aTox-main-window-header-status-container-busy', class: 'aTox-main-window-header-status'
-          @div id: 'aTox-main-window-header-status-container-away', class: 'aTox-main-window-header-status'
+      @div id: 'aTox-main-window-header',   outlet: 'header', =>
+        @h1 "aTox - Main Window",           outlet: 'winName'
       @div id: 'aTox-main-window-contacts', outlet: 'contacts'
 
-  initialize: ->
+  initialize: (event) ->
     atom.views.getView atom.workspace
       .appendChild @element
+
+    @mainEvent = event
 
     jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
     @contacts.mousewheel (event) => @scrollHandler event
+
+    @statusSelector = new StatusSelector "main-window", @mainEvent
+    @statusSelector.appendTo @header
 
     @isOn          = true
     @contactsArray = []

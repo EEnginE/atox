@@ -4,6 +4,7 @@
 // for a full listing of what's available.
 @import "ui-variables";
 @import "./atox-vars";
+@import "./atox-statusSelector";
 
 #aTox-chatpanel {
   /* reset */
@@ -28,13 +29,11 @@
       display: block;
       float: left;
       width: 28px;
-      padding: 8px;
-      #aTox-chatpanel-input-status {
+      .aTox-status-selector {
+        .aTox-status-selector;
         display: block;
-        height: 12px;
-        width: 12px;
-        border-radius: 6px;
-        background-color: #0f0;
+        float: left;
+        margin: -( (@aTox-main-status-size - 28px) / 2 );
       }
     }
     atom-text-editor {

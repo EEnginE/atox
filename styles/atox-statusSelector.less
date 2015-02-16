@@ -1,0 +1,118 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@import "./atox-vars";
+
+@offline: @inset-panel-background-color;
+@online:  @background-color-success;
+@away:    @background-color-warning;
+@busy:    @background-color-error;
+
+@c2: rgba( 0, 0, 0, 0 );
+@s1: 40%;
+@s2: 65%;
+
+.aTox-status-selector {
+  position:   relative;
+  width:      @aTox-main-status-size;
+  height:     @aTox-main-status-size;
+  z-index:    105;
+
+  -webkit-transform: rotate(45deg);
+  transform:         rotate(45deg);
+
+  .aTox-status-helper {
+    height: @aTox-main-status-size / 2;
+    width: @aTox-main-status-size / 2;
+    display: none;
+  }
+
+  .aTox-status-selector-offline {
+    .aTox-status-helper;
+    @c1: darken( @offline, 20% );
+    background: -webkit-radial-gradient( 0% 100%, farthest-corner, @c1 @s1, @c2 @s2 );
+    border-top-right-radius: 100%;
+    float: right;
+  }
+  .aTox-status-selector-online {
+    .aTox-status-helper;
+    @c1: darken( @online, 20% );
+    background: -webkit-radial-gradient( 100% 100%, farthest-corner, @c1 @s1, @c2 @s2 );
+    border-top-left-radius: 100%;
+    float: left;
+  }
+  .aTox-status-selector-away {
+    .aTox-status-helper;
+    @c1: darken( @away, 20% );
+    background: -webkit-radial-gradient( 0% 0%, farthest-corner, @c1 @s1, @c2 @s2 );
+    border-bottom-right-radius: 100%;
+    float: right;
+  }
+  .aTox-status-selector-busy {
+    .aTox-status-helper;
+    @c1: darken( @busy, 20% );
+    background: -webkit-radial-gradient( 100% 0%, farthest-corner, @c1 @s1, @c2 @s2 );
+    border-bottom-left-radius: 100%;
+    float: left;
+  }
+
+  .aTox-status-selector-offline:hover {
+    @c1: lighten( @offline, 20% );
+    background: -webkit-radial-gradient( 0 100%, farthest-corner, @c1 @s1, @c2 @s2 );
+  }
+  .aTox-status-selector-online:hover {
+    @c1: lighten( @online, 20% );
+    background: -webkit-radial-gradient( 100% 100%, farthest-corner, @c1 @s1, @c2 @s2 );
+  }
+  .aTox-status-selector-away:hover {
+    @c1: lighten( @away, 20% );
+    background: -webkit-radial-gradient( 0% 0%, farthest-corner, @c1 @s1, @c2 @s2 );
+  }
+  .aTox-status-selector-busy:hover {
+    @c1: lighten( @busy, 20% );
+    background: -webkit-radial-gradient( 100% 0%, farthest-corner, @c1 @s1, @c2 @s2 );
+  }
+
+  .aTox-status-selector-current {
+    position:      relative;
+    display:       block;
+    height:        18px;
+    width:         18px;
+    border-radius: 50%;
+    margin:        (@aTox-main-status-size - 18px) / 2;
+    z-index:       110;
+    opacity:       1;
+  }
+
+  .aTox-status-selector-current-offline {
+    .aTox-status-selector-current;
+    background: darken( @offline, 5% );
+  }
+  .aTox-status-selector-current-online {
+    .aTox-status-selector-current;
+    background: darken( @online, 5% );
+  }
+  .aTox-status-selector-current-away {
+    .aTox-status-selector-current;
+    background: darken( @away, 5% );
+  }
+  .aTox-status-selector-current-busy {
+    .aTox-status-selector-current;
+    background: darken( @busy, 5% );
+  }
+
+  .aTox-status-selector-current-offline:hover {
+    background: lighten( @offline, 10% );
+  }
+  .aTox-status-selector-current-online:hover {
+    background: lighten( @online, 20% );
+  }
+  .aTox-status-selector-current-away:hover {
+    background: lighten( @away, 20% );
+  }
+  .aTox-status-selector-current-busy:hover {
+    background: lighten( @busy, 20% );
+  }
+}

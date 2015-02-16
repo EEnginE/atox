@@ -4,6 +4,7 @@ YesNoQuestion = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 ChatBox       = require './atox-chatbox'
 {View, $, $$} = require 'atom-space-pen-views'
+{Emitter}     = require 'event-kit'
 
 module.exports =
   config:
@@ -50,6 +51,11 @@ module.exports =
       type: "number"
       default: 0.5
 
+    chatColor:
+      title: "Your char color"
+      type:  "color"
+      default: "#09c709"
+
     mainWinTop:
       title: "Main Window Top"
       type: "string"
@@ -68,7 +74,9 @@ module.exports =
     atom.commands.add 'atom-workspace', 'atox:ask',    => @ask()
     atom.commands.add 'atom-workspace', 'atox:chat',   => @chat()
 
-    @mainWin       = new MainWindow
+    @mainEvent     = new Emitter
+
+    @mainWin       = new MainWindow @mainEvent
     @notifications = new Notifications
 
     @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
@@ -94,9 +102,16 @@ module.exports =
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
 
-    @chatpanel    = new Chatpanel {uname: 'Arvius', color: '#0f0'}
+    @chatpanel    = new Chatpanel {uname: 'Arvius', event: @mainEvent}
 
-  deactivate: ->
+    @mainEvent.on 'atox.new-online-status', (newS) => @changeOnlineStatus newS
+
+  changeOnlineStatus: (newStatus) ->
+    @notifications.add(
+     'inf',
+      newStatus.charAt(0).toUpperCase() + newStatus.slice(1),
+      "You are now #{newStatus}",
+      atom.config.get 'atox.userAvatar')
 
   addUserHelper: (name, online) ->
     @mainWin.addContact {
