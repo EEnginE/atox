@@ -104,6 +104,8 @@ module.exports =
 
     $ =>
       @chatpanel    = new Chatpanel {event: @mainEvent}
+      @chatpanel.addChat {cid: 1, img: (atom.config.get 'atox.userAvatar')}
+      @chatpanel.addChat {cid: 2, img: (atom.config.get 'atox.userAvatar')}
 
   changeOnlineStatus: (newStatus) ->
     @notifications.add(

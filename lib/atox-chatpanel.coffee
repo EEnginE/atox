@@ -30,10 +30,15 @@ class Chatpanel extends View
     @chats.append $$ ->
       @div class: 'aTox-chatpanel-chat', cid: "#{params.cid}"
     @coverview.find("[cid='" + params.cid + "']").click =>
-      @coverview.find('.selected').removeClass('selected')
-      @coverview.find("[cid='" + params.cid + "']").addClass('selected')
-      @chats.find(".aTox-chatpanel-chat").css({display: 'none'})
-      @chats.find("[cid='" + params.cid + "']").css({display: 'block'})
+      @selectChat(params.cid)
+    @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
+    @selectChat(params.cid)
+
+  selectChat: (cid) ->
+    @coverview.find('.selected').removeClass('selected')
+    @coverview.find("[cid='" + cid + "']").addClass('selected')
+    @chats.find(".aTox-chatpanel-chat").css({display: 'none'})
+    @chats.find("[cid='" + cid + "']").css({display: 'block'})
 
   initialize: (params) ->
     @event = params.event
@@ -63,9 +68,6 @@ class Chatpanel extends View
 
     @statusSelector = new StatusSelector 'panel', @event
     @statusSelector.appendTo @status
-
-    @addChat {cid: 1}
-    @addChat {cid: 2}
 
   scrollBot: (cid) -> #Must be fixed
     history = @chats.find("[cid='" + cid + "']")
