@@ -12,9 +12,18 @@
     margin: 0;
     padding: 0;
   }
-  #aTox-chatpanel-history-box {
+  .aTox-chatpanel-history-box {
     height: 70px;
     overflow-y: hidden;
+    .aTox-chatpanel-settings {
+      display: block;
+      position: absolute;
+      top: 5px;
+      right: 7px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
     .aTox-chatpanel-border {
       height: 2px;
       background-color: @tool-panel-border-color;
@@ -31,7 +40,10 @@
       overflow-y: scroll;
     }
   }
-
+  .aTox-chatpanel-history-box:hover .aTox-chatpanel-settings {
+    opacity: 1;
+    transition: opacity 0.1s;
+  }
   .aTox-chatpanel-input {
     height: 28px;
     border-top: 1px solid rgba(0, 0, 0, 0.5);
@@ -43,7 +55,11 @@
 
       .aTox-status-selector {
         .aTox-status-selector;
-
+        #aTox-panel-status-selector-current {
+          width: 14px;
+          height: 14px;
+          margin: 28px;
+        }
         display: block;
         float: left;
         margin: -( (@aTox-main-status-size - 28px) / 2 );

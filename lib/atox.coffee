@@ -67,8 +67,8 @@ module.exports =
 
 
   activate: ->
-    atom.commands.add 'atom-workspace', 'atox:toggle', => @toggle()
-    atom.commands.add 'atom-workspace', 'atox:chat',   => @chat()
+    atom.commands.add 'atom-workspace', 'atox:toggle',  => @toggle()
+    atom.commands.add 'atom-workspace', 'atox:history', => @toggleHistory()
 
     @mainEvent     = new Emitter
 
@@ -142,6 +142,9 @@ module.exports =
 
   toggle: ->
     @mainWin.toggle()
+
+  toggleHistory: ->
+    @chatpanel.toggleHistory()
 
   startup: ->
 
