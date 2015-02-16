@@ -89,12 +89,6 @@ module.exports =
     @internalContactId = 0
     @contactsArray     = []
 
-    @addUserHelper "Test1", 'online'
-    @addUserHelper "Test2", 'offline'
-    @addUserHelper "Test3", 'away'
-    @addUserHelper "Test4", 'busy'
-    @addUserHelper "Test5", 'group'
-
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
@@ -104,8 +98,11 @@ module.exports =
 
     $ =>
       @chatpanel    = new Chatpanel {event: @mainEvent}
-      @chatpanel.addChat {cid: 1, img: (atom.config.get 'atox.userAvatar')}
-      @chatpanel.addChat {cid: 2, img: (atom.config.get 'atox.userAvatar')}
+      @addUserHelper "Test1", 'online'
+      @addUserHelper "Test2", 'offline'
+      @addUserHelper "Test3", 'away'
+      @addUserHelper "Test4", 'busy'
+      @addUserHelper "Test5", 'group'
 
   changeOnlineStatus: (newStatus) ->
     @notifications.add(
@@ -122,13 +119,14 @@ module.exports =
 
   addUserHelper: (name, online) ->
     @contactsArray.push new Contact {
-      name:   name,
-      status: "Test Status",
-      online: online,
-      img:   (atom.config.get 'atox.userAvatar'),
-      event:  @mainEvent,
-      id:     @internalContactId
+      name:   name
+      status: "Test Status"
+      online: online
+      img:   (atom.config.get 'atox.userAvatar')
+      event:  @mainEvent
+      cid:    @internalContactId
       win:    @mainWin
+      panel:  @chatpanel
     }
 
     @internalContactId++

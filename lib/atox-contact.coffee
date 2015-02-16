@@ -9,21 +9,25 @@ class Contact
     @selected = false
     @name     = attr.name
     @img      = attr.img
-    @id       = attr.id
+    @cid      = attr.cid
     @status   = attr.status
     @online   = attr.online
     @event    = attr.event
+    @panel    = attr.panel
 
-    @contactView = new ContactView { id: @id, handle: => @handleClick() }
-    @chatBox     = new ChatBox { id: @id, online: attr.online, event: @event }
+    @contactView = new ContactView { cid: @cid, handle: => @handleClick() }
+    @chatBox     = new ChatBox { cid: @cid, online: @online, event: @event }
 
-    @event.on "user-write-#{@id}",      (msg)  => @chatBox.userMessage msg
-    @event.on "chat-#{@id}-visibility", (what) => @visibility what
+    @panel.addChat { cid: @cid, img: @img, event: @event }
+
+    @event.on "aTox-add-message#{@cid}", (msg)  => @chatBox.addMessage msg
+    @event.on "aTox-add-message#{@cid}", (msg)  => @panel.addMessage   msg
+    @event.on "chat-#{@cid}-visibility", (what) => @visibility         what
 
 
     @update()
 
-    if @id == 0
+    if @cid == 0
       attr.win.addContact @contactView, true
     else
       attr.win.addContact @contactView, false
@@ -50,9 +54,9 @@ class Contact
 
   handleClick: ->
     if @selected
-      @event.emit "chat-#{@id}-visibility", 'hide'
+      @event.emit "chat-#{@cid}-visibility", 'hide'
     else
-      @event.emit "chat-#{@id}-visibility", 'show'
+      @event.emit "chat-#{@cid}-visibility", 'show'
 
     @event.emit 'aTox.select', {
       name: @name,
@@ -60,7 +64,8 @@ class Contact
       selected: @selected,
       online: @online,
       img: @img,
-      id: @id}
+      cid: @cid
+    }
 
     @update()
 
