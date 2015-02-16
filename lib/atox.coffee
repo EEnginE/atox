@@ -52,7 +52,7 @@ module.exports =
       default: 0.5
 
     chatColor:
-      title: "Your char color"
+      title: "Your chat color"
       type:  "color"
       default: "#09c709"
 
