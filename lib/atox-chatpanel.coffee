@@ -18,9 +18,10 @@ class Chatpanel extends View
         @button class: 'btn aTox-chatpanel-btn', outlet: 'btn', "Send"
         @subview 'inputField', new TextEditorView(mini: true, placeholderText: 'Type to write something.')
 
-  addMessage: (attr) ->
-    @chats.find("[cid='#{attr.cid}']").append "<p><span style='font-weight:bold;color:rgba(#{attr.color.red},#{attr.color.green},#{attr.color.blue},#{attr.color.alpha});margin-left:5px;margin-top:5px'>#{attr.name}: </span><span style=cursor:text;-webkit-user-select: text>#{attr.msg}</p>"
-    @scrollBot(attr.cid)
+  addMessage: (params) ->
+    return if params.msg is ''
+    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:rgba(#{params.color.red},#{params.color.green},#{params.color.blue},#{params.color.alpha})'>#{params.name}: </span>#{params.msg}</p>"
+    @scrollBot(params.cid)
 
   addChat: (params) ->
     @coverview.append $$ ->
@@ -46,9 +47,6 @@ class Chatpanel extends View
       if e.keyCode is 13
         e.preventDefault()
         id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-
-        return if @inputField.getText() is ''
-
         @event.emit "aTox-add-message#{id}", {
           cid:    id
           color: (atom.config.get 'atox.chatColor')
@@ -62,7 +60,6 @@ class Chatpanel extends View
         @hide()
     @btn.click =>
       id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-      return if @inputField.getText() is ''
       @event.emit "aTox-add-message#{id}", {
         cid:    id
         color: (atom.config.get 'atox.chatColor')

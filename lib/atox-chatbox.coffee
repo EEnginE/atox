@@ -39,7 +39,7 @@ class ChatBox extends View
 
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown( (event) =>
-      if event.which is 13 and @inputField.getText() != ""
+      if event.which is 13
         attr.event.emit "aTox-add-message#{attr.cid}", {
           cid:   @cid
           color: (atom.config.get 'atox.chatColor')
@@ -66,6 +66,7 @@ class ChatBox extends View
     @hide()
 
   addMessage: (attr) ->
+    return if attr.msg is ''
     @chathistory.append "<p><span style='font-weight:bold;color:rgba(#{attr.color.red},#{attr.color.green},#{attr.color.blue},#{attr.color.alpha});margin-left:5px;margin-top:5px'>#{attr.name}: </span><span style=cursor:text;-webkit-user-select: text>#{attr.msg}</p>"
     jQuery( @chathistory ).scrollTop(jQuery( @chathistory )[0].scrollHeight);
 
