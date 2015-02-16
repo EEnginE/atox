@@ -15,7 +15,11 @@ class Contact
     @event    = attr.event
 
     @contactView = new ContactView { id: @id, handle: => @handleClick() }
-    @chatBox     = new ChatBox { name: @name, id: @id, event: @event, online: @online }
+    @chatBox     = new ChatBox { id: @id, event: @event }
+
+    @event.on "user-write-#{@id}",      (msg)  => @chatBox.userMessage msg
+    @event.on "chat-#{@id}-visibility", (what) => @visibility what
+
 
     @update()
 
@@ -24,16 +28,33 @@ class Contact
     else
       attr.win.addContact @contactView, false
 
+  visibility: (what) ->
+    if what == 'show'
+      @chatBox.show()
+      @selected = true
+    else
+      @chatBox.hide()
+      @selected = false
+
+    @update()
+
   update: ->
-    @contactView.update {
-      name:   @name,
-      status: @status,
-      online: @online,
-      img:    @img
+    temp = {
+      name:     @name,
+      status:   @status,
+      online:   @online,
+      img:      @img,
+      selected: @selected,
     }
 
+    @contactView.update temp
+    @chatBox.update     temp
+
   handleClick: ->
-    @selected = ! @selected
+    if @selected
+      @event.emit "chat-#{@id}-visibility", 'hide'
+    else
+      @event.emit "chat-#{@id}-visibility", 'show'
 
     @event.emit 'aTox.select', {
       name: @name,
@@ -42,6 +63,8 @@ class Contact
       online: @online,
       img: @img,
       id: @id}
+
+    @update()
 
   showChat: ->
     @chatBox.show()
