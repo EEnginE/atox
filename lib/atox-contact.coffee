@@ -15,7 +15,7 @@ class Contact
     @event    = attr.event
 
     @contactView = new ContactView { id: @id, handle: => @handleClick() }
-    @chatBox     = new ChatBox { id: @id, event: @event }
+    @chatBox     = new ChatBox { id: @id, online: attr.online, event: @event }
 
     @event.on "user-write-#{@id}",      (msg)  => @chatBox.userMessage msg
     @event.on "chat-#{@id}-visibility", (what) => @visibility what
@@ -35,8 +35,6 @@ class Contact
     else
       @chatBox.hide()
       @selected = false
-
-    @update()
 
   update: ->
     temp = {

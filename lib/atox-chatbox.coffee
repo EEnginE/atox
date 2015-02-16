@@ -2,13 +2,29 @@
 jQuery = require 'jquery'
 require 'jquery-ui'
 
+
+class ChatList extends View
+  @content: (id, users) ->
+    @div id: "aTox-chatbox-#{id}-chatlist", class: "aTox-chatbox-chatlist"
+
+  initialize: (id, users) ->
+    for user in users
+      @addUser(user)
+
+  addUser: (user) -> #Change this to have the color also be synced with the chatpanel
+    jQuery( @element ).append "<p><span style='font-weight:bold;margin-left:3px;color:rgba(#{@randomNumber(255)}, #{@randomNumber(255)}, #{@randomNumber(255)}, 1)'>#{user}</span></p>"
+
+  randomNumber:(max, min=0) ->
+    Math.floor(Math.random() * (max - min) + min)
+
+
+
 module.exports =
 class ChatBox extends View
   @content: (attr) ->
     ID = "aTox-chatbox-#{attr.id}"
-    HEADER = "aTox-chatbox-header-offline"
 
-    @div id: "#{ID}", class: 'aTox-chatbox', outlet: 'mainBox', =>
+    @div id: "#{ID}", class: 'aTox-chatbox', =>
       @div id: "#{ID}-header",      class: "aTox-chatbox-header-offline", outlet: 'header', =>
         @h1 outlet: 'name'
       @div id: "#{ID}-chathistory", class: "aTox-chatbox-chathistory",    outlet: 'chathistory'
@@ -35,11 +51,23 @@ class ChatBox extends View
     )
     @chatname = attr.name
 
+
+    if attr.online is 'group'
+      @chatList = new ChatList attr.id, ["Taiterio", "Mensinda", "Arvius"] #Handle this somewhere else and get a real list of users
+      width = jQuery(@element).css ('width')
+      width = parseInt(width)
+      width += width * 0.25
+      jQuery(@element).css ({ width: "#{width}px" })
+      jQuery(@textfield).css ({ width: jQuery(@header).css('width')})
+      @chatList.appendTo @element
+
+
     @hide()
 
   userMessage: (msg) ->
     @addToHistory(( atom.config.get 'atox.chatColor' ), ( atom.config.get 'atox.userName' ), msg.msg );
 
   update: (attr) ->
+    @online = attr.online
     @header.attr 'class', "aTox-chatbox-header-#{attr.online}"
     @name.text   attr.name

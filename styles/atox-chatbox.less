@@ -123,6 +123,17 @@
     height: 28px;
   }
 
+  .aTox-chatbox-chatlist {
+    margin-top: @aTox-chatbox-space;
+    margin-left: @aTox-chatbox-width - @aTox-chatbox-space;
+    width: @aTox-chatbox-width * 0.25 - @aTox-chatbox-space;
+    height: @aTox-chatbox-height - @aTox-chatbox-space * 4 - @aTox-chatbox-height * 0.1 - 28px;
+    background-color: @tool-panel-background-color;
+    border-radius: 5px;
+    display: block;
+    overflow-y: scroll;
+  }
+
   transition: opacity 300ms;
 }
 
