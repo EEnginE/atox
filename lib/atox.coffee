@@ -1,6 +1,7 @@
 MainWindow    = require './atox-mainWin'
 Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
+Chatpanel     = require './atox-chatpanel'
 ChatBox       = require './atox-chatbox'
 {View, $, $$} = require 'atom-space-pen-views'
 
@@ -92,6 +93,8 @@ module.exports =
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
+
+    @chatpanel    = new Chatpanel {uname: 'Arvius', color: '#0f0'}
 
   deactivate: ->
 

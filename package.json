@@ -1,5 +1,5 @@
 {
-  "name": "atox",
+  "name": "aTox",
   "main": "./lib/atox",
   "version": "0.0.1",
   "description": "Tox plugin for atom",
