@@ -1,11 +1,8 @@
 MainWindow    = require './atox-mainWin'
 Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
-<<<<<<< HEAD
-Chatpanel     = require './atox-chatpanel.coffee'
-=======
+Chatpanel     = require './atox-chatpanel'
 ChatBox       = require './atox-chatbox'
->>>>>>> 95b5077b6cbb698559be80fde7eae0193b95860f
 {View, $, $$} = require 'atom-space-pen-views'
 
 module.exports =
