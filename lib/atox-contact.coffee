@@ -10,9 +10,9 @@ class Contact extends View
     CLASS = "aTox-Contact"
 
     @div id: "#{ID}", class: 'aTox-Contact-offline', outlet: 'mainWin', =>
+      @div id: "#{ID}-img",    class: "#{CLASS}-img",    outlet: 'img'
       @div id: "#{ID}-name",   class: "#{CLASS}-name",   outlet: 'name',   => @raw "#{attr.name}"
       @div id: "#{ID}-status", class: "#{CLASS}-status", outlet: 'status', => @raw "#{attr.status}"
-      @div id: "#{ID}-img",    class: "#{CLASS}-img",    outlet: 'img'
       @div id: "#{ID}-online", class: "#{CLASS}-os",     outlet: 'online'
 
   initialize: (attr) ->
@@ -28,7 +28,7 @@ class Contact extends View
 
     @click => @handleClick()
 
-    @chatBox = new ChatBox @Name, @onlineSt
+    @chatBox = new ChatBox { name: attr.name, id: attr.id, online: attr.online, event: attr.event }
 
   handleClick: ->
     @selectToggle()
