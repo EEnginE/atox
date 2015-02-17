@@ -16,9 +16,10 @@ class ChatList extends View
     jQuery( @element ).append "<p style='font-weight:bold;margin-left:3px;color:rgba(#{@randomNumber(255)}, #{@randomNumber(255)}, #{@randomNumber(255)}, 1)'>#{user}</p>"
     @paragraph = jQuery( @element ).find( "p:contains('#{user}')" )
     @paragraph.click =>
-      @event.emit "aTox.new-contact", {name: "#{user}", online: 'offline'} #TODO: Get the real status of the user
+      @event.emit "aTox.new-contact", {name: "#{user}", online: 'offline'} #TODO: Get the real status of the user, check if User is already added and open the chat window directly
+
     @paragraph.hover =>
-      console.log "Hovered"
+      console.log "Hovered" #TODO: Add functionality: Show additional information: Recent Projects, Contributions to current project, has push rights. Unnecessary: toxID, status, image
 
 
 

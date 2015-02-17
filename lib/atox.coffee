@@ -122,12 +122,11 @@ module.exports =
       @notifications.add 'warn', "Stopped chatting with #{data.name}", "Closing chat window", data.img
 
   addUserHelper: (params) ->
-    console.log "Added " + params.name + " " + params.online
     @contactsArray.push new Contact {
       name:   params.name,
-      status: "Test Status",
+      status: "Test Status", #TODO: Add status to params
       online: params.online,
-      img:   (atom.config.get 'atox.userAvatar'),
+      img:   (atom.config.get 'atox.userAvatar'), #TODO: Add img to params
       event:  @mainEvent,
       id:     @internalContactId
       win:    @mainWin
