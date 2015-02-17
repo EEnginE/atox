@@ -1,5 +1,6 @@
 {View, TextEditorView, $, $$} = require 'atom-space-pen-views'
-jQuery = require 'jquery'
+{Emitter} = require 'event-kit'
+jQuery    = require 'jquery'
 require 'jquery-ui'
 
 StatusSelector = require './atox-statusSelector'
@@ -20,7 +21,7 @@ class Chatpanel extends View
 
   addMessage: (params) ->
     return if params.msg is ''
-    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:rgba(#{params.color.red},#{params.color.green},#{params.color.blue},#{params.color.alpha})'>#{params.name}: </span>#{params.msg}</p>"
+    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:#{params.color}'>#{params.name}: </span>#{params.msg}</p>"
     @scrollBot(params.cid)
 
   addChat: (params) ->
@@ -38,21 +39,25 @@ class Chatpanel extends View
     @coverview.find("[cid='" + cid + "']").addClass('selected')
     @chats.find(".aTox-chatpanel-chat").css({display: 'none'})
     @chats.find("[cid='" + cid + "']").css({display: 'block'})
+    @scrollBot(cid)
 
   initialize: (params) ->
     @event = params.event
+    @event.on "aTox.add-message", (msg) => @addMessage msg
 
     atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
       if e.keyCode is 13
         e.preventDefault()
         id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-        @event.emit "aTox-add-message#{id}", {
-          cid:    id
-          color: (atom.config.get 'atox.chatColor')
+        @event.emit "aTox.add-message", {
+          cid:   parseInt id
+          tid:   -1
+          color: @getColor()
           name:  (atom.config.get 'atox.userName')
           msg:   @inputField.getText()
         }
+        console.log "emit"
         @inputField.setText ''
         if @hbox.css('display') is 'none'
           @toggleHistory()
@@ -60,9 +65,10 @@ class Chatpanel extends View
         @hide()
     @btn.click =>
       id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-      @event.emit "aTox-add-message#{id}", {
-        cid:    id
-        color: (atom.config.get 'atox.chatColor')
+      @event.emit "aTox.add-message", {
+        cid:   parseInt id
+        tid:   -1
+        color: @getColor()
         name:  (atom.config.get 'atox.userName')
         msg:   @inputField.getText()
       }
@@ -100,3 +106,6 @@ class Chatpanel extends View
     jQuery(@hbox).toggle "blind", 1000, =>
       id = @coverview.find('.selected').attr('cid') #get cid of selected chat
       @scrollBot(id)
+
+  getColor: ->
+    "rgba( #{(atom.config.get 'atox.chatColor').red}, #{(atom.config.get 'atox.chatColor').green}, #{(atom.config.get 'atox.chatColor').blue}, 1 )"

@@ -44,21 +44,24 @@ class ChatBox extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @id    = params.cid
+    @cid   = params.cid
     @event = params.event
+
+    @event.on "aTox.add-message", (msg) => @addMessage msg
 
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown( (event) =>
-      if event.which is 13 and @inputfield.getText() != ""
-        attr.event.emit "aTox-add-message#{attr.cid}", {
+      if event.which is 13 and @inputField.getText() != ""
+        @event.emit "aTox.add-message", {
           cid:   @cid
-          color: (atom.config.get 'atox.chatColor')
+          tid:   -1
+          color: @getColor()
           name:  (atom.config.get 'atox.userName')
           msg:   @inputField.getText()
         }
-        @inputfield.setText("");
+        @inputField.setText("");
       else if event.which is 27
-        params.event.emit "chat-#{params.cid}-visibility", 'hide'
+        @event.emit "chat-visibility", { cid: @cid, what: 'hide' }
     )
     @chatname = params.name
 
@@ -75,12 +78,16 @@ class ChatBox extends View
 
     @hide()
 
-  addMessage: (attr) ->
-    return if attr.msg is ''
-    @chathistory.append "<p><span style='font-weight:bold;color:rgba(#{attr.color.red},#{attr.color.green},#{attr.color.blue},#{attr.color.alpha});margin-left:5px;margin-top:5px'>#{attr.name}: </span><span style=cursor:text;-webkit-user-select: text>#{attr.msg}</p>"
+  addMessage: (params) ->
+    return unless params.cid is @cid
+    return if params.msg is ''
+    @chathistory.append "<p><span style='font-weight:bold;color:#{params.color};margin-left:5px;margin-top:5px'>#{params.name}: </span><span style=cursor:text;-webkit-user-select: text>#{params.msg}</p>"
     jQuery( @chathistory ).scrollTop(jQuery( @chathistory )[0].scrollHeight);
 
   update: (params) ->
     @online = params.online
     @header.attr 'class', "aTox-chatbox-header-#{params.online}"
     @name.text   params.name
+
+  getColor: ->
+    "rgba( #{(atom.config.get 'atox.chatColor').red}, #{(atom.config.get 'atox.chatColor').green}, #{(atom.config.get 'atox.chatColor').blue}, 1 )"

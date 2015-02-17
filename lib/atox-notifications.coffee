@@ -11,7 +11,7 @@ class PopUp extends View
       @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{params.content}"
 
   initialize: (params) ->
-    if params.img != 'none'
+    if params.img?
       @img.css { "background-image": "url(\"#{params.img}\")" }
     else
       @img.css { "display": "none" }
@@ -22,7 +22,7 @@ class Notifications extends View
   @content: ->
     @div id: "aTox-PopUp-root"
 
-  initialize: ->
+  initialize: (event) ->
     @currentID = 0
     @PopUps = []
     @run = true
@@ -32,13 +32,24 @@ class Notifications extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-  add: (type, name, content, img) ->
+    @event = event
+    @event.on "notify", (msg) => @add msg
+    @event.on 'aTox.add-message', (data) =>
+      return if data.tid is -1
+      @event.emit 'notify', {
+        type:   'inf'
+        name:    data.name
+        content: data.msg
+        img:     data.img
+      }
+
+  add: (msg) ->
     if @ani is true
       setTimeout =>
-        @add type, name, content, img
+        @add msg
       , 100
       return
-    temp = new PopUp { id: @currentID, type: type, name: name, content: content, img: img }
+    temp = new PopUp { id: @currentID, type: msg.type, name: msg.name, content: msg.content, img: msg.img }
     @currentID++
 
     temp.hide()

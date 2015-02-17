@@ -70,8 +70,8 @@ module.exports =
 
     @mainEvent     = new Emitter
 
-    @mainWin       = new MainWindow @mainEvent
-    @notifications = new Notifications
+    @mainWin       = new MainWindow    @mainEvent
+    @notifications = new Notifications @mainEvent
 
     @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
@@ -93,30 +93,47 @@ module.exports =
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
 
-    @mainEvent.on 'aTox.new-contact',       (data)    => @addUserHelper      data
-    @mainEvent.on 'aTox.new-online-status', (newS)    => @changeOnlineStatus newS
-    @mainEvent.on 'aTox.select',            (data)    => @contactSelected    data
+    @mainEvent.on 'aTox.new-contact',       (data) => @addUserHelper      data
+    @mainEvent.on 'aTox.new-online-status', (newS) => @changeOnlineStatus newS
+    @mainEvent.on 'aTox.select',            (data) => @contactSelected    data
 
     $ =>
       @chatpanel    = new Chatpanel {event: @mainEvent}
+      @addUserHelper {name: "Echo", online: 'online'}
       @addUserHelper {name: "Test1", online: 'online'}
       @addUserHelper {name: "Test2", online: 'offline'}
       @addUserHelper {name: "Test3", online: 'away'}
       @addUserHelper {name: "Test4", online: 'busy'}
       @addUserHelper {name: "Test5", online: 'group'}
 
+      @mainEvent.on 'aTox.add-message', (data) =>
+        return unless data.cid is 0
+        return unless data.tid is -1
+        @contactsArray[0].contactSendt { msg: data.msg }
+
   changeOnlineStatus: (newStatus) ->
-    @notifications.add(
-     'inf',
-      newStatus.charAt(0).toUpperCase() + newStatus.slice(1),
-      "You are now #{newStatus}",
-      atom.config.get 'atox.userAvatar')
+    @mainEvent.emit 'notify', {
+      type:    'inf'
+      name:     newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
+      content: "You are now #{newStatus}"
+      img:      atom.config.get 'atox.userAvatar'
+    }
 
   contactSelected: (data) ->
     if data.selected
-      @notifications.add 'inf',  "Now chatting with #{data.name}",   "Opening chat window", data.img
+      @mainEvent.emit 'notify', {
+        type: 'inf'
+        name: "Now chatting with #{data.name}"
+        content: "Opening chat window"
+        img: data.img
+      }
     else
-      @notifications.add 'warn', "Stopped chatting with #{data.name}", "Closing chat window", data.img
+      @mainEvent.emit 'notify', {
+        type: 'warn'
+        name: "Stopped chatting with #{data.name}"
+        content: "Closing chat window"
+        img: data.img
+      }
 
   addUserHelper: (params) ->
     @contactsArray.push new Contact {
@@ -125,7 +142,7 @@ module.exports =
       online: params.online,
       img:   (atom.config.get 'atox.userAvatar'), #TODO: Add img to params
       event:  @mainEvent,
-      cid:     @internalContactId
+      cid:    @internalContactId
       win:    @mainWin
       panel:  @chatpanel
     }
