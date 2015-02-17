@@ -65,8 +65,8 @@ module.exports =
 
 
   activate: ->
-    atom.commands.add 'atom-workspace', 'atox:toggle',  => @toggle()
-    atom.commands.add 'atom-workspace', 'atox:history', => @toggleHistory()
+    atom.commands.add 'atom-workspace', 'aTox:toggle',  => @toggle()
+    atom.commands.add 'atom-workspace', 'aTox:history', => @toggleHistory()
 
     @mainEvent     = new Emitter
 
@@ -77,30 +77,31 @@ module.exports =
     @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
 
     @mainWin.mouseup =>
-      atom.config.set 'atox.mainWinTop',  @mainWin.css 'top'
-      atom.config.set 'atox.mainWinLeft', @mainWin.css 'left'
+      atom.config.set 'aTox.mainWinTop',  @mainWin.css 'top'
+      atom.config.set 'aTox.mainWinLeft', @mainWin.css 'left'
 
-    atom.config.observe 'atox.mainWinTop',  (newValue) =>
+    atom.config.observe 'aTox.mainWinTop',  (newValue) =>
       @mainWin.css 'top',  newValue
 
-    atom.config.observe 'atox.mainWinLeft', (newValue) =>
+    atom.config.observe 'aTox.mainWinLeft', (newValue) =>
       @mainWin.css 'left', newValue
 
     @internalContactId = 0
     @contactsArray     = []
 
-    @addUserHelper "Test1", 'online'
-    @addUserHelper "Test2", 'offline'
-    @addUserHelper "Test3", 'away'
-    @addUserHelper "Test4", 'busy'
-    @addUserHelper "Test5", 'group'
+    @addUserHelper {name: "Test1", online: 'online'}
+    @addUserHelper {name: "Test2", online: 'offline'}
+    @addUserHelper {name: "Test3", online: 'away'}
+    @addUserHelper {name: "Test4", online: 'busy'}
+    @addUserHelper {name: "Test5", online: 'group'}
 
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
 
-    @mainEvent.on 'atox.new-online-status', (newS) => @changeOnlineStatus newS
-    @mainEvent.on 'aTox.select',            (data) => @contactSelected    data
+    @mainEvent.on 'aTox.new-contact',       (data)    => @addUserHelper      data
+    @mainEvent.on 'aTox.new-online-status', (newS)    => @changeOnlineStatus newS
+    @mainEvent.on 'aTox.select',            (data)    => @contactSelected    data
 
     $ =>
       @chatpanel    = new Chatpanel {event: @mainEvent}
@@ -120,11 +121,12 @@ module.exports =
     else
       @notifications.add 'warn', "Stopped chatting with #{data.name}", "Closing chat window", data.img
 
-  addUserHelper: (name, online) ->
+  addUserHelper: (params) ->
+    console.log "Added " + params.name + " " + params.online
     @contactsArray.push new Contact {
-      name:   name,
+      name:   params.name,
       status: "Test Status",
-      online: online,
+      online: params.online,
       img:   (atom.config.get 'atox.userAvatar'),
       event:  @mainEvent,
       id:     @internalContactId

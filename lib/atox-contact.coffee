@@ -5,28 +5,28 @@ ChatBox     = require './atox-chatbox'
 
 module.exports =
 class Contact
-  constructor: (attr) ->
+  constructor: (params) ->
     @selected = false
-    @name     = attr.name
-    @img      = attr.img
-    @id       = attr.id
-    @status   = attr.status
-    @online   = attr.online
-    @event    = attr.event
+    @name     = params.name
+    @img      = params.img
+    @id       = params.id
+    @status   = params.status
+    @online   = params.online
+    @event    = params.event
 
     @contactView = new ContactView { id: @id, handle: => @handleClick() }
-    @chatBox     = new ChatBox { id: @id, online: attr.online, event: @event }
+    @chatBox     = new ChatBox { id: @id, online: params.online, event: @event }
 
     @event.on "user-write-#{@id}",      (msg)  => @chatBox.userMessage msg
     @event.on "chat-#{@id}-visibility", (what) => @visibility what
 
 
-    @update()
-
     if @id == 0
-      attr.win.addContact @contactView, true
+      params.win.addContact @contactView, true
     else
-      attr.win.addContact @contactView, false
+      params.win.addContact @contactView, false
+
+    @update()
 
   visibility: (what) ->
     if what == 'show'
@@ -35,6 +35,8 @@ class Contact
     else
       @chatBox.hide()
       @selected = false
+
+    @update()
 
   update: ->
     temp = {
@@ -61,8 +63,6 @@ class Contact
       online: @online,
       img: @img,
       id: @id}
-
-    @update()
 
   showChat: ->
     @chatBox.show()

@@ -2,19 +2,19 @@
 'context-menu':
   'atom-text-editor': [
     {
-      'label': 'Toggle atox'
-      'command': 'atox:toggle'
+      'label': 'Toggle aTox'
+      'command': 'aTox:toggle'
     }
   ]
 'menu': [
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'atox'
+      'label': 'aTox'
       'submenu': [
         {
           'label': 'Toggle'
-          'command': 'atox:toggle'
+          'command': 'aTox:toggle'
         }
       ]
     ]

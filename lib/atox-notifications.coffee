@@ -1,18 +1,18 @@
 {View, $, $$} = require 'atom-space-pen-views'
 
 class PopUp extends View
-  @content: (attr) ->
-    tName = "aTox-PopUp-#{attr.id}_#{attr.type}"
+  @content: (params) ->
+    tName = "aTox-PopUp-#{params.id}_#{params.type}"
     tType = "aTox-PopUp"
 
-    @div id: "#{tName}", class: "#{tType}-#{attr.type}", =>
+    @div id: "#{tName}", class: "#{tType}-#{params.type}", =>
       @div id: "#{tName}-img",     class: "#{tType}-img", outlet: 'img'
-      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{attr.name}"
-      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{attr.content}"
+      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{params.name}"
+      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{params.content}"
 
-  initialize: (attr) ->
-    if attr.img != 'none'
-      @img.css { "background-image": "url(\"#{attr.img}\")" }
+  initialize: (params) ->
+    if params.img != 'none'
+      @img.css { "background-image": "url(\"#{params.img}\")" }
     else
       @img.css { "display": "none" }
 

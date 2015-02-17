@@ -4,8 +4,8 @@ ChatBox       = require './atox-chatbox'
 
 module.exports =
 class ContactView extends View
-  @content: (attr) ->
-    ID    = "aTox-Contact-#{attr.id}"
+  @content: (params) ->
+    ID    = "aTox-Contact-#{params.id}"
     CLASS = "aTox-Contact"
 
     @div id: "#{ID}", class: 'aTox-Contact-offline', outlet: 'mainWin', =>
@@ -14,15 +14,15 @@ class ContactView extends View
       @div id: "#{ID}-status", class: "#{CLASS}-status", outlet: 'status'
       @div id: "#{ID}-online", class: "#{CLASS}-os",     outlet: 'online'
 
-  initialize: (attr) ->
-    @click => attr.handle()
+  initialize: (params) ->
+    @click => params.handle()
 
-  update: (attr) ->
-    @name.text "#{attr.name}"
-    @status.text "#{attr.status}"
-    @img.css { "background-image": "url(\"#{attr.img}\")" }
+  update: (params) ->
+    @name.text "#{params.name}"
+    @status.text "#{params.status}"
+    @img.css { "background-image": "url(\"#{params.img}\")" }
 
-    if attr.selected
-      @attr "class", "aTox-Contact-#{attr.online}-select"
+    if params.selected
+      @attr "class", "aTox-Contact-#{params.online}-select"
     else
-      @attr "class", "aTox-Contact-#{attr.online}"
+      @attr "class", "aTox-Contact-#{params.online}"

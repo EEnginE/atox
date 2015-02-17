@@ -4,15 +4,23 @@ require 'jquery-ui'
 
 
 class ChatList extends View
-  @content: (id, users) ->
-    @div id: "aTox-chatbox-#{id}-chatlist", class: "aTox-chatbox-chatlist"
+  @content: (params) ->
+    @div id: "aTox-chatbox-#{params.id}-chatlist", class: "aTox-chatbox-chatlist"
 
-  initialize: (id, users) ->
-    for user in users
+  initialize: (params) ->
+    @event = params.event
+    for user in params.users
       @addUser(user)
 
-  addUser: (user) -> #Change this to have the color also be synced with the chatpanel
-    jQuery( @element ).append "<p><span style='font-weight:bold;margin-left:3px;color:rgba(#{@randomNumber(255)}, #{@randomNumber(255)}, #{@randomNumber(255)}, 1)'>#{user}</span></p>"
+  addUser: (user) -> #TODO: Change this to have the color also be synced with the chatpanel
+    jQuery( @element ).append "<p style='font-weight:bold;margin-left:3px;color:rgba(#{@randomNumber(255)}, #{@randomNumber(255)}, #{@randomNumber(255)}, 1)'>#{user}</p>"
+    @paragraph = jQuery( @element ).find( "p:contains('#{user}')" )
+    @paragraph.click =>
+      @event.emit "aTox.new-contact", {name: "#{user}", online: 'offline'} #TODO: Get the real status of the user
+    @paragraph.hover =>
+      console.log "Hovered"
+
+
 
   randomNumber:(max, min=0) ->
     Math.floor(Math.random() * (max - min) + min)
@@ -21,8 +29,8 @@ class ChatList extends View
 
 module.exports =
 class ChatBox extends View
-  @content: (attr) ->
-    ID = "aTox-chatbox-#{attr.id}"
+  @content: (params) ->
+    ID = "aTox-chatbox-#{params.id}"
 
     @div id: "#{ID}", class: 'aTox-chatbox', =>
       @div id: "#{ID}-header",      class: "aTox-chatbox-header-offline", outlet: 'header', =>
@@ -35,25 +43,26 @@ class ChatBox extends View
     @chathistory.append "<p><span style='font-weight:bold;color:rgba(#{color.red},#{color.green},#{color.blue},#{color.alpha});margin-left:5px;margin-top:5px'>#{user}: </span><span style=cursor:text;-webkit-user-select: text>#{message}</span></p>"
     jQuery( @chathistory ).scrollTop(jQuery( @chathistory )[0].scrollHeight);
 
-  initialize: (attr) ->
+  initialize: (params) ->
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @id = attr.id
+    @id    = params.id
+    @event = params.event
 
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown( (event) =>
       if event.which is 13 and @inputfield.getText() != ""
-        attr.event.emit "user-write-#{attr.id}", { msg: @inputfield.getText() }
+        params.event.emit "user-write-#{params.id}", { msg: @inputfield.getText() }
         @inputfield.setText("");
       else if event.which is 27
-        attr.event.emit "chat-#{attr.id}-visibility", 'hide'
+        params.event.emit "chat-#{params.id}-visibility", 'hide'
     )
-    @chatname = attr.name
+    @chatname = params.name
 
 
-    if attr.online is 'group'
-      @chatList = new ChatList attr.id, ["Taiterio", "Mensinda", "Arvius"] #Handle this somewhere else and get a real list of users
+    if params.online is 'group'
+      @chatList = new ChatList {id: params.id, event: params.event, users: ["Taiterio", "Mensinda", "Arvius"]} #Handle this somewhere else and get a real list of users
       width = jQuery(@element).css ('width')
       width = parseInt(width)
       width += width * 0.25
@@ -67,7 +76,7 @@ class ChatBox extends View
   userMessage: (msg) ->
     @addToHistory(( atom.config.get 'atox.chatColor' ), ( atom.config.get 'atox.userName' ), msg.msg );
 
-  update: (attr) ->
-    @online = attr.online
-    @header.attr 'class', "aTox-chatbox-header-#{attr.online}"
-    @name.text   attr.name
+  update: (params) ->
+    @online = params.online
+    @header.attr 'class', "aTox-chatbox-header-#{params.online}"
+    @name.text   params.name
