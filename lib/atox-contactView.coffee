@@ -5,7 +5,7 @@ ChatBox       = require './atox-chatbox'
 module.exports =
 class ContactView extends View
   @content: (params) ->
-    ID    = "aTox-Contact-#{params.id}"
+    ID    = "aTox-Contact-#{params.cid}"
     CLASS = "aTox-Contact"
 
     @div id: "#{ID}", class: 'aTox-Contact-offline', outlet: 'mainWin', =>

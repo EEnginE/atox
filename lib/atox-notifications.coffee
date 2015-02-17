@@ -2,7 +2,7 @@
 
 class PopUp extends View
   @content: (params) ->
-    tName = "aTox-PopUp-#{params.id}_#{params.type}"
+    tName = "aTox-PopUp-#{params.cid}_#{params.type}"
     tType = "aTox-PopUp"
 
     @div id: "#{tName}", class: "#{tType}-#{params.type}", =>

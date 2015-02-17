@@ -31,39 +31,40 @@ class ChatList extends View
 module.exports =
 class ChatBox extends View
   @content: (params) ->
-    ID = "aTox-chatbox-#{params.id}"
+    ID = "aTox-chatbox-#{params.cid}"
 
     @div id: "#{ID}", class: 'aTox-chatbox', =>
       @div id: "#{ID}-header",      class: "aTox-chatbox-header-offline", outlet: 'header', =>
         @h1 outlet: 'name'
       @div id: "#{ID}-chathistory", class: "aTox-chatbox-chathistory",    outlet: 'chathistory'
       @div id: "#{ID}-textfield",   class: 'aTox-chatbox-textfield',      outlet: 'textfield',  =>
-        @subview "inputfield", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
-
-  addToHistory: (color, user, message) ->
-    @chathistory.append "<p><span style='font-weight:bold;color:rgba(#{color.red},#{color.green},#{color.blue},#{color.alpha});margin-left:5px;margin-top:5px'>#{user}: </span><span style=cursor:text;-webkit-user-select: text>#{message}</span></p>"
-    jQuery( @chathistory ).scrollTop(jQuery( @chathistory )[0].scrollHeight);
+        @subview "inputField", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
 
   initialize: (params) ->
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @id    = params.id
+    @id    = params.cid
     @event = params.event
 
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown( (event) =>
       if event.which is 13 and @inputfield.getText() != ""
-        params.event.emit "user-write-#{params.id}", { msg: @inputfield.getText() }
+        attr.event.emit "aTox-add-message#{attr.cid}", {
+          cid:   @cid
+          color: (atom.config.get 'atox.chatColor')
+          name:  (atom.config.get 'atox.userName')
+          msg:   @inputField.getText()
+        }
         @inputfield.setText("");
       else if event.which is 27
-        params.event.emit "chat-#{params.id}-visibility", 'hide'
+        params.event.emit "chat-#{params.cid}-visibility", 'hide'
     )
     @chatname = params.name
 
-
     if params.online is 'group'
-      @chatList = new ChatList {id: params.id, event: params.event, users: ["Taiterio", "Mensinda", "Arvius"]} #Handle this somewhere else and get a real list of users
+      @chatList = new ChatList {cid: params.cid, event: params.event, users: ["Taiterio", "Mensinda", "Arvius"]} #Handle this somewhere else and get a real list of users
+
       width = jQuery(@element).css ('width')
       width = parseInt(width)
       width += width * 0.25
@@ -74,8 +75,10 @@ class ChatBox extends View
 
     @hide()
 
-  userMessage: (msg) ->
-    @addToHistory(( atom.config.get 'atox.chatColor' ), ( atom.config.get 'atox.userName' ), msg.msg );
+  addMessage: (attr) ->
+    return if attr.msg is ''
+    @chathistory.append "<p><span style='font-weight:bold;color:rgba(#{attr.color.red},#{attr.color.green},#{attr.color.blue},#{attr.color.alpha});margin-left:5px;margin-top:5px'>#{attr.name}: </span><span style=cursor:text;-webkit-user-select: text>#{attr.msg}</p>"
+    jQuery( @chathistory ).scrollTop(jQuery( @chathistory )[0].scrollHeight);
 
   update: (params) ->
     @online = params.online

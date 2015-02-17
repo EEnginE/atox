@@ -19,9 +19,8 @@ class Chatpanel extends View
         @subview 'inputField', new TextEditorView(mini: true, placeholderText: 'Type to write something.')
 
   addMessage: (params) ->
-    if params.msg is ''
-      return
-    @chats.find("[cid='" + params.cid + "']").append '<p><span style="font-weight: bold;' + "color: rgba(#{params.color.red}, #{params.color.green}, #{params.color.blue}, #{params.color.alpha})" + '">' + "#{params.name}: </span>#{params.msg}</p>"
+    return if params.msg is ''
+    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:rgba(#{params.color.red},#{params.color.green},#{params.color.blue},#{params.color.alpha})'>#{params.name}: </span>#{params.msg}</p>"
     @scrollBot(params.cid)
 
   addChat: (params) ->
@@ -48,7 +47,12 @@ class Chatpanel extends View
       if e.keyCode is 13
         e.preventDefault()
         id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-        @addMessage {cid: id, color: (atom.config.get 'atox.chatColor'), name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
+        @event.emit "aTox-add-message#{id}", {
+          cid:    id
+          color: (atom.config.get 'atox.chatColor')
+          name:  (atom.config.get 'atox.userName')
+          msg:   @inputField.getText()
+        }
         @inputField.setText ''
         if @hbox.css('display') is 'none'
           @toggleHistory()
@@ -56,7 +60,12 @@ class Chatpanel extends View
         @hide()
     @btn.click =>
       id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-      @addMessage {cid: id, color: (atom.config.get 'atox.chatColor'), name: (atom.config.get 'atox.userName'), msg: @inputField.getText()}
+      @event.emit "aTox-add-message#{id}", {
+        cid:    id
+        color: (atom.config.get 'atox.chatColor')
+        name:  (atom.config.get 'atox.userName')
+        msg:   @inputField.getText()
+      }
       @inputField.setText ''
 
     jQuery(@hbox).resizable

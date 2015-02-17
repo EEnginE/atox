@@ -89,12 +89,6 @@ module.exports =
     @internalContactId = 0
     @contactsArray     = []
 
-    @addUserHelper {name: "Test1", online: 'online'}
-    @addUserHelper {name: "Test2", online: 'offline'}
-    @addUserHelper {name: "Test3", online: 'away'}
-    @addUserHelper {name: "Test4", online: 'busy'}
-    @addUserHelper {name: "Test5", online: 'group'}
-
     @startup()      if   atom.config.get 'atox.autostart'
     @mainWin.hide() if ! atom.config.get 'atox.showDefault'
     @hasOpenChat   = false
@@ -105,8 +99,11 @@ module.exports =
 
     $ =>
       @chatpanel    = new Chatpanel {event: @mainEvent}
-      @chatpanel.addChat {cid: 1, img: (atom.config.get 'atox.userAvatar')}
-      @chatpanel.addChat {cid: 2, img: (atom.config.get 'atox.userAvatar')}
+      @addUserHelper {name: "Test1", online: 'online'}
+      @addUserHelper {name: "Test2", online: 'offline'}
+      @addUserHelper {name: "Test3", online: 'away'}
+      @addUserHelper {name: "Test4", online: 'busy'}
+      @addUserHelper {name: "Test5", online: 'group'}
 
   changeOnlineStatus: (newStatus) ->
     @notifications.add(
@@ -128,8 +125,9 @@ module.exports =
       online: params.online,
       img:   (atom.config.get 'atox.userAvatar'), #TODO: Add img to params
       event:  @mainEvent,
-      id:     @internalContactId
+      cid:     @internalContactId
       win:    @mainWin
+      panel:  @chatpanel
     }
 
     @internalContactId++
