@@ -36,7 +36,7 @@ class MainWindow extends View
   scrollHandler: (event) ->
     return if @maxScroll <= @contacts.height()
 
-    @deltaScroll += event.deltaY * event.deltaFactor * atom.config.get 'atox.scrollFactor'
+    @deltaScroll += event.deltaY * event.deltaFactor * 0.5
 
     maxScrollHelper = -( @maxScroll - @contacts.height() )
 
