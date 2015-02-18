@@ -13,6 +13,7 @@
      "event-kit":            "*",
      "jquery-ui":            "*",
      "jquery":               "*",
-     "jquery-mousewheel":    "*"
+     "jquery-mousewheel":    "*",
+     "toxcore":              "git://github.com/Arvius/node-toxcore.git"
   }
 }
