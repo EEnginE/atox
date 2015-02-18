@@ -3,6 +3,7 @@ Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 Contact       = require './atox-contact'
+ToxWorker     = require './atox-toxWorker'
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
 
@@ -72,6 +73,7 @@ module.exports =
 
     @mainWin       = new MainWindow    @mainEvent
     @notifications = new Notifications @mainEvent
+    @TOX           = new ToxWorker     @mainEvent
 
     @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
@@ -110,6 +112,8 @@ module.exports =
         return unless data.cid is 0
         return unless data.tid is -1
         @contactsArray[0].contactSendt { msg: data.msg }
+
+      @TOX.startup()
 
   changeOnlineStatus: (newStatus) ->
     @mainEvent.emit 'notify', {
