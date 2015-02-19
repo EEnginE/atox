@@ -10,11 +10,40 @@ class ToxWorker
 
     @err "Failed to load TOX" unless @TOX.checkHandle (e) =>
 
-    @TOX.on 'friendRequest', (e) => @friendRequest e
+    @TOX.on 'friendRequest', (e) => @friendRequest  e
+    @TOX.on 'nameChange',    (e) => @nameChangeCB   e
+    @TOX.on 'statusMessage', (e) => @statusChangeCB e
+    @TOX.on 'userStatus',    (e) => @userStatusCB   e
+
+    @event.on 'setName',     (e) => @setName   e
+    @event.on 'setAvatar',   (e) => @setAvatar e
+    @event.on 'setStatus',   (e) => @setStatus e
+
+    @event.emit 'setName',   atom.config.get 'atox.userName'
+    @event.emit 'setAvatar', atom.config.get 'atox.userAvatar'
+    @event.emit 'setStatus', "I am a Bot :)"
 
     @TOX.start()
     @inf "Started TOX"
+    @inf "Name:  #{atom.config.get 'atox.userName'}"
     @inf "My ID: #{@TOX.getAddressHexSync()}"
+
+  nameChangeCB:   (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
+  statusChangeCB: (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
+  userStatusCB:   (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
+
+  setName: (name) ->
+    @TOX.setName "#{name}"
+
+  setAvatar: (path) ->
+    fs.readFile "#{path}", (err, data) =>
+      if err
+        @err "Failed to load #{path}"
+        return
+      @TOX.setAvatar 1, data
+
+  setStatus: (s) ->
+    @TOX.setStatusMessage "#{s}"
 
 
   friendRequest: (e) ->
@@ -27,13 +56,17 @@ class ToxWorker
       @err "Failed to add Friend"
       return
 
-    @event.emit 'addContact', {
+    @event.emit 'aTox.new-contact', {
       name:   e.publicKeyHex()
       status: "Working Please wait..."
       online: 'offline'
       cid:    fNum
+      tid:    fNum
     }
     @inf "Added Friend #{fNum}"
+
+  nameChange: (e) ->
+
 
   inf: (msg) ->
     @event.emit 'notify', {

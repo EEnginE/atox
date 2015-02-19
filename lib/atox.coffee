@@ -77,7 +77,6 @@ module.exports =
     @event.on 'aTox.new-online-status', (newS) => @changeOnlineStatus newS
     @event.on 'aTox.select',            (data) => @contactSelected    data
     @event.on 'getChatID',              (data) => @getChatIDFromName  data
-    @event.on 'addContact',             (data) => @addUserHelper      data
 
     $ =>
       @chatpanel    = new Chatpanel {event: @event}
@@ -86,6 +85,7 @@ module.exports =
         status: "I am a Terminal"
         online: "online"
         cid:    -2
+        tid:    -2
       }
       @event.on 'aTox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
       @term.init()
@@ -138,6 +138,7 @@ module.exports =
       img:    atom.config.get 'atox.userAvatar' #TODO: Add img to params
       event:  @event
       cid:    params.cid
+      tid:    params.tid
       win:    @mainWin
       panel:  @chatpanel
     }

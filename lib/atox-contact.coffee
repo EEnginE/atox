@@ -10,6 +10,7 @@ class Contact
 
     @name     = params.name
     @img      = params.img
+    @tid      = params.tid
     @cid      = params.cid
     @status   = params.status
     @online   = params.online
@@ -21,8 +22,12 @@ class Contact
 
     @panel.addChat { cid: @cid, img: @img, event: @event }
 
-    @event.on "chat-visibility",   (newV) => @visibility         newV
-    @event.on "aTox-contact-sent", (msg)  => @contactSendt       msg
+    @event.on "chat-visibility",   (newV) => @visibility   newV
+    @event.on "aTox-contact-sent", (msg)  => @contactSendt msg
+    @event.on "nameChangeAT",      (data) => @nameChange   data
+    @event.on "statusChangeAT",    (data) => @statusChange data
+    @event.on "avatarChangeAT",    (data) => @avatarChange data
+    @event.on "userStatusAT",      (data) => @userStatus   data
 
     if @cid == 0
       params.win.addContact @contactView, true
@@ -34,6 +39,38 @@ class Contact
     @color = @randomColor()
 
     @event.emit 'aTox.terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
+
+  nameChange: (data) ->
+    return unless data.tid == @tid
+    @event.emit 'aTox.terminal', "Name #{@name} is now #{data.d}"
+    @name = data.d
+    @update()
+
+  statusChange: (data) ->
+    return unless data.tid == @tid
+    @event.emit 'aTox.terminal', "Status of #{@name} is now #{data.d}"
+    @status = data.d
+    @update()
+
+  avatarChange: (data) ->
+    return unless data.tid == @tid
+    @event.emit 'aTox.terminal', "#{@name} changed avatar"
+    @online = status
+    @update()
+
+  userStatus: (data) ->
+    return unless data.tid == @tid
+
+    status = 'offline'
+
+    switch data.d
+      when 0 then status = 'online'
+      when 1 then status = 'away'
+      when 2 then status = 'busy'
+
+    @event.emit 'aTox.terminal', "#{@name} changed user stauts to #{status}"
+    @online = status
+    @update()
 
   contactSendt: (msg) ->
     if msg.tid?
@@ -91,11 +128,8 @@ class Contact
       img: @img,
     }
 
-  showChat: ->
-    @event.emit "chat-visibility", { cid: @cid, what: 'show' }
-
-  hideChat: ->
-    @event.emit "chat-visibility", { cid: @cid, what: 'hide' }
+  showChat: -> @event.emit "chat-visibility", { cid: @cid, what: 'show' }
+  hideChat: -> @event.emit "chat-visibility", { cid: @cid, what: 'hide' }
 
 
   # Utils
