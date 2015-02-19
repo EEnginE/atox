@@ -35,7 +35,7 @@ class Notifications extends View
     @event = event
     @event.on "notify", (msg) => @add msg
     @event.on 'aTox.add-message', (data) =>
-      return if data.tid is -1
+      return if data.tid < 0
       @event.emit 'notify', {
         type:   'inf'
         name:    data.name

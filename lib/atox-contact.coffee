@@ -33,10 +33,17 @@ class Contact
 
     @color = @randomColor()
 
+    @event.emit 'aTox.terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
+
   contactSendt: (msg) ->
+    if msg.tid?
+      tid = msg.tid
+    else
+      tid = @cid
+
     @event.emit "aTox.add-message", {
       cid:   @cid
-      tid:   @cid # Will be later the TOX ID
+      tid:    tid  # Will be later the TOX ID
       color: @color
       name:  @name
       img:   @img
@@ -49,9 +56,11 @@ class Contact
     if newV.what == 'show'
       @chatBox.show()
       @selected = true
+      @event.emit 'aTox.terminal', "Opened chat #{@cid}"
     else
       @chatBox.hide()
       @selected = false
+      @event.emit 'aTox.terminal', "Cloesed chat #{@cid}"
 
     @update()
 
@@ -83,10 +92,10 @@ class Contact
     }
 
   showChat: ->
-    @chatBox.show()
+    @event.emit "chat-visibility", { cid: @cid, what: 'show' }
 
   hideChat: ->
-    @chatBox.hide()
+    @event.emit "chat-visibility", { cid: @cid, what: 'hide' }
 
 
   # Utils

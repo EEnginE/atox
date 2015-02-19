@@ -3,6 +3,7 @@ Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 Contact       = require './atox-contact'
+Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
@@ -36,17 +37,22 @@ module.exports =
       title: "Main Window Left"
       type: "string"
       default: "80%"
+    debugNotifications:
+      title: "Debug Notifications"
+      description: "When activated displays debug notifications"
+      type:  "boolean"
+      default: false
 
 
   activate: ->
     atom.commands.add 'atom-workspace', 'aTox:toggle',  => @toggle()
     atom.commands.add 'atom-workspace', 'aTox:history', => @toggleHistory()
 
-    @mainEvent     = new Emitter
-
-    @mainWin       = new MainWindow    @mainEvent
-    @notifications = new Notifications @mainEvent
-    @TOX           = new ToxWorker     @mainEvent
+    @event         = new Emitter
+    @mainWin       = new MainWindow    @event
+    @notifications = new Notifications @event
+    @TOX           = new ToxWorker     @event
+    @term          = new Terminal      {cid: -2, event: @event}
 
     @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
@@ -55,57 +61,61 @@ module.exports =
       atom.config.set 'aTox.mainWinTop',  @mainWin.css 'top'
       atom.config.set 'aTox.mainWinLeft', @mainWin.css 'left'
 
-    atom.config.observe 'aTox.mainWinTop',  (newValue) =>
-      @mainWin.css 'top',  newValue
-
-    atom.config.observe 'aTox.mainWinLeft', (newValue) =>
-      @mainWin.css 'left', newValue
+    atom.config.observe 'aTox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
+    atom.config.observe 'aTox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
 
     @internalContactId = 0
     @contactsArray     = []
 
-    @startup()      if   atom.config.get 'atox.autostart'
-    @mainWin.hide() if ! atom.config.get 'atox.showDefault'
-    @hasOpenChat   = false
+    @mainWin.hide() unless atom.config.get 'atox.showDefault'
+    @hasOpenChat    = false
 
-    @mainEvent.on 'aTox.new-contact',       (data) => @addUserHelper      data
-    @mainEvent.on 'aTox.new-online-status', (newS) => @changeOnlineStatus newS
-    @mainEvent.on 'aTox.select',            (data) => @contactSelected    data
+    @event.on 'aTox.new-contact',       (data) => @addUserHelper      data
+    @event.on 'aTox.new-online-status', (newS) => @changeOnlineStatus newS
+    @event.on 'aTox.select',            (data) => @contactSelected    data
+    @event.on 'getChatID',              (data) => @getChatIDFromName  data
+    @event.on 'addContact',             (data) => @addUserHelper      data
 
     $ =>
-      @chatpanel    = new Chatpanel {event: @mainEvent}
-      @addUserHelper {name: "Echo", online: 'online'}
-      @addUserHelper {name: "Test1", online: 'online'}
-      @addUserHelper {name: "Test2", online: 'offline'}
-      @addUserHelper {name: "Test3", online: 'away'}
-      @addUserHelper {name: "Test4", online: 'busy'}
-      @addUserHelper {name: "Test5", online: 'group'}
-
-      @mainEvent.on 'aTox.add-message', (data) =>
-        return unless data.cid is 0
-        return unless data.tid is -1
-        @contactsArray[0].contactSendt { msg: data.msg }
+      @chatpanel    = new Chatpanel {event: @event}
+      @addUserHelper {
+        name:   "Terminal"
+        status: "I am a Terminal"
+        online: "online"
+        cid:    -2
+      }
+      @event.on 'aTox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
+      @term.init()
 
       @TOX.startup()
 
   changeOnlineStatus: (newStatus) ->
-    @mainEvent.emit 'notify', {
+    @event.emit 'notify', {
       type:    'inf'
       name:     newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
       content: "You are now #{newStatus}"
       img:      atom.config.get 'atox.userAvatar'
     }
 
+  getChatIDFromName: (data) ->
+    for i in @contactsArray
+      if i.name == data
+        @event.emit 'aTox.terminal', "getChatIDFromName: #{i.cid} (#{data})"
+        return i.cid
+
+    @event.emit 'aTox.terminal', "getChatIDFromName: Not Found (#{data})"
+    return -1
+
   contactSelected: (data) ->
     if data.selected
-      @mainEvent.emit 'notify', {
+      @event.emit 'notify', {
         type: 'inf'
         name: "Now chatting with #{data.name}"
         content: "Opening chat window"
         img: data.img
       }
     else
-      @mainEvent.emit 'notify', {
+      @event.emit 'notify', {
         type: 'warn'
         name: "Stopped chatting with #{data.name}"
         content: "Closing chat window"
@@ -114,24 +124,18 @@ module.exports =
 
   addUserHelper: (params) ->
     @contactsArray.push new Contact {
-      name:   params.name,
-      status: "Test Status", #TODO: Add status to params
-      online: params.online,
-      img:   (atom.config.get 'atox.userAvatar'), #TODO: Add img to params
-      event:  @mainEvent,
-      cid:    @internalContactId
+      name:   params.name
+      status: params.status
+      online: params.online
+      img:    atom.config.get 'atox.userAvatar' #TODO: Add img to params
+      event:  @event
+      cid:    params.cid
       win:    @mainWin
       panel:  @chatpanel
     }
-
-    @internalContactId++
 
   toggle: ->
     @mainWin.toggle()
 
   toggleHistory: ->
     @chatpanel.toggleHistory()
-
-  startup: ->
-
-  shutdown: ->

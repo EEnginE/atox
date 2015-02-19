@@ -36,8 +36,8 @@ class ChatBox extends View
     @div id: "#{ID}", class: 'aTox-chatbox', =>
       @div id: "#{ID}-header",      class: "aTox-chatbox-header-offline", outlet: 'header', =>
         @h1 outlet: 'name'
-      @div id: "#{ID}-chathistory", class: "aTox-chatbox-chathistory",    outlet: 'chathistory'
-      @div id: "#{ID}-textfield",   class: 'aTox-chatbox-textfield',      outlet: 'textfield',  =>
+      @div id: "#{ID}-chathistory", class: "aTox-chatbox-chathistory native-key-bindings", tabindex: '-1', outlet: 'chathistory'
+      @div id: "#{ID}-textfield",   class: 'aTox-chatbox-textfield', outlet: 'textfield',  =>
         @subview "inputField", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
 
   initialize: (params) ->
@@ -81,7 +81,7 @@ class ChatBox extends View
   addMessage: (params) ->
     return unless params.cid is @cid
     return if params.msg is ''
-    @chathistory.append "<p><span style='font-weight:bold;color:#{params.color};margin-left:5px;margin-top:5px'>#{params.name}: </span><span style=cursor:text;-webkit-user-select: text>#{params.msg}</p>"
+    @chathistory.append "<p><span style='font-weight:bold;color:#{params.color};margin-left:5px;margin-top:5px'>#{params.name}: </span><span style='cursor:text;-webkit-user-select:text;'>#{params.msg}</p>"
     jQuery( @chathistory ).scrollTop(jQuery( @chathistory )[0].scrollHeight);
 
   update: (params) ->

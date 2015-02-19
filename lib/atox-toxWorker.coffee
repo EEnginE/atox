@@ -6,29 +6,49 @@ class ToxWorker
     @event = event
 
   startup: ->
-
     @TOX = new toxcore.Tox
 
-    temp = @TOX.checkHandle (err) =>
-      @event.emit 'notify', {
-        type: 'error'
-        name: "TOX base"
-        content: 'Failed to lead tox'
-      }
+    @err "Failed to load TOX" unless @TOX.checkHandle (e) =>
 
-    @event.emit 'notify', {
-      type: 'inf'
-      name: temp
-      content: 'Bla'
-    }
-
-    #@TOX.bootstrapFromAddressSync '23.226.230.47', 33445, 'A09162D68618E742FFBCA1C2C70385E6679604B2D80EA6E84AD0996A1AC8A074'
-    #@TOX.bootstrapFromAddressSync '104.219.184.206', 443, '8CD087E31C67568103E8C2A28653337E90E6B8EDA0D765D57C6B5172B4F1F04C'
-
-    @event.emit 'notify', {
-      type: 'inf'
-      name: process.env.HOME
-      content: 'Bla'
-    }
+    @TOX.on 'friendRequest', (e) => @friendRequest e
 
     @TOX.start()
+    @inf "Started TOX"
+    @inf "My ID: #{@TOX.getAddressHexSync()}"
+
+
+  friendRequest: (e) ->
+    @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
+    fNum = 0
+
+    try
+      fNum = @TOX.addFriendNoRequestSync e.publicKey()
+    catch error
+      @err "Failed to add Friend"
+      return
+
+    @event.emit 'addContact', {
+      name:   e.publicKeyHex()
+      status: "Working Please wait..."
+      online: 'offline'
+      cid:    fNum
+    }
+    @inf "Added Friend #{fNum}"
+
+  inf: (msg) ->
+    @event.emit 'notify', {
+      type: 'inf'
+      name: 'TOX'
+      content: msg
+    } if atom.config.get 'aTox.debugNotifications'
+
+    @event.emit 'aTox.terminal', "TOX: [Info] #{msg}"
+
+  err: (msg) ->
+    @event.emit 'notify', {
+      type: 'err'
+      name: 'TOX'
+      content: msg
+    }
+
+    @event.emit 'aTox.terminal', "TOX: [Error] #{msg}"

@@ -13,7 +13,7 @@ class Chatpanel extends View
         @div class: 'icon icon-gear aTox-chatpanel-settings'
         @div class: 'aTox-chatpanel-border ui-resizable-handle ui-resizable-n', outlet: 'rborder'
         @ul class: 'aTox-chatpanel-chat-overview', outlet: 'coverview'
-        @div class: 'aTox-chatpanel-chats', outlet: 'chats'
+        @div class: 'aTox-chatpanel-chats native-key-bindings', tabindex: '-1', outlet: 'chats'
       @div class: 'aTox-chatpanel-input', outlet: 'input', =>
         @div class: 'aTox-chatpanel-input-status-con', outlet: 'status'
         @button class: 'btn aTox-chatpanel-btn', outlet: 'btn', "Send"
