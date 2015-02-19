@@ -7,6 +7,7 @@ Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
+Github        = require './atox-github'
 
 module.exports =
   config:
@@ -53,6 +54,8 @@ module.exports =
     @notifications = new Notifications @event
     @TOX           = new ToxWorker     @event
     @term          = new Terminal      {cid: -2, event: @event}
+    @github        = new Github
+
 
     @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
@@ -86,6 +89,11 @@ module.exports =
       }
       @event.on 'aTox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
       @term.init()
+
+      @github.authentificate {user: 'mensinda', password:'#!Mense1;Git_Hub**$5Acc', otp: '127155'}, =>
+        @event.emit 'aTox.terminal', "Github Token: #{@github.getToken()}"
+        @github.getUserImage {user: 'mensinda'}, (url) =>
+          @event.emit 'aTox.terminal', "Github Avatar: #{url}"
 
       @TOX.startup()
 
