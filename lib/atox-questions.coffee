@@ -38,7 +38,7 @@ class YesNoQuestion extends View
   ask: ->
     console.error "Already asked!" if !@canAsk
     @canAsk = false
-    @fadeIn atom.config.get 'atox.fadeDuration'
+    @fadeIn atom.config.get 250
 
   yes: ->
     return if @wasAnswered
@@ -59,4 +59,4 @@ class YesNoQuestion extends View
     @event.on 'no',  noC
 
   delQ: ->
-    @fadeOut (atom.config.get 'atox.fadeDuration'), => @remove()
+    @fadeOut 250, => @remove()

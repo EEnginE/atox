@@ -10,34 +10,11 @@ Github        = require './atox-github'
 
 module.exports =
   config:
-    autostart:
-      title: "Autologin"
-      description: "Automatically starts aTox when the package is loaded"
-      type: "boolean"
-      default: true
     showDefault:
       title: "Show on startup"
       description: "Automatically displays the main window on startup"
       type: "boolean"
       default: true
-    popupTimeout:
-      title: "Pop Up timeout"
-      description: "Timeout in seconds"
-      type: "number"
-      default: 4
-      minimum: 1
-    fadeDuration:
-      title: "Pop Up fade duration"
-      description: "Pop Up fade duration in milliseconds"
-      type: "number"
-      default: 250
-      minimum: 1
-    notificationSpeed:
-      title: "Notification animation speed"
-      description: "Notification animation speed in milliseconds"
-      type: "number"
-      default: 300
-      minimum: 1
     userAvatar:
       title: "Avatar"
       description: "A full path to your Avatar"
@@ -48,10 +25,6 @@ module.exports =
       description: "Your username"
       type: "string"
       default: "User"
-    scrollFactor:
-      title: "Scroll Factor"
-      type: "number"
-      default: 0.5
     chatColor:
       title: "Your chat's color"
       type:  "color"

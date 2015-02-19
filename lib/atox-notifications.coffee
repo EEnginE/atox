@@ -54,10 +54,10 @@ class Notifications extends View
 
     temp.hide()
     temp.appendTo this
-    temp.fadeIn atom.config.get 'atox.fadeDuration'
+    temp.fadeIn 250
 
-    stimeout = ( atom.config.get 'atox.popupTimeout' ) * 1000
-    aduration = ( atom.config.get 'atox.fadeDuration' ) + ( atom.config.get 'atox.notificationSpeed' ) + 200
+    stimeout  = 4000
+    aduration = 250 + 300 + 200
     if ((Date.now() + stimeout) - @lts) < aduration
       timeout = stimeout + aduration - ((Date.now() + stimeout) - @lts)
     else
@@ -73,11 +73,11 @@ class Notifications extends View
     @ani = true
     temp = @PopUps[0]
     @PopUps.shift()
-    temp.animate {opacity: 0}, (atom.config.get 'atox.fadeDuration'), =>
+    temp.animate {opacity: 0}, 250, =>
        e.css ({position: 'relative'}) for e in @PopUps
-       e.animate {top: '-75px'}, ( atom.config.get 'atox.notificationSpeed' ) for e in @PopUps
+       e.animate {top: '-75px'}, 300 for e in @PopUps
        setTimeout =>
          temp.remove()
          e.css {position: 'static', top: '0'} for e in @PopUps
          @ani = false
-       , ( atom.config.get 'atox.notificationSpeed' ) + 100
+       , 400
