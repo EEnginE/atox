@@ -6,6 +6,7 @@ Contact       = require './atox-contact'
 ToxWorker     = require './atox-toxWorker'
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
+Github        = require './atox-github'
 
 module.exports =
   config:
@@ -73,7 +74,7 @@ module.exports =
 
     @mainWin       = new MainWindow    @mainEvent
     @notifications = new Notifications @mainEvent
-    @TOX           = new ToxWorker     @mainEvent
+    @github        = new Github
 
     @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
@@ -113,7 +114,10 @@ module.exports =
         return unless data.tid is -1
         @contactsArray[0].contactSendt { msg: data.msg }
 
-      @TOX.startup()
+      @github.authentificate {user: 'Arvius', password:'************', otp: 'xy'}, =>
+        console.log @github.getToken()
+        @github.getUserImage {user: 'Arvius'}, (url) =>
+          console.log url
 
   changeOnlineStatus: (newStatus) ->
     @mainEvent.emit 'notify', {
