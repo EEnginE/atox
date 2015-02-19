@@ -90,7 +90,7 @@ module.exports =
       @event.on 'aTox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
       @term.init()
 
-      @github.authentificate {user: 'mensinda', password:'#!Mense1;Git_Hub**$5Acc', otp: '127155'}, =>
+      @github.authentificate {user: 'mensinda', password:'************', otp: '127155'}, =>
         @event.emit 'aTox.terminal', "Github Token: #{@github.getToken()}"
         @github.getUserImage {user: 'mensinda'}, (url) =>
           @event.emit 'aTox.terminal', "Github Avatar: #{url}"

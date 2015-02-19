@@ -8,6 +8,12 @@
 #aTox-PopUp-root {
   position: absolute;
 
+  h1, h2, h3, h4, p, div, table, ul, li, span {
+    margin: 0;
+    padding: 0;
+    .ui;
+  }
+
   top: 50px;
   right: 20px;
 
@@ -42,14 +48,11 @@
     .aTox-PopUp-name {
       font-size:     @aTox-not-font1;
       margin-bottom: @aTox-not-Margin / 4;
-      float:         left;
     }
 
     .aTox-PopUp-content {
       color:         @text-color;
       font-size:     @aTox-not-font2;
-      float:         left;
-      clear:         left;
     }
   }
 
