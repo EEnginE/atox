@@ -1,4 +1,5 @@
 {Emitter}   = require 'event-kit'
+os          = require 'os'
 
 ContactView = require './atox-contactView'
 ChatBox     = require './atox-chatbox'
@@ -24,6 +25,8 @@ class Contact
 
     @event.on "chat-visibility",   (newV) => @visibility   newV
     @event.on "aTox-contact-sent", (msg)  => @contactSendt msg
+
+    @event.on 'avatarDataAT',      (data) => @avatarData   data
     @event.on "nameChangeAT",      (data) => @nameChange   data
     @event.on "statusChangeAT",    (data) => @statusChange data
     @event.on "avatarChangeAT",    (data) => @avatarChange data
@@ -39,6 +42,15 @@ class Contact
     @color = @randomColor()
 
     @event.emit 'aTox.terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
+
+  avatarData: (data) ->
+    return unless data.tid == @tid
+    @event.emit 'aTox.terminal', "#{@name} has a new Avatar"
+    @img = "#{os.tmpdir()}/aTox-Avatar-#{data.d.hashHex()}"
+    @event.emit 'aTox.terminal', "Avatar Path: #{@img}"
+    fs.writeFile @img, data.d.data(), (error) =>
+      return if error
+      @update()
 
   nameChange: (data) ->
     return unless data.tid == @tid

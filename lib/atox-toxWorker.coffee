@@ -10,6 +10,8 @@ class ToxWorker
 
     @err "Failed to load TOX" unless @TOX.checkHandle (e) =>
 
+    @TOX.on 'avatarData',    (e) => @avatarDataCB   e
+    @TOX.on 'avatarInfo',    (e) => @avatarInfCB    e
     @TOX.on 'friendRequest', (e) => @friendRequest  e
     @TOX.on 'nameChange',    (e) => @nameChangeCB   e
     @TOX.on 'statusMessage', (e) => @statusChangeCB e
@@ -28,6 +30,8 @@ class ToxWorker
     @inf "Name:  #{atom.config.get 'atox.userName'}"
     @inf "My ID: #{@TOX.getAddressHexSync()}"
 
+  avatarDataCB:   (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
+  avatarInfCB:    (e) -> @TOX.requestAvatarData( e.friend() )
   nameChangeCB:   (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
   statusChangeCB: (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
   userStatusCB:   (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
