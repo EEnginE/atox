@@ -74,7 +74,6 @@ module.exports =
     @hasOpenChat    = false
 
     @event.on 'aTox.new-contact',       (data) => @addUserHelper      data
-    @event.on 'aTox.new-online-status', (newS) => @changeOnlineStatus newS
     @event.on 'aTox.select',            (data) => @contactSelected    data
     @event.on 'getChatID',              (data) => @getChatIDFromName  data
 
@@ -96,14 +95,6 @@ module.exports =
           @event.emit 'aTox.terminal', "Github Avatar: #{url}"
 
       @TOX.startup()
-
-  changeOnlineStatus: (newStatus) ->
-    @event.emit 'notify', {
-      type:    'inf'
-      name:     newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
-      content: "You are now #{newStatus}"
-      img:      atom.config.get 'atox.userAvatar'
-    }
 
   getChatIDFromName: (data) ->
     for i in @contactsArray

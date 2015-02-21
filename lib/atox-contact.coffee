@@ -27,10 +27,12 @@ class Contact
     @event.on "aTox-contact-sent", (msg)  => @contactSendt msg
 
     @event.on 'avatarDataAT',      (data) => @avatarData   data
+    @event.on 'friendMsgAT',       (data) => @friendMsg    data
     @event.on "nameChangeAT",      (data) => @nameChange   data
     @event.on "statusChangeAT",    (data) => @statusChange data
     @event.on "avatarChangeAT",    (data) => @avatarChange data
     @event.on "userStatusAT",      (data) => @userStatus   data
+    @event.on 'aTox.add-message',  (data) => @sendMsg      data
 
     if @cid == 0
       params.win.addContact @contactView, true
@@ -51,6 +53,17 @@ class Contact
     fs.writeFile @img, data.d.data(), (error) =>
       return if error
       @update()
+
+  friendMsg: (data) ->
+    return if     @status  == 'group'
+    return unless data.tid == @tid
+    @event.emit "aTox.add-message", {
+      cid:   @cid
+      tid:   @tid
+      color: @color
+      name:  @name
+      msg:   data.d
+    }
 
   nameChange: (data) ->
     return unless data.tid == @tid
@@ -83,6 +96,18 @@ class Contact
     @event.emit 'aTox.terminal', "#{@name} changed user stauts to #{status}"
     @online = status
     @update()
+
+    @event.emit 'notify', {
+      type:    'inf'
+      name:     status.charAt(0).toUpperCase() + status.slice(1)
+      content: "#{@name} is now #{status}"
+      img:      @img
+    }
+
+  sendMsg: (data) ->
+    return unless data.tid == -1
+    return unless data.cid == @cid
+    @event.emit 'sendToFriend', {tid: @tid, d: data.msg}
 
   contactSendt: (msg) ->
     if msg.tid?

@@ -23,7 +23,7 @@ class StatusSelector extends View
     @selectorOpen = false
     @event        = event
 
-    @event.on 'aTox.new-online-status', (newS) => @setStatus newS
+    @event.on 'onlineStatus', (newS) => @setStatus newS.d if newS.tid < 0
     @setStatus 'online'
 
   openSelector: ->
@@ -38,7 +38,7 @@ class StatusSelector extends View
 
   clickHandler: (newS) ->
     @openSelector()
-    @event.emit 'aTox.new-online-status', newS if newS != @currentStatus
+    @event.emit 'onlineStatus', {tid: -1, d: newS} if newS != @currentStatus
 
   setStatus: (newS) ->
     @currentStatus = newS
