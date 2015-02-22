@@ -150,6 +150,8 @@ class Contact
     @contactView.update temp
     @chatBox.update     temp
 
+    @panel.update {cid: @cid, img: @img}
+
   handleClick: ->
     if @selected
       @event.emit "chat-visibility", { cid: @cid, what: 'hide' }

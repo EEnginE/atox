@@ -34,6 +34,9 @@ class Chatpanel extends View
     @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     @selectChat(params.cid)
 
+  update: (params) ->
+    @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
+
   selectChat: (cid) ->
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cid='" + cid + "']").addClass('selected')
