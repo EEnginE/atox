@@ -35,7 +35,11 @@ class Chatpanel extends View
     @selectChat(params.cid)
 
   update: (params) ->
-    @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
+    if params.img != 'none'
+      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
+    else
+      # TODO add placeholder avatar
+      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{atom.config.get 'atox.userAvatar'})"})
 
   selectChat: (cid) ->
     @coverview.find('.selected').removeClass('selected')
