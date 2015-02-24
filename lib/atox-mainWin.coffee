@@ -19,6 +19,7 @@ class MainWindow extends View
       .appendChild @element
 
     @mainEvent = event
+    @addClass 'aTox-hidden'
 
     jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
@@ -29,7 +30,7 @@ class MainWindow extends View
 
     @contactsArray = []
 
-    @isOn          = true
+    @isOn          = false
     @deltaScroll   = 0
     @maxScroll     = 0
 
@@ -47,19 +48,19 @@ class MainWindow extends View
       e.stop()
       e.animate { "top": "#{@deltaScroll}px" }, 100
 
-  show: ->
+  showAT: ->
     @isOn = true
-    super() # Calls jQuery's show
+    @removeClass 'aTox-hidden'
 
-  hide: ->
+  hideAT: ->
     @isOn = false
-    super() # Calls jQuery's hide
+    @addClass 'aTox-hidden'
 
   toggle: ->
     if @isOn
-      @hide()
+      @hideAT()
     else
-      @show()
+      @showAT()
 
   addContact: (contact, first) ->
     contact.appendTo @contacts
