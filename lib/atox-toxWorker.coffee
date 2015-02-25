@@ -1,4 +1,5 @@
 toxcore = require 'toxcore'
+fs = require 'fs'
 
 module.exports =
 class ToxWorker

@@ -5,7 +5,7 @@ class Github
   constructor: ->
     console.log "constructed"
     @client_id = '0b093d563346476729fb'
-    @client_secret = '119af1919849af7f4b597a8e69a4ae8499a05859'
+    @client_secret = '8fdsfdsgfdsg98d7'
     @htoken = ''
 
   getUserInfo: (params, callback) ->
@@ -48,6 +48,49 @@ class Github
     @getUserInfo {user: params.user}, (info) =>
       callback(info.avatar_url)
 
+  createUserToken: (params, callback) ->
+    #params.user, params.password, params.otp, callback
+    if not params.user? or not params.password?
+      return
+    opts = {
+      hostname: 'api.github.com',
+      port: 443,
+      path: '/authorizations',
+      method: 'POST',
+      auth: params.user + ':' + params.password,
+      headers: {
+        'User-Agent': 'aTox Github Binding v0.0.1',
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    }
+    if params.otp?
+      opts.headers['X-GitHub-OTP'] = params.otp
+    data = {
+      #"client_secret": @client_secret,
+      "scopes": [
+        "public_repo" #To fill up
+      ],
+      "note": "aTox github binding"
+    }
+    req = https.request opts, (res) =>
+      data = ''
+      console.log "StatusCode: ", res.statusCode
+      console.log "headers: ", res.headers
+      if res.statusCode is 401 and res.headers['x-github-otp']?
+        console.log "Two factor auth is required. Type: " + res.headers['x-github-otp']
+      res.on 'data', (d) =>
+        data += d
+      res.on 'end', =>
+        console.log data
+        console.log JSON.parse(data)
+        @setToken JSON.parse(data).token
+        callback({id: JSON.parse(data).id, token: JSON.parse(data).token, data: JSON.parse(data)})
+    req.write(JSON.stringify data)
+    req.end()
+    req.on 'error', (e) =>
+      console.error e
+
 
   authentificate: (params, callback) ->
     #params.user, params.password, params.otp, callback
@@ -83,6 +126,7 @@ class Github
       res.on 'data', (d) =>
         data += d
       res.on 'end', =>
+        console.log JSON.parse(data)
         @setToken JSON.parse(data).token
         callback()
     req.write(JSON.stringify data)

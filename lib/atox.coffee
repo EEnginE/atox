@@ -43,6 +43,11 @@ module.exports =
       description: "When activated displays debug notifications"
       type:  "boolean"
       default: false
+    githubToken:
+      title: "Github Access Token"
+      description: "Github access token"
+      type: "string"
+      default: "none"
 
 
   activate: ->
@@ -66,6 +71,7 @@ module.exports =
 
     atom.config.observe 'aTox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
     atom.config.observe 'aTox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
+    atom.config.observe 'aTox.githubToken', (newValue) => @github.setToken newValue
 
     @internalContactId = 0
     @contactsArray     = []
@@ -89,10 +95,15 @@ module.exports =
       @event.on 'aTox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
       @term.init()
 
-      @github.authentificate {user: 'mensinda', password:'************', otp: '127155'}, =>
-        @event.emit 'aTox.terminal', "Github Token: #{@github.getToken()}"
-        @github.getUserImage {user: 'mensinda'}, (url) =>
-          @event.emit 'aTox.terminal', "Github Avatar: #{url}"
+      if @github.getToken is ''
+        @github.createUserToken {user: 'arvius', password:''}, (params) =>
+          atom.config.set 'aTox.githubToken', params.token
+          console.log params.id, params.token, params.data
+
+      #@github.authentificate {user: 'arvius', password:''}, =>
+        #@event.emit 'aTox.terminal', "Github Token: #{@github.getToken()}"
+        #@github.getUserImage {user: 'mensinda'}, (url) =>
+          #@event.emit 'aTox.terminal', "Github Avatar: #{url}"
 
       @TOX.startup()
 
