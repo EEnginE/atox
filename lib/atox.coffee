@@ -76,7 +76,6 @@ module.exports =
     @internalContactId = 0
     @contactsArray     = []
 
-    @mainWin.hide() unless atom.config.get 'atox.showDefault'
     @hasOpenChat    = false
 
     @event.on 'aTox.new-contact',       (data) => @addUserHelper      data
@@ -106,6 +105,7 @@ module.exports =
           #@event.emit 'aTox.terminal', "Github Avatar: #{url}"
 
       @TOX.startup()
+      @mainWin.showAT() if atom.config.get 'atox.showDefault'
 
   getChatIDFromName: (data) ->
     for i in @contactsArray

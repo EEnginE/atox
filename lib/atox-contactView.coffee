@@ -20,7 +20,12 @@ class ContactView extends View
   update: (params) ->
     @name.text "#{params.name}"
     @status.text "#{params.status}"
-    @img.css { "background-image": "url(\"#{params.img}\")" }
+
+    if params.img != 'none'
+      @img.css { "background-image": "url(\"#{params.img}\")" }
+    else
+      # TODO add placeholder avatar
+      @img.css { "background-image": "url(\"#{atom.config.get 'atox.userAvatar'}\")" }
 
     if params.selected
       @attr "class", "aTox-Contact-#{params.online}-select"

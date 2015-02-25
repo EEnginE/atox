@@ -47,7 +47,20 @@ class Contact
 
   avatarData: (data) ->
     return unless data.tid == @tid
-    @event.emit 'aTox.terminal', "#{@name} has a new Avatar"
+
+    if data.d.format() == 0
+      @event.emit 'aTox.terminal', "#{@name} has a no Avatar"
+      @img = 'none'
+      @update()
+      return
+
+    if ! data.d.isValid()
+      @event.emit 'aTox.terminal', "#{@name} has an invalid (or none) Avatar"
+      @img = 'none'
+      @update()
+      return
+
+    @event.emit 'aTox.terminal', "#{@name} has a new Avatar (Fromat: #{data.d.format()})"
     @img = "#{os.tmpdir()}/aTox-Avatar-#{data.d.hashHex()}"
     @event.emit 'aTox.terminal', "Avatar Path: #{@img}"
     fs.writeFile @img, data.d.data(), (error) =>
@@ -149,6 +162,8 @@ class Contact
 
     @contactView.update temp
     @chatBox.update     temp
+
+    @panel.update {cid: @cid, img: @img}
 
   handleClick: ->
     if @selected
