@@ -1,5 +1,6 @@
 toxcore = require 'toxcore'
 fs = require 'fs'
+os = require 'os'
 
 module.exports =
 class ToxWorker
@@ -7,7 +8,10 @@ class ToxWorker
     @event = event
 
   startup: ->
-    @TOX = new toxcore.Tox
+    if os.platform().indexOf('win') > -1
+      @TOX = new toxcore.Tox({av: false, path: __dirname + "\\libtoxcore.dll"})
+    else
+      @TOX = new toxcore.Tox({av: false})
 
     @err "Failed to load TOX" unless @TOX.checkHandle (e) =>
 
