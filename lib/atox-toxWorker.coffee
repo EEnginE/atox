@@ -18,11 +18,12 @@ class ToxWorker
     @TOX.on 'statusMessage',  (e) => @statusChangeCB e
     @TOX.on 'userStatus',     (e) => @userStatusCB   e
 
-    @event.on 'setName',      (e) => @setName      e
-    @event.on 'setAvatar',    (e) => @setAvatar    e
-    @event.on 'setStatus',    (e) => @setStatus    e
-    @event.on 'onlineStatus', (e) => @onlineStatus e
-    @event.on 'sendToFriend', (e) => @sendToFriend e
+    @event.on 'setName',      (e) => @setName           e
+    @event.on 'setAvatar',    (e) => @setAvatar         e
+    @event.on 'setStatus',    (e) => @setStatus         e
+    @event.on 'onlineStatus', (e) => @onlineStatus      e
+    @event.on 'sendToFriend', (e) => @sendToFriend      e
+    @event.on 'addFriend',    (e) => @sendFriendRequest e
 
     @event.on 'userStatusAT', (e) => @onlineStatus e
 
@@ -55,6 +56,24 @@ class ToxWorker
   setStatus: (s) ->
     @TOX.setStatusMessage "#{s}"
 
+  sendFriendRequest: (e) ->
+    @inf "Sent friend request: #{e.addr}"
+
+    try
+      fNum = @TOX.addFriendSync "#{e.addr}", "#{e.msg}"
+    catch err
+      @err "Failed to send friend request"
+      return
+
+    @event.emit 'aTox.new-contact', {
+      name:   e.addr
+      status: "Working Please wait..."
+      online: 'offline'
+      cid:    fNum
+      tid:    fNum
+    }
+    
+    @inf "Added Friend #{fNum}"
 
   sendToFriend: (e) ->
     @TOX.sendMessage e.d, e.tid, (a) =>

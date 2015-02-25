@@ -22,6 +22,7 @@ class Terminal
       {c: 'setStatus', a: 1, d: 'Set status to [1]',      f: (p) => @setStatus          p[0]}
       {c: 'setOnline', a: 1, d: 'Set online to [1]',      f: (p) => @setOnline          p[0]}
       {c: 'sendMSG',   a: 2, d: 'Send [2] to [1]',        f: (p) => @sendMSG            p[0], p[1]}
+      {c: 'addFriend', a: 2, d: 'Send friend request',    f: (p) => @addFriend          p[0], p[1]}
     ]
 
   help: ->
@@ -38,6 +39,7 @@ class Terminal
   setStatus: (p)   -> @event.emit "setStatus",       p
   setOnline: (p)   -> @event.emit "onlineStatus",    { tid: -1, d: p }
   sendMSG:   (f,m) -> @event.emit "sendToFriend",    { tid: f,  d: m }
+  addFriend: (a,m) -> @event.emit "addFriend",       { addr: a, msg: m }
 
   process: (cmd) ->
     args = cmd.split /,\s+/
