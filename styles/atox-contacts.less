@@ -5,109 +5,109 @@
 @import "ui-variables";
 @import "./atox-vars";
 
-@height: @aTox-not-Height / 1;
+@height: @atox-not-Height / 1;
 
-@m1: @aTox-not-Mix1;
-@m2: @aTox-not-Mix2;
+@m1: @atox-not-Mix1;
+@m2: @atox-not-Mix2;
 
-@s1: @aTox-not-Stop1;
-@s2: @aTox-not-Stop2;
-@s3: @aTox-not-Stop3;
+@s1: @atox-not-Stop1;
+@s2: @atox-not-Stop2;
+@s3: @atox-not-Stop3;
 
-#aTox-main-window {
-  #aTox-main-window-contacts {
-    .aTox-Contact-BASE {
+#atox-main-window {
+  #atox-main-window-contacts {
+    .atox-Contact-BASE {
       position:      relative;
       margin:        7px;
       margin-bottom: 5px;
-      height:        @aTox-not-Height;
+      height:        @atox-not-Height;
       border-radius: 5px;
       overflow:      hidden;
 
       padding-top:   5px;
       padding-right: 5px;
-      padding-left:  @aTox-not-Stop2 + @aTox-not-Height / 10;
+      padding-left:  @atox-not-Stop2 + @atox-not-Height / 10;
 
-      .aTox-Contact-img {
+      .atox-Contact-img {
         float:    right;
-        width:    @aTox-not-Height / 2;
-        height:   @aTox-not-Height / 2;
+        width:    @atox-not-Height / 2;
+        height:   @atox-not-Height / 2;
 
         background-size: 100% 100%;
       }
 
-      .aTox-Contact-name {
-        font-size:     @aTox-not-font1;
-        margin-bottom: @aTox-not-Margin / 2.5;
+      .atox-Contact-name {
+        font-size:     @atox-not-font1;
+        margin-bottom: @atox-not-Margin / 2.5;
       }
 
-      .aTox-Contact-status {
+      .atox-Contact-status {
         color:         @text-color;
-        font-size:     @aTox-not-font2;
+        font-size:     @atox-not-font2;
       }
     }
 
-    .aTox-Contact-offline {
-      .aTox-Contact-BASE;
+    .atox-Contact-offline {
+      .atox-Contact-BASE;
 
-      background: @aTox-Contacts-Base-Color;
+      background: @atox-Contacts-Base-Color;
     }
 
-    .aTox-Contact-offline-select {
-      .aTox-Contact-BASE;
+    .atox-Contact-offline-select {
+      .atox-Contact-BASE;
 
-      background: lighten( @aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor );
+      background: lighten( @atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor );
     }
 
-    .aTox-Contact-offline:hover {
-      background: lighten( @aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor );
+    .atox-Contact-offline:hover {
+      background: lighten( @atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor );
     }
 
-    .aTox-Contact-offline-select:hover {
-      background: lighten( @aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor );
+    .atox-Contact-offline-select:hover {
+      background: lighten( @atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor );
     }
 
 
 
 
-    .aTox-Contact-group {
-      .aTox-Contact-BASE;
+    .atox-Contact-group {
+      .atox-Contact-BASE;
 
       @c0: @background-color-info;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: @aTox-Contacts-Base-Color;
+      @bg: @atox-Contacts-Base-Color;
 
-      .aTox-Contact-name {color: @text-color-info;}
+      .atox-Contact-name {color: @text-color-info;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-group-select {
-      .aTox-Contact-BASE;
+    .atox-Contact-group-select {
+      .atox-Contact-BASE;
 
       @c0: @background-color-info;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
-      .aTox-Contact-name {color: @text-color-info;}
+      .atox-Contact-name {color: @text-color-info;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-group:hover {
-      @c0: lighten(@background-color-info, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-group:hover {
+      @c0: lighten(@background-color-info, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-group-select:hover {
-      @c0: lighten(@background-color-info, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-group-select:hover {
+      @c0: lighten(@background-color-info, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
@@ -116,44 +116,44 @@
 
 
 
-    .aTox-Contact-online {
-      .aTox-Contact-BASE;
+    .atox-Contact-online {
+      .atox-Contact-BASE;
 
       @c0: @background-color-success;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: @aTox-Contacts-Base-Color;
+      @bg: @atox-Contacts-Base-Color;
 
-      .aTox-Contact-name {color: @text-color-success;}
+      .atox-Contact-name {color: @text-color-success;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-online-select {
-      .aTox-Contact-BASE;
+    .atox-Contact-online-select {
+      .atox-Contact-BASE;
 
       @c0: @background-color-success;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
-      .aTox-Contact-name {color: @text-color-success;}
+      .atox-Contact-name {color: @text-color-success;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-online:hover {
-      @c0: lighten(@background-color-success, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-online:hover {
+      @c0: lighten(@background-color-success, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-online-select:hover {
-      @c0: lighten(@background-color-success, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-online-select:hover {
+      @c0: lighten(@background-color-success, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
@@ -162,44 +162,44 @@
 
 
 
-    .aTox-Contact-away {
-      .aTox-Contact-BASE;
+    .atox-Contact-away {
+      .atox-Contact-BASE;
 
       @c0: @background-color-warning;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: @aTox-Contacts-Base-Color;
+      @bg: @atox-Contacts-Base-Color;
 
-      .aTox-Contact-name {color: @text-color-warning;}
+      .atox-Contact-name {color: @text-color-warning;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-away-select {
-      .aTox-Contact-BASE;
+    .atox-Contact-away-select {
+      .atox-Contact-BASE;
 
       @c0: @background-color-warning;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
-      .aTox-Contact-name {color: @text-color-warning;}
+      .atox-Contact-name {color: @text-color-warning;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-away:hover {
-      @c0: lighten(@background-color-warning, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-away:hover {
+      @c0: lighten(@background-color-warning, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-away-select:hover {
-      @c0: lighten(@background-color-warning, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-away-select:hover {
+      @c0: lighten(@background-color-warning, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
@@ -208,44 +208,44 @@
 
 
 
-    .aTox-Contact-busy {
-      .aTox-Contact-BASE;
+    .atox-Contact-busy {
+      .atox-Contact-BASE;
 
       @c0: @background-color-error;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: @aTox-Contacts-Base-Color;
+      @bg: @atox-Contacts-Base-Color;
 
-      .aTox-Contact-name {color: @text-color-error;}
+      .atox-Contact-name {color: @text-color-error;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-busy-select {
-      .aTox-Contact-BASE;
+    .atox-Contact-busy-select {
+      .atox-Contact-BASE;
 
       @c0: @background-color-error;
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
-      .aTox-Contact-name {color: @text-color-error;}
+      .atox-Contact-name {color: @text-color-error;}
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-busy:hover {
-      @c0: lighten(@background-color-error, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-busy:hover {
+      @c0: lighten(@background-color-error, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }
 
-    .aTox-Contact-busy-select:hover {
-      @c0: lighten(@background-color-error, @aTox-Contacts-Lighten-Factor);
+    .atox-Contact-busy-select:hover {
+      @c0: lighten(@background-color-error, @atox-Contacts-Lighten-Factor);
       @c1: mix( @c0, @bg, @m1 );
       @c2: mix( @c0, @bg, @m2 );
-      @bg: lighten(@aTox-Contacts-Base-Color, @aTox-Contacts-Lighten-Factor);
+      @bg: lighten(@atox-Contacts-Base-Color, @atox-Contacts-Lighten-Factor);
 
       background: -webkit-linear-gradient( left, @c0 0px, @c1 @s1, @c2 @s2, @bg @s3);
     }

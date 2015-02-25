@@ -66,14 +66,14 @@ class ToxWorker
       @err "Failed to send friend request"
       return
 
-    @event.emit 'aTox.new-contact', {
+    @event.emit 'atox.new-contact', {
       name:   e.addr
       status: "Working Please wait..."
       online: 'offline'
       cid:    fNum
       tid:    fNum
     }
-    
+
     @inf "Added Friend #{fNum}"
 
   sendToFriend: (e) ->
@@ -106,7 +106,7 @@ class ToxWorker
       img:      atom.config.get 'atox.userAvatar'
     }
 
-    @event.emit  'aTox.terminal', "You are now #{e.d}"
+    @event.emit  'atox.terminal', "You are now #{e.d}"
 
   friendRequest: (e) ->
     @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
@@ -118,7 +118,7 @@ class ToxWorker
       @err "Failed to add Friend"
       return
 
-    @event.emit 'aTox.new-contact', {
+    @event.emit 'atox.new-contact', {
       name:   e.publicKeyHex()
       status: "Working Please wait..."
       online: 'offline'
@@ -132,9 +132,9 @@ class ToxWorker
       type: 'inf'
       name: 'TOX'
       content: msg
-    } if atom.config.get 'aTox.debugNotifications'
+    } if atom.config.get 'atox.debugNotifications'
 
-    @event.emit 'aTox.terminal', "TOX: [Info] #{msg}"
+    @event.emit 'atox.terminal', "TOX: [Info] #{msg}"
 
   err: (msg) ->
     @event.emit 'notify', {
@@ -143,4 +143,4 @@ class ToxWorker
       content: msg
     }
 
-    @event.emit 'aTox.terminal', "TOX: [Error] #{msg}"
+    @event.emit 'atox.terminal', "TOX: [Error] #{msg}"

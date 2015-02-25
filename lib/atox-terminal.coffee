@@ -6,7 +6,7 @@ class Terminal
 
   init: ->
 
-    @event.on 'aTox.add-message', (data) =>
+    @event.on 'atox.add-message', (data) =>
       return unless data.cid is @cid
       return unless data.tid is -1
       @process data.msg
@@ -26,11 +26,11 @@ class Terminal
     ]
 
   help: ->
-    @event.emit 'aTox.terminal', 'Comands: (seperator: ", ")'
-    @event.emit 'aTox.terminal', ' '
+    @event.emit 'atox.terminal', 'Comands: (seperator: ", ")'
+    @event.emit 'atox.terminal', ' '
 
     for i in @cmds
-      @event.emit 'aTox.terminal', " - #{i.c} (#{i.a}): #{i.d}"
+      @event.emit 'atox.terminal', " - #{i.c} (#{i.a}): #{i.d}"
 
   closeChat: (id)  -> @event.emit "chat-visibility", { cid: id, what: 'hide' }
   openChat:  (id)  -> @event.emit "chat-visibility", { cid: id, what: 'show' }

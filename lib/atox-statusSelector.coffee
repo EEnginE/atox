@@ -3,8 +3,8 @@
 module.exports =
 class StatusSelector extends View
   @content: (win, event) ->
-    ID    = "aTox-#{win}-status-selector"
-    CLASS = "aTox-status-selector"
+    ID    = "atox-#{win}-status-selector"
+    CLASS = "atox-status-selector"
 
     @div id: "#{ID}", class: "#{CLASS}", =>
       @div id: "#{ID}-offline", class: "#{CLASS}-offline",        outlet: 'offline'
@@ -42,4 +42,4 @@ class StatusSelector extends View
 
   setStatus: (newS) ->
     @currentStatus = newS
-    @status.attr 'class', "aTox-status-selector-current-#{newS}"
+    @status.attr 'class', "atox-status-selector-current-#{newS}"

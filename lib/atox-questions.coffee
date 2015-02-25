@@ -7,11 +7,11 @@ class YesNoQuestion extends View
   @content: (name, q, yes_t, no_t) ->
     num = parseInt ( Math.random() * 100000000 ), 10
 
-    #@div class: 'aTox-Q-center-helper', =>
-    @div id: "aTox-YNQ-#{num}", class: "aTox-YNQ", =>
-      @div id: "aTox-YNQ-#{num}-n", class: "aTox-YNQ-n", => @raw "#{name}"
-      @div id: "aTox-YNQ-#{num}-q", class: "aTox-YNQ-q", => @raw "#{q}"
-      @div id: "aTox-YNQ-#{num}-b", class: "aTox-YNQ-b", outlet: 'buttons'
+    #@div class: 'atox-Q-center-helper', =>
+    @div id: "atox-YNQ-#{num}", class: "atox-YNQ", =>
+      @div id: "atox-YNQ-#{num}-n", class: "atox-YNQ-n", => @raw "#{name}"
+      @div id: "atox-YNQ-#{num}-q", class: "atox-YNQ-q", => @raw "#{q}"
+      @div id: "atox-YNQ-#{num}-b", class: "atox-YNQ-b", outlet: 'buttons'
 
   initialize: (name, q, yes_t, no_t) ->
     @hide()

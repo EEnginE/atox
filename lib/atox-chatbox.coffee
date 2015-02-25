@@ -5,7 +5,7 @@ require 'jquery-ui'
 
 class ChatList extends View
   @content: (params) ->
-    @div id: "aTox-chatbox-#{params.id}-chatlist", class: "aTox-chatbox-chatlist"
+    @div id: "atox-chatbox-#{params.id}-chatlist", class: "atox-chatbox-chatlist"
 
   initialize: (params) ->
     @event = params.event
@@ -16,7 +16,7 @@ class ChatList extends View
     jQuery( @element ).append "<p style='font-weight:bold;margin-left:3px;color:rgba(#{@randomNumber(255)}, #{@randomNumber(255)}, #{@randomNumber(255)}, 1)'>#{user}</p>"
     @paragraph = jQuery( @element ).find( "p:contains('#{user}')" )
     @paragraph.click =>
-      @event.emit "aTox.new-contact", {name: "#{user}", online: 'offline'} #TODO: Get the real status of the user, check if User is already added and open the chat window directly
+      @event.emit "atox.new-contact", {name: "#{user}", online: 'offline'} #TODO: Get the real status of the user, check if User is already added and open the chat window directly
 
     @paragraph.hover =>
       console.log "Hovered" #TODO: Add functionality: Show additional information: Recent Projects, Contributions to current project, has push rights. Unnecessary: toxID, status, image
@@ -31,13 +31,13 @@ class ChatList extends View
 module.exports =
 class ChatBox extends View
   @content: (params) ->
-    ID = "aTox-chatbox-#{params.cid}"
+    ID = "atox-chatbox-#{params.cid}"
 
-    @div id: "#{ID}", class: 'aTox-chatbox', =>
-      @div id: "#{ID}-header",      class: "aTox-chatbox-header-offline", outlet: 'header', =>
+    @div id: "#{ID}", class: 'atox-chatbox', =>
+      @div id: "#{ID}-header",      class: "atox-chatbox-header-offline", outlet: 'header', =>
         @h1 outlet: 'name'
-      @div id: "#{ID}-chathistory", class: "aTox-chatbox-chathistory native-key-bindings", tabindex: '-1', outlet: 'chathistory'
-      @div id: "#{ID}-textfield",   class: 'aTox-chatbox-textfield', outlet: 'textfield',  =>
+      @div id: "#{ID}-chathistory", class: "atox-chatbox-chathistory native-key-bindings", tabindex: '-1', outlet: 'chathistory'
+      @div id: "#{ID}-textfield",   class: 'atox-chatbox-textfield', outlet: 'textfield',  =>
         @subview "inputField", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
 
   initialize: (params) ->
@@ -47,12 +47,12 @@ class ChatBox extends View
     @cid   = params.cid
     @event = params.event
 
-    @event.on "aTox.add-message", (msg) => @addMessage msg
+    @event.on "atox.add-message", (msg) => @addMessage msg
 
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown( (event) =>
       if event.which is 13 and @inputField.getText() != ""
-        @event.emit "aTox.add-message", {
+        @event.emit "atox.add-message", {
           cid:   @cid
           tid:   -1
           color: @getColor()
@@ -86,7 +86,7 @@ class ChatBox extends View
 
   update: (params) ->
     @online = params.online
-    @header.attr 'class', "aTox-chatbox-header-#{params.online}"
+    @header.attr 'class', "atox-chatbox-header-#{params.online}"
     @name.text   params.name
 
   getColor: ->

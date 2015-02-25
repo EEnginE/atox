@@ -6,17 +6,17 @@
 @import "./atox-vars";
 @import "./atox-statusSelector";
 
-.aTox-chatpanel {
+.atox-chatpanel {
   /* reset */
   h1, h2, h3, h4, p, div, table, ul, li, span, input {
     margin: 0;
     padding: 0;
   }
-  .aTox-chatpanel-history-box {
+  .atox-chatpanel-history-box {
     height: 70px;
     white-space: pre;
     overflow-y: hidden;
-    .aTox-chatpanel-settings {
+    .atox-chatpanel-settings {
       display: block;
       position: absolute;
       top: 5px;
@@ -25,19 +25,19 @@
       opacity: 0;
       transition: opacity 0.4s;
     }
-    .aTox-chatpanel-border {
+    .atox-chatpanel-border {
       height: 2px;
       background-color: @tool-panel-border-color;
       cursor: n-resize;
       cursor: row-resize;
     }
-    .aTox-chatpanel-chat-overview {
+    .atox-chatpanel-chat-overview {
       display: block;
       height: inherit;
       width: 28px;
       background-color: @base-background-color;
       float: left;
-      .aTox-chatpanel-chat-status {
+      .atox-chatpanel-chat-status {
         list-style: none;
         display: block;
         height: 27px;
@@ -46,7 +46,7 @@
         background-size: 100% 100%;
       }
     }
-    .aTox-chatpanel-chats {
+    .atox-chatpanel-chats {
       margin-left: 28px;
       padding-left: 4px;
       padding-bottom: 4px;
@@ -54,7 +54,7 @@
       height: inherit;
       overflow-y: scroll;
       background-color: #1d1f21;
-      .aTox-chatpanel-chat {
+      .atox-chatpanel-chat {
         //height: inherit;
         display: none;
       }
@@ -64,11 +64,11 @@
       }
     }
 /*
-      .aTox-chatpanel-chat {
+      .atox-chatpanel-chat {
         height: 0;
         list-style: none;
         overflow: visible;
-        .aTox-chatpanel-chat-status {
+        .atox-chatpanel-chat-status {
           float: left;
           height: 28px;
           width: 28px;
@@ -76,7 +76,7 @@
           border: 1px solid rgba(0, 0, 0, 0.5);
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
         }
-        .aTox-chatpanel-chathistory {
+        .atox-chatpanel-chathistory {
           //position: absolute;
           background-color: #1d1f21;
           margin-left: 30px;
@@ -88,36 +88,36 @@
           padding-bottom: 2px;
         }
       }
-      .aTox-chatpanel-chat.selected {
-        .aTox-chatpanel-chathistory {
+      .atox-chatpanel-chat.selected {
+        .atox-chatpanel-chathistory {
           display: block;
         }
       }
     }*/
   }
-  .aTox-chatpanel-history-box:hover .aTox-chatpanel-settings {
+  .atox-chatpanel-history-box:hover .atox-chatpanel-settings {
     opacity: 1;
     transition: opacity 0.1s;
   }
-  .aTox-chatpanel-input {
+  .atox-chatpanel-input {
     height: 28px;
     border-top: 1px solid rgba(0, 0, 0, 0.5);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
-    .aTox-chatpanel-input-status-con {
+    .atox-chatpanel-input-status-con {
       display: block;
       float: left;
       width: 28px;
 
-      .aTox-status-selector {
-        .aTox-status-selector;
-        #aTox-panel-status-selector-current {
+      .atox-status-selector {
+        .atox-status-selector;
+        #atox-panel-status-selector-current {
           width: 14px;
           height: 14px;
           margin: 28px;
         }
         display: block;
         float: left;
-        margin: -( (@aTox-main-status-size - 28px) / 2 );
+        margin: -( (@atox-main-status-size - 28px) / 2 );
 
         z-index: 90;
       }
@@ -127,7 +127,7 @@
       margin-right: 0;
       display: block;
     }
-    .aTox-chatpanel-btn {
+    .atox-chatpanel-btn {
       float: right;
     }
   }

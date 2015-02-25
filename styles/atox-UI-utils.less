@@ -5,11 +5,11 @@
 @import "ui-variables";
 @import "./atox-vars";
 
-.aTox-Button-BASE {
+.atox-Button-BASE {
   position:    absolute;
-  height:      @aTox-Button-Height;
-  line-height: @aTox-Button-Height;
-  width:       @aTox-Button-Width;
+  height:      @atox-Button-Height;
+  line-height: @atox-Button-Height;
+  width:       @atox-Button-Width;
 
   border-radius: 10px;
   z-index:       100;
@@ -22,7 +22,7 @@
 }
 
 
-.aTox-Button-yes {
+.atox-Button-yes {
   @baseColor: mix( @background-color-info, @overlay-background-color, 25% );
 
   background: -webkit-linear-gradient(
@@ -32,10 +32,10 @@
     darken(  @baseColor, 1% ) 51%,
     darken(  @baseColor, 4% ) 100%);
 
-  .aTox-Button-BASE;
+  .atox-Button-BASE;
 }
 
-.aTox-Button-yes:hover {
+.atox-Button-yes:hover {
   @baseColor: mix( @background-color-info, @overlay-background-color, 75% );
 
   background: -webkit-linear-gradient(
@@ -48,7 +48,7 @@
   color: darken( @text-color, 75% );
 }
 
-.aTox-Button-no {
+.atox-Button-no {
   @baseColor: mix( @background-color-error, @overlay-background-color, 25% );
 
   background: -webkit-linear-gradient(
@@ -58,10 +58,10 @@
     darken(  @baseColor, 1% ) 51%,
     darken(  @baseColor, 4% ) 100%);
 
-  .aTox-Button-BASE;
+  .atox-Button-BASE;
 }
 
-.aTox-Button-no:hover {
+.atox-Button-no:hover {
   @baseColor: mix( @background-color-error, @overlay-background-color, 75% );
 
   background: -webkit-linear-gradient(

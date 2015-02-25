@@ -24,7 +24,7 @@ class Contact
     @panel.addChat { cid: @cid, img: @img, event: @event }
 
     @event.on "chat-visibility",   (newV) => @visibility   newV
-    @event.on "aTox-contact-sent", (msg)  => @contactSendt msg
+    @event.on "atox-contact-sent", (msg)  => @contactSendt msg
 
     @event.on 'avatarDataAT',      (data) => @avatarData   data
     @event.on 'friendMsgAT',       (data) => @friendMsg    data
@@ -32,7 +32,7 @@ class Contact
     @event.on "statusChangeAT",    (data) => @statusChange data
     @event.on "avatarChangeAT",    (data) => @avatarChange data
     @event.on "userStatusAT",      (data) => @userStatus   data
-    @event.on 'aTox.add-message',  (data) => @sendMsg      data
+    @event.on 'atox.add-message',  (data) => @sendMsg      data
 
     if @cid == 0
       params.win.addContact @contactView, true
@@ -43,26 +43,26 @@ class Contact
 
     @color = @randomColor()
 
-    @event.emit 'aTox.terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
+    @event.emit 'atox.terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
 
   avatarData: (data) ->
     return unless data.tid == @tid
 
     if data.d.format() == 0
-      @event.emit 'aTox.terminal', "#{@name} has a no Avatar"
+      @event.emit 'atox.terminal', "#{@name} has a no Avatar"
       @img = 'none'
       @update()
       return
 
     if ! data.d.isValid()
-      @event.emit 'aTox.terminal', "#{@name} has an invalid (or none) Avatar"
+      @event.emit 'atox.terminal', "#{@name} has an invalid (or none) Avatar"
       @img = 'none'
       @update()
       return
 
-    @event.emit 'aTox.terminal', "#{@name} has a new Avatar (Fromat: #{data.d.format()})"
-    @img = "#{os.tmpdir()}/aTox-Avatar-#{data.d.hashHex()}"
-    @event.emit 'aTox.terminal', "Avatar Path: #{@img}"
+    @event.emit 'atox.terminal', "#{@name} has a new Avatar (Fromat: #{data.d.format()})"
+    @img = "#{os.tmpdir()}/atox-Avatar-#{data.d.hashHex()}"
+    @event.emit 'atox.terminal', "Avatar Path: #{@img}"
     fs.writeFile @img, data.d.data(), (error) =>
       return if error
       @update()
@@ -70,7 +70,7 @@ class Contact
   friendMsg: (data) ->
     return if     @status  == 'group'
     return unless data.tid == @tid
-    @event.emit "aTox.add-message", {
+    @event.emit "atox.add-message", {
       cid:   @cid
       tid:   @tid
       color: @color
@@ -80,19 +80,19 @@ class Contact
 
   nameChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'aTox.terminal', "Name #{@name} is now #{data.d}"
+    @event.emit 'atox.terminal', "Name #{@name} is now #{data.d}"
     @name = data.d
     @update()
 
   statusChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'aTox.terminal', "Status of #{@name} is now #{data.d}"
+    @event.emit 'atox.terminal', "Status of #{@name} is now #{data.d}"
     @status = data.d
     @update()
 
   avatarChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'aTox.terminal', "#{@name} changed avatar"
+    @event.emit 'atox.terminal', "#{@name} changed avatar"
     @online = status
     @update()
 
@@ -106,7 +106,7 @@ class Contact
       when 1 then status = 'away'
       when 2 then status = 'busy'
 
-    @event.emit 'aTox.terminal', "#{@name} changed user stauts to #{status}"
+    @event.emit 'atox.terminal', "#{@name} changed user stauts to #{status}"
     @online = status
     @update()
 
@@ -128,7 +128,7 @@ class Contact
     else
       tid = @cid
 
-    @event.emit "aTox.add-message", {
+    @event.emit "atox.add-message", {
       cid:   @cid
       tid:    tid  # Will be later the TOX ID
       color: @color
@@ -143,11 +143,11 @@ class Contact
     if newV.what == 'show'
       @chatBox.show()
       @selected = true
-      @event.emit 'aTox.terminal', "Opened chat #{@cid}"
+      @event.emit 'atox.terminal', "Opened chat #{@cid}"
     else
       @chatBox.hide()
       @selected = false
-      @event.emit 'aTox.terminal', "Cloesed chat #{@cid}"
+      @event.emit 'atox.terminal', "Cloesed chat #{@cid}"
 
     @update()
 
@@ -171,7 +171,7 @@ class Contact
     else
       @event.emit "chat-visibility", { cid: @cid, what: 'show' }
 
-    @event.emit 'aTox.select', {
+    @event.emit 'atox.select', {
       cid: @cid
       name: @name,
       status: @status,

@@ -1,6 +1,6 @@
 # Events
 
-## aTox.add-message
+## atox.add-message
 
 Adds a message
 
@@ -13,7 +13,7 @@ Adds a message
 | img   | Avatar                                   | no       |
 | msg   | The message string                       | yes      |
 
-## aTox-contact-sent
+## atox-contact-sent
 
 | Tag   | content                                  | required |
 | :---: | :--------------------------------------- | :------: |

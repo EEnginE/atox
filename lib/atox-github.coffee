@@ -19,7 +19,7 @@ class Github
       path: '/users/',
       method: 'GET',
       headers: {
-        'User-Agent': 'aTox Github Binding v0.0.1',
+        'User-Agent': 'atox Github Binding v0.0.1',
         'Content-Type': 'application/json; charset=utf-8',
         'Authorization': "token " + @htoken,
         'Accept': 'application/vnd.github.v3+json'
@@ -28,7 +28,7 @@ class Github
     if params.user?
       opts.path += params.user
     data = {
-      "note": "aTox github binding"
+      "note": "atox github binding"
     }
     req = https.request opts, (res) =>
       data = ''
@@ -59,7 +59,7 @@ class Github
       method: 'POST',
       auth: params.user + ':' + params.password,
       headers: {
-        'User-Agent': 'aTox Github Binding v0.0.1',
+        'User-Agent': 'atox Github Binding v0.0.1',
         'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/vnd.github.v3+json'
       }
@@ -71,7 +71,7 @@ class Github
       "scopes": [
         "public_repo" #To fill up
       ],
-      "note": "aTox github binding"
+      "note": "atox github binding"
     }
     req = https.request opts, (res) =>
       data = ''
@@ -103,7 +103,7 @@ class Github
       method: 'PUT',
       auth: params.user + ':' + params.password,
       headers: {
-        'User-Agent': 'aTox Github Binding v0.0.1',
+        'User-Agent': 'atox Github Binding v0.0.1',
         'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/vnd.github.v3+json'
       }
@@ -115,7 +115,7 @@ class Github
       "scopes": [
         "public_repo" #To fill up
       ],
-      "note": "aTox github binding"
+      "note": "atox github binding"
     }
     req = https.request opts, (res) =>
       data = ''
