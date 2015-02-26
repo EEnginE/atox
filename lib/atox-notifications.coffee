@@ -2,8 +2,8 @@
 
 class PopUp extends View
   @content: (params) ->
-    tName = "atox-PopUp-#{params.cid}_#{params.type}"
-    tType = "atox-PopUp"
+    tName = "aTox-PopUp-#{params.cid}_#{params.type}"
+    tType = "aTox-PopUp"
 
     @div id: "#{tName}", class: "#{tType}-#{params.type}", =>
       @div id: "#{tName}-img",     class: "#{tType}-img", outlet: 'img'
@@ -20,7 +20,7 @@ class PopUp extends View
 module.exports =
 class Notifications extends View
   @content: ->
-    @div id: "atox-PopUp-root"
+    @div id: "aTox-PopUp-root"
 
   initialize: (event) ->
     @currentID = 0
@@ -34,7 +34,7 @@ class Notifications extends View
 
     @event = event
     @event.on "notify", (msg) => @add msg
-    @event.on 'atox.add-message', (data) =>
+    @event.on 'aTox.add-message', (data) =>
       return if data.tid < 0
       @event.emit 'notify', {
         type:   'inf'

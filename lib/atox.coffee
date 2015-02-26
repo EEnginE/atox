@@ -51,8 +51,8 @@ module.exports =
 
 
   activate: ->
-    atom.commands.add 'atom-workspace', 'atox:toggle',  => @toggle()
-    atom.commands.add 'atom-workspace', 'atox:history', => @toggleHistory()
+    atom.commands.add 'atom-workspace', 'aTox:toggle',  => @toggle()
+    atom.commands.add 'atom-workspace', 'aTox:history', => @toggleHistory()
 
     @event         = new Emitter
     @mainWin       = new MainWindow    @event
@@ -62,24 +62,24 @@ module.exports =
     @github        = new Github
 
 
-    @mainWin.css 'top',  atom.config.get 'atox.mainWinTop'
-    @mainWin.css 'left', atom.config.get 'atox.mainWinLeft'
+    @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
+    @mainWin.css 'left', atom.config.get 'aTox.mainWinLeft'
 
     @mainWin.mouseup =>
-      atom.config.set 'atox.mainWinTop',  @mainWin.css 'top'
-      atom.config.set 'atox.mainWinLeft', @mainWin.css 'left'
+      atom.config.set 'aTox.mainWinTop',  @mainWin.css 'top'
+      atom.config.set 'aTox.mainWinLeft', @mainWin.css 'left'
 
-    atom.config.observe 'atox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
-    atom.config.observe 'atox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
-    atom.config.observe 'atox.githubToken', (newValue) => @github.setToken newValue
+    atom.config.observe 'aTox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
+    atom.config.observe 'aTox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
+    atom.config.observe 'aTox.githubToken', (newValue) => @github.setToken newValue
 
     @internalContactId = 0
     @contactsArray     = []
 
     @hasOpenChat    = false
 
-    @event.on 'atox.new-contact',       (data) => @addUserHelper      data
-    @event.on 'atox.select',            (data) => @contactSelected    data
+    @event.on 'aTox.new-contact',       (data) => @addUserHelper      data
+    @event.on 'aTox.select',            (data) => @contactSelected    data
     @event.on 'getChatID',              (data) => @getChatIDFromName  data
 
     $ =>
@@ -91,30 +91,30 @@ module.exports =
         cid:    -2
         tid:    -2
       }
-      @event.on 'atox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
+      @event.on 'aTox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
       @term.init()
 
-      if atom.config.get('atox.githubToken') != 'none'
-        @github.setToken atom.config.get('atox.githubToken')
+      if atom.config.get('aTox.githubToken') != 'none'
+        @github.setToken atom.config.get('aTox.githubToken')
       if @github.getToken() is undefined or @github.getToken() is 'none'
         @github.createUserToken {user: 'arvius', password:'****'}, (params) =>
-          atom.config.set 'atox.githubToken', params.token
+          atom.config.set 'aTox.githubToken', params.token
 
       #@github.authentificate {user: 'arvius', password:''}, =>
-        #@event.emit 'atox.terminal', "Github Token: #{@github.getToken()}"
+        #@event.emit 'aTox.terminal', "Github Token: #{@github.getToken()}"
         #@github.getUserImage {user: 'mensinda'}, (url) =>
-          #@event.emit 'atox.terminal', "Github Avatar: #{url}"
+          #@event.emit 'aTox.terminal', "Github Avatar: #{url}"
 
       @TOX.startup()
-      @mainWin.showAT() if atom.config.get 'atox.showDefault'
+      @mainWin.showAT() if atom.config.get 'aTox.showDefault'
 
   getChatIDFromName: (data) ->
     for i in @contactsArray
       if i.name == data
-        @event.emit 'atox.terminal', "getChatIDFromName: #{i.cid} (#{data})"
+        @event.emit 'aTox.terminal', "getChatIDFromName: #{i.cid} (#{data})"
         return i.cid
 
-    @event.emit 'atox.terminal', "getChatIDFromName: Not Found (#{data})"
+    @event.emit 'aTox.terminal', "getChatIDFromName: Not Found (#{data})"
     return -1
 
   contactSelected: (data) ->
@@ -138,7 +138,7 @@ module.exports =
       name:   params.name
       status: params.status
       online: params.online
-      img:    atom.config.get 'atox.userAvatar' #TODO: Add img to params
+      img:    atom.config.get 'aTox.userAvatar' #TODO: Add img to params
       event:  @event
       cid:    params.cid
       tid:    params.tid

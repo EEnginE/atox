@@ -9,19 +9,19 @@ StatusSelector = require './atox-statusSelector'
 module.exports =
 class MainWindow extends View
   @content: ->
-    @div id: 'atox-main-window', outlet: 'mainWin', =>
-      @div id: 'atox-main-window-header',   outlet: 'header', =>
-        @h1 "atox - Main Window",           outlet: 'winName'
-      @div id: 'atox-main-window-contacts', outlet: 'contacts'
+    @div id: 'aTox-main-window', outlet: 'mainWin', =>
+      @div id: 'aTox-main-window-header',   outlet: 'header', =>
+        @h1 "aTox - Main Window",           outlet: 'winName'
+      @div id: 'aTox-main-window-contacts', outlet: 'contacts'
 
   initialize: (event) ->
     atom.views.getView atom.workspace
       .appendChild @element
 
     @mainEvent = event
-    @addClass 'atox-hidden'
+    @addClass 'aTox-hidden'
 
-    jQuery( "#atox-main-window" ).draggable {handle: '#atox-main-window-header'}
+    jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
     @contacts.mousewheel (event) => @scrollHandler event
 
@@ -50,11 +50,11 @@ class MainWindow extends View
 
   showAT: ->
     @isOn = true
-    @removeClass 'atox-hidden'
+    @removeClass 'aTox-hidden'
 
   hideAT: ->
     @isOn = false
-    @addClass 'atox-hidden'
+    @addClass 'aTox-hidden'
 
   toggle: ->
     if @isOn

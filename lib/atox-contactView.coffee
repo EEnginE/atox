@@ -5,10 +5,10 @@ ChatBox       = require './atox-chatbox'
 module.exports =
 class ContactView extends View
   @content: (params) ->
-    ID    = "atox-Contact-#{params.cid}"
-    CLASS = "atox-Contact"
+    ID    = "aTox-Contact-#{params.cid}"
+    CLASS = "aTox-Contact"
 
-    @div id: "#{ID}", class: 'atox-Contact-offline', outlet: 'mainWin', =>
+    @div id: "#{ID}", class: 'aTox-Contact-offline', outlet: 'mainWin', =>
       @div id: "#{ID}-img",    class: "#{CLASS}-img",    outlet: 'img'
       @div id: "#{ID}-name",   class: "#{CLASS}-name",   outlet: 'name'
       @div id: "#{ID}-status", class: "#{CLASS}-status", outlet: 'status'
@@ -25,9 +25,9 @@ class ContactView extends View
       @img.css { "background-image": "url(\"#{params.img}\")" }
     else
       # TODO add placeholder avatar
-      @img.css { "background-image": "url(\"#{atom.config.get 'atox.userAvatar'}\")" }
+      @img.css { "background-image": "url(\"#{atom.config.get 'aTox.userAvatar'}\")" }
 
     if params.selected
-      @attr "class", "atox-Contact-#{params.online}-select"
+      @attr "class", "aTox-Contact-#{params.online}-select"
     else
-      @attr "class", "atox-Contact-#{params.online}"
+      @attr "class", "aTox-Contact-#{params.online}"

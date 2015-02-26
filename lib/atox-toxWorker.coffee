@@ -33,13 +33,13 @@ class ToxWorker
 
     @event.on 'userStatusAT', (e) => @onlineStatus e
 
-    @event.emit 'setName',   atom.config.get 'atox.userName'
-    @event.emit 'setAvatar', atom.config.get 'atox.userAvatar'
+    @event.emit 'setName',   atom.config.get 'aTox.userName'
+    @event.emit 'setAvatar', atom.config.get 'aTox.userAvatar'
     @event.emit 'setStatus', "I am a Bot :)"
 
     @TOX.start()
     @inf "Started TOX"
-    @inf "Name:  #{atom.config.get 'atox.userName'}"
+    @inf "Name:  #{atom.config.get 'aTox.userName'}"
     @inf "My ID: #{@TOX.getAddressHexSync()}"
 
   avatarDataCB:   (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
@@ -71,7 +71,7 @@ class ToxWorker
       @err "Failed to send friend request"
       return
 
-    @event.emit 'atox.new-contact', {
+    @event.emit 'aTox.new-contact', {
       name:   e.addr
       status: "Working Please wait..."
       online: 'offline'
@@ -103,10 +103,10 @@ class ToxWorker
       type:    'inf'
       name:     e.d.charAt(0).toUpperCase() + e.d.slice(1)
       content: "You are now #{e.d}"
-      img:      atom.config.get 'atox.userAvatar'
+      img:      atom.config.get 'aTox.userAvatar'
     }
 
-    @event.emit  'atox.terminal', "You are now #{e.d}"
+    @event.emit  'aTox.terminal', "You are now #{e.d}"
 
   friendRequest: (e) ->
     @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
@@ -118,7 +118,7 @@ class ToxWorker
       @err "Failed to add Friend"
       return
 
-    @event.emit 'atox.new-contact', {
+    @event.emit 'aTox.new-contact', {
       name:   e.publicKeyHex()
       status: "Working Please wait..."
       online: 'offline'
@@ -132,9 +132,9 @@ class ToxWorker
       type: 'inf'
       name: 'TOX'
       content: msg
-    } if atom.config.get 'atox.debugNotifications'
+    } if atom.config.get 'aTox.debugNotifications'
 
-    @event.emit 'atox.terminal', "TOX: [Info] #{msg}"
+    @event.emit 'aTox.terminal', "TOX: [Info] #{msg}"
 
   err: (msg) ->
     @event.emit 'notify', {
@@ -143,4 +143,4 @@ class ToxWorker
       content: msg
     }
 
-    @event.emit 'atox.terminal', "TOX: [Error] #{msg}"
+    @event.emit 'aTox.terminal', "TOX: [Error] #{msg}"

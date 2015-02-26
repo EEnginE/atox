@@ -5,7 +5,7 @@
 @import "ui-variables";
 @import "./atox-vars";
 
-#atox-PopUp-root {
+#aTox-PopUp-root {
   position: absolute;
 
   h1, h2, h3, h4, p, div, table, ul, li, span {
@@ -18,7 +18,7 @@
   right: 20px;
 
   width: 300px;
-  height: @atox-not-Max-Num * ( @atox-not-Margin + @atox-not-Height ) - @atox-not-Margin;
+  height: @aTox-not-Max-Num * ( @aTox-not-Margin + @aTox-not-Height ) - @aTox-not-Margin;
 
   z-index: 200;
 
@@ -27,74 +27,74 @@
 
   overflow: hidden;
 
-  .atox-PopUp-BASE {
-    height:        @atox-not-Height;
-    margin-bottom: @atox-not-Margin;
+  .aTox-PopUp-BASE {
+    height:        @aTox-not-Height;
+    margin-bottom: @aTox-not-Margin;
     padding-top:   5px;
-    padding-left:  @atox-not-Stop2 + @atox-not-Height / 10;
+    padding-left:  @aTox-not-Stop2 + @aTox-not-Height / 10;
 
     border-radius: 10px;
     overflow:      hidden;
 
-    .atox-PopUp-img {
-      width:    @atox-not-Height / 1.5;
-      height:   @atox-not-Height / 1.5;
+    .aTox-PopUp-img {
+      width:    @aTox-not-Height / 1.5;
+      height:   @aTox-not-Height / 1.5;
 
       background-size: 100% 100%;
-      margin-top:      (@atox-not-Height / 2) - ( @atox-not-Height / 1.5 ) / 2 - 5px;
+      margin-top:      (@aTox-not-Height / 2) - ( @aTox-not-Height / 1.5 ) / 2 - 5px;
 
       float:  right;
     }
 
-    .atox-PopUp-name {
-      font-size:     @atox-not-font1;
-      margin-bottom: @atox-not-Margin / 4;
+    .aTox-PopUp-name {
+      font-size:     @aTox-not-font1;
+      margin-bottom: @aTox-not-Margin / 4;
     }
 
-    .atox-PopUp-content {
+    .aTox-PopUp-content {
       color:         @text-color;
-      font-size:     @atox-not-font2;
+      font-size:     @aTox-not-font2;
     }
   }
 
-  .atox-PopUp-inf {
+  .aTox-PopUp-inf {
     background: -webkit-linear-gradient(
       left,
       @background-color-info 0px,
-      mix( @background-color-info, @overlay-background-color, @atox-not-Mix1 ) @atox-not-Stop1,
-      mix( @background-color-info, @overlay-background-color, @atox-not-Mix2 ) @atox-not-Stop2,
-      rgba( 0, 0, 0, 0 ) @atox-not-Stop3);
+      mix( @background-color-info, @overlay-background-color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+      mix( @background-color-info, @overlay-background-color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+      rgba( 0, 0, 0, 0 ) @aTox-not-Stop3);
 
-    .atox-PopUp-BASE;
+    .aTox-PopUp-BASE;
 
-    .atox-PopUp-name { color: @text-color-info; }
+    .aTox-PopUp-name { color: @text-color-info; }
   }
 
 
-  .atox-PopUp-warn {
+  .aTox-PopUp-warn {
     background: -webkit-linear-gradient(
       left,
       @background-color-warning 0px,
-      mix( @background-color-warning, @overlay-background-color, @atox-not-Mix1 ) @atox-not-Stop1,
-      mix( @background-color-warning, @overlay-background-color, @atox-not-Mix2 ) @atox-not-Stop2,
-      rgba( 0, 0, 0, 0 ) @atox-not-Stop3);
+      mix( @background-color-warning, @overlay-background-color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+      mix( @background-color-warning, @overlay-background-color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+      rgba( 0, 0, 0, 0 ) @aTox-not-Stop3);
 
-    .atox-PopUp-BASE;
+    .aTox-PopUp-BASE;
 
-    .atox-PopUp-name { color: @text-color-warning; }
+    .aTox-PopUp-name { color: @text-color-warning; }
   }
 
 
-  .atox-PopUp-err {
+  .aTox-PopUp-err {
     background: -webkit-linear-gradient(
       left,
       @background-color-error 0px,
-      mix( @background-color-error, @overlay-background-color, @atox-not-Mix1 ) @atox-not-Stop1,
-      mix( @background-color-error, @overlay-background-color, @atox-not-Mix2 ) @atox-not-Stop2,
-      rgba( 0, 0, 0, 0 ) @atox-not-Stop3);
+      mix( @background-color-error, @overlay-background-color, @aTox-not-Mix1 ) @aTox-not-Stop1,
+      mix( @background-color-error, @overlay-background-color, @aTox-not-Mix2 ) @aTox-not-Stop2,
+      rgba( 0, 0, 0, 0 ) @aTox-not-Stop3);
 
-    .atox-PopUp-BASE;
+    .aTox-PopUp-BASE;
 
-    .atox-PopUp-name { color: @text-color-error; }
+    .aTox-PopUp-name { color: @text-color-error; }
   }
 }

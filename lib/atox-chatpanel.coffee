@@ -8,15 +8,15 @@ StatusSelector = require './atox-statusSelector'
 module.exports =
 class Chatpanel extends View
   @content: (params) ->
-    @div class: 'atox-chatpanel', =>
-      @div class: 'atox-chatpanel-history-box', outlet: 'hbox', =>
-        @div class: 'icon icon-gear atox-chatpanel-settings'
-        @div class: 'atox-chatpanel-border ui-resizable-handle ui-resizable-n', outlet: 'rborder'
-        @ul class: 'atox-chatpanel-chat-overview', outlet: 'coverview'
-        @div class: 'atox-chatpanel-chats native-key-bindings', tabindex: '-1', outlet: 'chats'
-      @div class: 'atox-chatpanel-input', outlet: 'input', =>
-        @div class: 'atox-chatpanel-input-status-con', outlet: 'status'
-        @button class: 'btn atox-chatpanel-btn', outlet: 'btn', "Send"
+    @div class: 'aTox-chatpanel', =>
+      @div class: 'aTox-chatpanel-history-box', outlet: 'hbox', =>
+        @div class: 'icon icon-gear aTox-chatpanel-settings'
+        @div class: 'aTox-chatpanel-border ui-resizable-handle ui-resizable-n', outlet: 'rborder'
+        @ul class: 'aTox-chatpanel-chat-overview', outlet: 'coverview'
+        @div class: 'aTox-chatpanel-chats native-key-bindings', tabindex: '-1', outlet: 'chats'
+      @div class: 'aTox-chatpanel-input', outlet: 'input', =>
+        @div class: 'aTox-chatpanel-input-status-con', outlet: 'status'
+        @button class: 'btn aTox-chatpanel-btn', outlet: 'btn', "Send"
         @subview 'inputField', new TextEditorView(mini: true, placeholderText: 'Type to write something.')
 
   addMessage: (params) ->
@@ -26,9 +26,9 @@ class Chatpanel extends View
 
   addChat: (params) ->
     @coverview.append $$ ->
-      @li class: 'atox-chatpanel-chat-status', cid: "#{params.cid}"
+      @li class: 'aTox-chatpanel-chat-status', cid: "#{params.cid}"
     @chats.append $$ ->
-      @div class: 'atox-chatpanel-chat', cid: "#{params.cid}"
+      @div class: 'aTox-chatpanel-chat', cid: "#{params.cid}"
     @coverview.find("[cid='" + params.cid + "']").click =>
       @selectChat(params.cid)
     @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
@@ -39,29 +39,29 @@ class Chatpanel extends View
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     else
       # TODO add placeholder avatar
-      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{atom.config.get 'atox.userAvatar'})"})
+      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
 
   selectChat: (cid) ->
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cid='" + cid + "']").addClass('selected')
-    @chats.find(".atox-chatpanel-chat").css({display: 'none'})
+    @chats.find(".aTox-chatpanel-chat").css({display: 'none'})
     @chats.find("[cid='" + cid + "']").css({display: 'block'})
     @scrollBot(cid)
 
   initialize: (params) ->
     @event = params.event
-    @event.on "atox.add-message", (msg) => @addMessage msg
+    @event.on "aTox.add-message", (msg) => @addMessage msg
 
     atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
       if e.keyCode is 13
         e.preventDefault()
         id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-        @event.emit "atox.add-message", {
+        @event.emit "aTox.add-message", {
           cid:   parseInt id
           tid:   -1
           color: @getColor()
-          name:  (atom.config.get 'atox.userName')
+          name:  (atom.config.get 'aTox.userName')
           msg:   @inputField.getText()
         }
         console.log "emit"
@@ -72,11 +72,11 @@ class Chatpanel extends View
         @hide()
     @btn.click =>
       id = @coverview.find('.selected').attr('cid') #get cid of selected chat
-      @event.emit "atox.add-message", {
+      @event.emit "aTox.add-message", {
         cid:   parseInt id
         tid:   -1
         color: @getColor()
-        name:  (atom.config.get 'atox.userName')
+        name:  (atom.config.get 'aTox.userName')
         msg:   @inputField.getText()
       }
       @inputField.setText ''
@@ -115,4 +115,4 @@ class Chatpanel extends View
       @scrollBot(id)
 
   getColor: ->
-    "rgba( #{(atom.config.get 'atox.chatColor').red}, #{(atom.config.get 'atox.chatColor').green}, #{(atom.config.get 'atox.chatColor').blue}, 1 )"
+    "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
