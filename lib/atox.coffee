@@ -57,7 +57,7 @@ module.exports =
     @event         = new Emitter
     @mainWin       = new MainWindow    @event
     @notifications = new Notifications @event
-    @TOX           = new ToxWorker     @event
+    @TOX           = new ToxWorker     {dll: "#{__dirname}\\bin\\libtoxcore.dll", event: @event}
     @term          = new Terminal      {cid: -2, event: @event}
     @github        = new Github
 

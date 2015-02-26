@@ -4,12 +4,13 @@ os = require 'os'
 
 module.exports =
 class ToxWorker
-  constructor: (event) ->
-    @event = event
+  constructor: (e) ->
+    @event = e.event
+    @DLL   = e.dll
 
   startup: ->
     if os.platform().indexOf('win') > -1
-      @TOX = new toxcore.Tox({av: false, path: __dirname + "\\libtoxcore.dll"})
+      @TOX = new toxcore.Tox({av: false, path: "#{@DLL}"})
     else
       @TOX = new toxcore.Tox({av: false})
 
@@ -96,12 +97,7 @@ class ToxWorker
     try
       @TOX.setUserStatus status # ERROR!!!
     catch err
-      @event.emit 'notify', {
-        type:    'err'
-        name:    'ERROR'
-        content: "Failed to set status to #{e.d}"
-        img:      atom.config.get 'atox.userAvatar'
-      }
+      @err "Failed to set status to #{e.d}"
 
     @event.emit 'notify', {
       type:    'inf'
