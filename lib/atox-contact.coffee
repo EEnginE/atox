@@ -49,18 +49,18 @@ class Contact
     return unless data.tid == @tid
 
     if data.d.format() == 0
-      @event.emit 'aTox.terminal', "#{@name} has a no Avatar"
+      @event.emit 'aTox.terminal', "#{@name} has no Avatar"
       @img = 'none'
       @update()
       return
 
     if ! data.d.isValid()
-      @event.emit 'aTox.terminal', "#{@name} has an invalid (or none) Avatar"
+      @event.emit 'aTox.terminal', "#{@name} has an invalid (or no) Avatar"
       @img = 'none'
       @update()
       return
 
-    @event.emit 'aTox.terminal', "#{@name} has a new Avatar (Fromat: #{data.d.format()})"
+    @event.emit 'aTox.terminal', "#{@name} has a new Avatar (Format: #{data.d.format()})"
     @img = "#{os.tmpdir()}/atox-Avatar-#{data.d.hashHex()}"
     @event.emit 'aTox.terminal', "Avatar Path: #{@img}"
     fs.writeFile @img, data.d.data(), (error) =>
@@ -106,7 +106,7 @@ class Contact
       when 1 then status = 'away'
       when 2 then status = 'busy'
 
-    @event.emit 'aTox.terminal', "#{@name} changed user stauts to #{status}"
+    @event.emit 'aTox.terminal', "#{@name} changed user status to #{status}"
     @online = status
     @update()
 
@@ -147,7 +147,7 @@ class Contact
     else
       @chatBox.hide()
       @selected = false
-      @event.emit 'aTox.terminal', "Cloesed chat #{@cid}"
+      @event.emit 'aTox.terminal', "Closed chat #{@cid}"
 
     @update()
 

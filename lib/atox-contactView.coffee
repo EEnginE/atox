@@ -23,7 +23,7 @@ class ContactView extends View
 
     if params.img != 'none'
       @img.css { "background-image": "url(\"#{params.img}\")" }
-    else
+    else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @img.css { "background-image": "url(\"#{atom.config.get 'aTox.userAvatar'}\")" }
 

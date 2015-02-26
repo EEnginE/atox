@@ -71,7 +71,8 @@ module.exports =
 
     atom.config.observe 'aTox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
     atom.config.observe 'aTox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
-    atom.config.observe 'aTox.githubToken', (newValue) => @github.setToken newValue
+    atom.config.observe 'aTox.githubToken', (newValue) => @github.setToken     newValue
+    atom.config.observe 'aTox.userAvatar',  (newValue) => @correctPath         newValue
 
     @internalContactId = 0
     @contactsArray     = []
@@ -145,6 +146,11 @@ module.exports =
       win:    @mainWin
       panel:  @chatpanel
     }
+
+  correctPath: (pathArg) ->
+    pathArg = path.normalize(pathArg)
+    pathArg = pathArg.replace(/\\/g, '/')
+    atom.config.set 'aTox.userAvatar', pathArg
 
   toggle: ->
     @mainWin.toggle()

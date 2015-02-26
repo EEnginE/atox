@@ -53,11 +53,12 @@ class ToxWorker
     @TOX.setName "#{name}"
 
   setAvatar: (path) ->
-    fs.readFile "#{path}", (err, data) =>
-      if err
-        @err "Failed to load #{path}"
-        return
-      @TOX.setAvatar 1, data
+    if path != 'none'
+      fs.readFile "#{path}", (err, data) =>
+        if err
+          @err "Failed to load #{path}"
+          return
+        @TOX.setAvatar 1, data
 
   setStatus: (s) ->
     @TOX.setStatusMessage "#{s}"
@@ -73,7 +74,7 @@ class ToxWorker
 
     @event.emit 'aTox.new-contact', {
       name:   e.addr
-      status: "Working Please wait..."
+      status: "Working, please wait..."
       online: 'offline'
       cid:    fNum
       tid:    fNum
@@ -120,7 +121,7 @@ class ToxWorker
 
     @event.emit 'aTox.new-contact', {
       name:   e.publicKeyHex()
-      status: "Working Please wait..."
+      status: "Working, please wait..."
       online: 'offline'
       cid:    fNum
       tid:    fNum

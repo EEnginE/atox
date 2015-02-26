@@ -31,13 +31,14 @@ class Chatpanel extends View
       @div class: 'aTox-chatpanel-chat', cid: "#{params.cid}"
     @coverview.find("[cid='" + params.cid + "']").click =>
       @selectChat(params.cid)
-    @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
+    if params.img != 'none'
+      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     @selectChat(params.cid)
 
   update: (params) ->
     if params.img != 'none'
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
-    else
+    else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
 
