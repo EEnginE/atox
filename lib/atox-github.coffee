@@ -91,6 +91,48 @@ class Github
     req.on 'error', (e) =>
       console.error e
 
+  deleteUserToken: (params, callback) ->
+    #params.token, params.id, callback
+    if not params.user? or not params.password?
+      return
+    opts = {
+      hostname: 'api.github.com',
+      port: 443,
+      path: '/authorizations/' + params.id,
+      method: 'DELETE',
+      auth: params.token + ':x-oauth-basic',
+      headers: {
+        'User-Agent': 'aTox Github Binding v0.0.1',
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    }
+    if params.otp?
+      opts.headers['X-GitHub-OTP'] = params.otp
+    data = {
+      #"client_secret": @client_secret,
+      #"scopes": [
+      #  "public_repo" #To fill up
+      #],
+      "note": "aTox github binding"
+    }
+    req = https.request opts, (res) =>
+      data = ''
+      console.log "StatusCode: ", res.statusCode
+      console.log "headers: ", res.headers
+      if res.statusCode is 401 and res.headers['x-github-otp']?
+        console.log "Two factor auth is required. Type: " + res.headers['x-github-otp']
+      res.on 'data', (d) =>
+        data += d
+      res.on 'end', =>
+        console.log data
+        console.log JSON.parse(data)
+        @setToken JSON.parse(data).token
+        callback()
+    req.write(JSON.stringify data)
+    req.end()
+    req.on 'error', (e) =>
+      console.error e
 
   authentificate: (params, callback) ->
     #params.user, params.password, params.otp, callback
