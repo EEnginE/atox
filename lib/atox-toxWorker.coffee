@@ -8,6 +8,21 @@ class ToxWorker
     @event = e.event
     @DLL   = e.dll
 
+  myInterval: (s, cb) ->
+    setInterval cb, s
+
+  areWeConnected: ->
+    if @TOX.isConnectedSync()
+      return if @isConnected is true
+      @event.emit 'onlineStatus', {tid: 1, d: 'connected'}
+      @inf "connected"
+      @isConnected = true
+    else
+      return if @isConnected is false
+      @event.emit 'onlineStatus', {tid: 1, d: 'disconnected'}
+      @inf "disconnected"
+      @isConnected = false
+
   startup: ->
     if os.platform().indexOf('win') > -1
       @TOX = new toxcore.Tox({av: false, path: "#{@DLL}"})
@@ -30,6 +45,7 @@ class ToxWorker
     @event.on 'onlineStatus', (e) => @onlineStatus      e
     @event.on 'sendToFriend', (e) => @sendToFriend      e
     @event.on 'addFriend',    (e) => @sendFriendRequest e
+    @event.on 'toxDO',            => @TOX.do => @inf "TOX DONE"
 
     @event.on 'userStatusAT', (e) => @onlineStatus e
 
@@ -41,6 +57,10 @@ class ToxWorker
     @inf "Started TOX"
     @inf "Name:  #{atom.config.get 'aTox.userName'}"
     @inf "My ID: #{@TOX.getAddressHexSync()}"
+
+    @friendOnline = []
+
+    @myInterval 500, => @areWeConnected()
 
   avatarDataCB:   (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
   avatarInfCB:    (e) -> @TOX.requestAvatarData( e.friend() )
@@ -83,7 +103,7 @@ class ToxWorker
     @inf "Added Friend #{fNum}"
 
   sendToFriend: (e) ->
-    @TOX.sendMessage e.d, e.tid, (a) =>
+    @TOX.sendMessage e.tid, e.d, (a) =>
 
   onlineStatus: (e) ->
     return unless e.tid < 0
@@ -127,6 +147,22 @@ class ToxWorker
       tid:    fNum
     }
     @inf "Added Friend #{fNum}"
+
+    @friendOnline[fNum] = -1
+
+    @myInterval 1000, =>
+      @TOX.getFriendConnectionStatus fNum, (a, b) =>
+        return @err "Friend connection error #{fNum}" if a
+        @friendAutoremove {fid: fNum, online: b}
+
+  friendAutoremove: (params) ->
+    return @friendOnline[params.fid] = 0 if params.online is true
+    return if @friendOnline[params.fid] < 0
+
+    @friendOnline[params.fid]++
+    if @friendOnline[params.fid] > 2
+      @event.emit 'userStatusAT', {tid: params.fid, d: 3}
+      @friendOnline[params.fid] = -1
 
   inf: (msg) ->
     @event.emit 'notify', {
