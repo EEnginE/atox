@@ -18,13 +18,18 @@ class Contact
     @event    = params.event
     @panel    = params.panel
 
-    @contactView = new ContactView { cid: @cid, handle: => @handleClick() }
+    if params.cid != -2
+      @contactView = new ContactView { cid: @cid, handle: => @handleClick() }
+      if @cid == 0
+        params.win.addContact @contactView, true
+      else
+        params.win.addContact @contactView, false
     @chatBox     = new ChatBox { cid: @cid, online: @online, event: @event }
 
     @panel.addChat { cid: @cid, img: @img, event: @event }
 
-    @event.on "chat-visibility",   (newV) => @visibility   newV
-    @event.on "aTox-contact-sent", (msg)  => @contactSendt msg
+    @event.on "chat-visibility",   (newV) => @visibility     newV
+    @event.on "aTox-contact-sent", (msg)  => @contactSentMsg msg
 
     @event.on 'avatarDataAT',      (data) => @avatarData   data
     @event.on 'friendMsgAT',       (data) => @friendMsg    data
@@ -34,10 +39,7 @@ class Contact
     @event.on "userStatusAT",      (data) => @userStatus   data
     @event.on 'aTox.add-message',  (data) => @sendMsg      data
 
-    if @cid == 0
-      params.win.addContact @contactView, true
-    else
-      params.win.addContact @contactView, false
+
 
     @update()
 
@@ -122,7 +124,7 @@ class Contact
     return unless data.cid == @cid
     @event.emit 'sendToFriend', {tid: @tid, d: data.msg}
 
-  contactSendt: (msg) ->
+  contactSentMsg: (msg) ->
     if msg.tid?
       tid = msg.tid
     else
@@ -130,7 +132,7 @@ class Contact
 
     @event.emit "aTox.add-message", {
       cid:   @cid
-      tid:    tid  # Will be later the TOX ID
+      tid:    tid  # Will be the Tox ID later on
       color: @color
       name:  @name
       img:   @img

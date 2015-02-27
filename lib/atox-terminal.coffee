@@ -1,13 +1,13 @@
 module.exports =
 class Terminal
   constructor: (params) ->
-    @cid     = params.cid
     @event   = params.event
+    @color   = params.color
+    @name    = "aTox"
+    @initialize()
 
-  init: ->
-
+  initialize: ->
     @event.on 'aTox.add-message', (data) =>
-      return unless data.cid is @cid
       return unless data.tid is -1
       @process data.msg
 
@@ -27,7 +27,7 @@ class Terminal
     ]
 
   help: ->
-    @event.emit 'aTox.terminal', 'Comands: (seperator: ", ")'
+    @event.emit 'aTox.terminal', 'Commands: (seperator: ", ")'
     @event.emit 'aTox.terminal', ' '
 
     for i in @cmds
@@ -44,17 +44,20 @@ class Terminal
   toxDO:           -> @event.emit "toxDO"
 
   process: (cmd) ->
+    return unless cmd.indexOf('/') == 0
+    cmd = cmd.replace('/', '')
+
     args = cmd.split /,\s+/
 
-    @err "Empty cammand" if args.length == 0
+    @err "Empty command" if args.length == 0
     return               if args.length == 0
     @cmd = args[0]
     args.shift()
 
     for a in @cmds
       if a.c == @cmd
-        if args.length != a.a
-          @err "Comand #{@cmd} needs #{a.a} args (#{args.length})"
+        if args.length < a.a
+          @err "Command #{@cmd} needs #{a.a} args (You gave #{args.length})"
           return
         if a.a == 0
           a.f()
@@ -63,7 +66,7 @@ class Terminal
 
         return
 
-    @err "Comand #{@cmd} not found"
+    @err "Command #{@cmd} not found"
 
   err: (what) ->
     @event.emit 'notify', {

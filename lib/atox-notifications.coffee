@@ -11,7 +11,7 @@ class PopUp extends View
       @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{params.content}"
 
   initialize: (params) ->
-    if params.img?
+    if params.img? && params.img != "none"
       @img.css { "background-image": "url(\"#{params.img}\")" }
     else
       @img.css { "display": "none" }

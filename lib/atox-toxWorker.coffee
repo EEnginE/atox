@@ -11,17 +11,17 @@ class ToxWorker
   myInterval: (s, cb) ->
     setInterval cb, s
 
-  areWeConnected: ->
+  isConnected: ->
     if @TOX.isConnectedSync()
-      return if @isConnected is true
+      return if @hasConnection is true
       @event.emit 'onlineStatus', {tid: 1, d: 'connected'}
       @inf "connected"
-      @isConnected = true
+      @hasConnection = true
     else
-      return if @isConnected is false
+      return if @hasConnection is false
       @event.emit 'onlineStatus', {tid: 1, d: 'disconnected'}
       @inf "disconnected"
-      @isConnected = false
+      @hasConnection = false
 
   startup: ->
     if os.platform().indexOf('win') > -1
@@ -60,7 +60,7 @@ class ToxWorker
 
     @friendOnline = []
 
-    @myInterval 500, => @areWeConnected()
+    @myInterval 500, => @isConnected()
 
   avatarDataCB:   (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
   avatarInfCB:    (e) -> @TOX.requestAvatarData( e.friend() )

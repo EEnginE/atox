@@ -58,8 +58,8 @@ module.exports =
     @event         = new Emitter
     @mainWin       = new MainWindow    @event
     @notifications = new Notifications @event
+    @terminal      = new Terminal      {event: @event, color: "rgba(0, 0, 0 ,0)"}
     @TOX           = new ToxWorker     {dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event}
-    @term          = new Terminal      {cid: -2, event: @event}
     @github        = new Github
 
 
@@ -86,15 +86,10 @@ module.exports =
 
     $ =>
       @chatpanel    = new Chatpanel {event: @event}
-      @addUserHelper {
-        name:   "Terminal"
-        status: "I am a Terminal"
-        online: "online"
-        cid:    -2
-        tid:    -2
-      }
-      @event.on 'aTox.terminal', (data) => @contactsArray[0].contactSendt {msg: data, tid: -2}
-      @term.init()
+      @chatpanel.addChat { cid: -2, img: 'none', event: @event }
+
+      @event.on 'aTox.terminal', (data) =>
+        @chatpanel.addMessage {msg: data}
 
       if atom.config.get('aTox.githubToken') != 'none'
         @github.setToken atom.config.get('aTox.githubToken')
