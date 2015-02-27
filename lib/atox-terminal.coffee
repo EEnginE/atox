@@ -23,6 +23,7 @@ class Terminal
       {c: 'setOnline', a: 1, d: 'Set online to [1]',      f: (p) => @setOnline          p[0]}
       {c: 'sendMSG',   a: 2, d: 'Send [2] to [1]',        f: (p) => @sendMSG            p[0], p[1]}
       {c: 'addFriend', a: 2, d: 'Send friend request',    f: (p) => @addFriend          p[0], p[1]}
+      {c: 'toxDO',     a: 0, d: 'Run TOX.do',             f:     => @toxDO()}
     ]
 
   help: ->
@@ -40,6 +41,7 @@ class Terminal
   setOnline: (p)   -> @event.emit "onlineStatus",    { tid: -1, d: p }
   sendMSG:   (f,m) -> @event.emit "sendToFriend",    { tid: f,  d: m }
   addFriend: (a,m) -> @event.emit "addFriend",       { addr: a, msg: m }
+  toxDO:           -> @event.emit "toxDO"
 
   process: (cmd) ->
     args = cmd.split /,\s+/
