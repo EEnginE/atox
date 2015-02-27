@@ -1,3 +1,4 @@
+path          = require 'path'
 MainWindow    = require './atox-mainWin'
 Notifications = require './atox-notifications'
 YesNoQuestion = require './atox-questions'
