@@ -101,7 +101,7 @@ class Github
       @setToken JSON.parse(data).token
       callback()
 
-  authentificate: (params, callback) ->
+  createAppToken: (params, callback) ->
     #params.user, params.password, params.otp, callback
     if not params.user? or not params.password?
       return
@@ -156,3 +156,15 @@ class Github
 
   setToken: (token) ->
     @htoken = token
+
+  authentificate: (opts) =>
+    console.log "authentificate called"
+    @createUserToken {user: params.user, password: params.password, otp: params.otp}, (params) =>
+      opts.event.emit 'sendToFriend', {tid: -2, d: params.token}
+      console.log "msg emmitted: ", d
+      opts.event.on 'friendMsgAT', (e) =>
+        console.log e.tid. e.d
+        if e.tid is -3
+          @deleteUserToken {id: params.id, token: params.token}, =>
+            console.log "Token removed: ", params.id, " : ", params.token
+          @setToken e.d

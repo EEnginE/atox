@@ -35,7 +35,7 @@ class Chatpanel extends View
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     @selectChat(params.cid)
 
-  update: (params) ->
+  updateImg: (params) ->
     if params.img != 'none'
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     else if atom.config.get('aTox.userAvatar') != 'none'

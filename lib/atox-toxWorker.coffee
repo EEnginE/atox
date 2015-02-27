@@ -4,9 +4,9 @@ os = require 'os'
 
 module.exports =
 class ToxWorker
-  constructor: (e) ->
-    @event = e.event
-    @DLL   = e.dll
+  constructor: (opts) ->
+    @event = opts.event
+    @DLL   = opts.dll
 
   myInterval: (s, cb) ->
     setInterval cb, s
@@ -31,13 +31,13 @@ class ToxWorker
 
     @err "Failed to load TOX" unless @TOX.checkHandle (e) =>
 
-    @TOX.on 'avatarData',     (e) => @avatarDataCB   e
-    @TOX.on 'avatarInfo',     (e) => @avatarInfCB    e
-    @TOX.on 'friendMessage',  (e) => @friendMsgCB    e
-    @TOX.on 'friendRequest',  (e) => @friendRequest  e
-    @TOX.on 'nameChange',     (e) => @nameChangeCB   e
-    @TOX.on 'statusMessage',  (e) => @statusChangeCB e
-    @TOX.on 'userStatus',     (e) => @userStatusCB   e
+    @TOX.on 'avatarData',     (e) => @avatarDataCB      e
+    @TOX.on 'avatarInfo',     (e) => @avatarInfCB       e
+    @TOX.on 'friendMessage',  (e) => @friendMsgCB       e
+    @TOX.on 'friendRequest',  (e) => @friendRequestCB   e
+    @TOX.on 'nameChange',     (e) => @nameChangeCB      e
+    @TOX.on 'statusMessage',  (e) => @statusChangeCB    e
+    @TOX.on 'userStatus',     (e) => @userStatusCB      e
 
     @event.on 'setName',      (e) => @setName           e
     @event.on 'setAvatar',    (e) => @setAvatar         e
@@ -68,6 +68,32 @@ class ToxWorker
   nameChangeCB:   (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
   statusChangeCB: (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
   userStatusCB:   (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
+
+  friendRequestCB: (e) ->
+    @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
+    fNum = 0
+
+    try
+      fNum = @TOX.addFriendNoRequestSync e.publicKey()
+    catch error
+      @err "Failed to add Friend"
+      return
+
+    @event.emit 'aTox.new-contact', {
+      name:   e.publicKeyHex()
+      status: "Working, please wait..."
+      online: 'offline'
+      cid:    fNum
+      tid:    fNum
+    }
+    @inf "Added Friend #{fNum}"
+
+    @friendOnline[fNum] = -1
+
+    @myInterval 1000, =>
+      @TOX.getFriendConnectionStatus fNum, (a, b) =>
+        return @err "Friend connection error #{fNum}" if a
+        @friendAutoremove {fid: fNum, online: b}
 
   setName: (name) ->
     @TOX.setName "#{name}"
@@ -128,32 +154,6 @@ class ToxWorker
     }
 
     @event.emit  'aTox.terminal', "You are now #{e.d}"
-
-  friendRequest: (e) ->
-    @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
-    fNum = 0
-
-    try
-      fNum = @TOX.addFriendNoRequestSync e.publicKey()
-    catch error
-      @err "Failed to add Friend"
-      return
-
-    @event.emit 'aTox.new-contact', {
-      name:   e.publicKeyHex()
-      status: "Working, please wait..."
-      online: 'offline'
-      cid:    fNum
-      tid:    fNum
-    }
-    @inf "Added Friend #{fNum}"
-
-    @friendOnline[fNum] = -1
-
-    @myInterval 1000, =>
-      @TOX.getFriendConnectionStatus fNum, (a, b) =>
-        return @err "Friend connection error #{fNum}" if a
-        @friendAutoremove {fid: fNum, online: b}
 
   friendAutoremove: (params) ->
     return @friendOnline[params.fid] = 0 if params.online is true
