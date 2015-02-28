@@ -18,12 +18,11 @@ class Contact
     @event    = params.event
     @panel    = params.panel
 
-    if params.cid != -2
-      @contactView = new ContactView { cid: @cid, handle: => @handleClick() }
-      if @cid == 0
-        params.win.addContact @contactView, true
-      else
-        params.win.addContact @contactView, false
+    @contactView = new ContactView { cid: @cid, handle: => @handleClick() }
+    if @cid == 0
+      params.win.addContact @contactView, true
+    else
+      params.win.addContact @contactView, false
     @chatBox     = new ChatBox { cid: @cid, online: @online, event: @event }
 
     @panel.addChat { cid: @cid, img: @img, event: @event }

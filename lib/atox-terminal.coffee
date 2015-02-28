@@ -2,8 +2,6 @@ module.exports =
 class Terminal
   constructor: (params) ->
     @event   = params.event
-    @color   = params.color
-    @name    = "aTox"
     @initialize()
 
   initialize: ->
@@ -12,26 +10,25 @@ class Terminal
       @process data.msg
 
     @cmds = [
-      {c: 'help',      a: 0, d: 'Prints help message',    f:     => @help()}
-      {c: 'exit',      a: 0, d: 'Closes terminal window', f:     => @closeChat @cid}
-      {c: 'getChatID', a: 1, d: 'Print chat [1] ID',      f: (p) => @event.emit 'getChatID', p[0]}
-      {c: 'openChat',  a: 1, d: 'Opens chat [1]',         f: (p) => @openChat  parseInt p[0]}
-      {c: 'closeChat', a: 1, d: 'Closes chat [1]',        f: (p) => @closeChat parseInt p[0]}
-      {c: 'setName',   a: 1, d: 'Set name to [1]',        f: (p) => @setName            p[0]}
-      {c: 'setAvatar', a: 1, d: 'Set avatar to [1]',      f: (p) => @setAvatar          p[0]}
-      {c: 'setStatus', a: 1, d: 'Set status to [1]',      f: (p) => @setStatus          p[0]}
-      {c: 'setOnline', a: 1, d: 'Set online to [1]',      f: (p) => @setOnline          p[0]}
-      {c: 'sendMSG',   a: 2, d: 'Send [2] to [1]',        f: (p) => @sendMSG            p[0], p[1]}
-      {c: 'addFriend', a: 2, d: 'Send friend request',    f: (p) => @addFriend          p[0], p[1]}
-      {c: 'toxDO',     a: 0, d: 'Run TOX.do',             f:     => @toxDO()}
+      {command: 'help',      minArgs: 0, description: 'Prints help message',                                           run:     => @help()}
+      {command: 'exit',      minArgs: 0, description: 'Closes terminal window',                                        run:     => @closeChat @cid}
+      {command: 'getChatID', minArgs: 1, description: 'Print chat ID of chat [arg1]',                                  run: (p) => @event.emit 'getChatID', p[0]}
+      {command: 'openChat',  minArgs: 1, description: 'Opens chat with ID [arg1]',                                     run: (p) => @openChat  parseInt p[0]}
+      {command: 'closeChat', minArgs: 1, description: 'Closes the chat with ID [arg1]',                                run: (p) => @closeChat parseInt p[0]}
+      {command: 'setName',   minArgs: 1, description: 'Set name to [arg1]',                                            run: (p) => @setName            p[0]}
+      {command: 'setAvatar', minArgs: 1, description: 'Set avatar to [arg1]',                                          run: (p) => @setAvatar          p[0]}
+      {command: 'setStatus', minArgs: 1, description: 'Set status message to [arg1]',                                  run: (p) => @setStatus          p[0]}
+      {command: 'setOnline', minArgs: 1, description: 'Set online status to [arg1]',                                   run: (p) => @setOnline          p[0]}
+      {command: 'sendMSG',   minArgs: 2, description: 'Send message [arg2] to user [arg1]',                            run: (p) => @sendMSG            p[0], p[1]}
+      {command: 'addFriend', minArgs: 2, description: 'Send friend request to user ID [arg1] with message [args2]',    run: (p) => @addFriend          p[0], p[1]}
+      {command: 'toxDO',     minArgs: 0, description: 'Run TOX.do',             run:     => @toxDO()}
     ]
 
   help: ->
     @event.emit 'aTox.terminal', 'Commands: (seperator: ", ")'
-    @event.emit 'aTox.terminal', ' '
 
     for i in @cmds
-      @event.emit 'aTox.terminal', " - #{i.c} (#{i.a}): #{i.d}"
+      @event.emit 'aTox.terminal', "     \"/#{i.command}\":  #{i.description}"
 
   closeChat: (id)  -> @event.emit "chat-visibility", { cid: id, what: 'hide' }
   openChat:  (id)  -> @event.emit "chat-visibility", { cid: id, what: 'show' }
@@ -54,23 +51,23 @@ class Terminal
     @cmd = args[0]
     args.shift()
 
-    for a in @cmds
-      if a.c == @cmd
-        if args.length < a.a
-          @err "Command #{@cmd} needs #{a.a} args (You gave #{args.length})"
+    for arg in @cmds
+      if arg.command.toUpperCase() == @cmd.toUpperCase()
+        if args.length < arg.minArgs
+          @err "/#{@cmd} requires #{arg.minArgs} arguments (You gave #{args.length})"
           return
-        if a.a == 0
-          a.f()
+        if arg.minArgs == 0
+          arg.run()
         else
-          a.f args
+          arg.run args
 
         return
 
-    @err "Command #{@cmd} not found"
+    @err "Command /#{@cmd} not found"
 
   err: (what) ->
     @event.emit 'notify', {
       type: 'err'
-      name: 'Terminal'
+      name: 'aTox'
       content: what
     }

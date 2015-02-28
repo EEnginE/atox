@@ -15,12 +15,12 @@ class ToxWorker
     if @TOX.isConnectedSync()
       return if @hasConnection is true
       @event.emit 'onlineStatus', {tid: 1, d: 'connected'}
-      @inf "connected"
+      @inf "Connected!"
       @hasConnection = true
     else
       return if @hasConnection is false
       @event.emit 'onlineStatus', {tid: 1, d: 'disconnected'}
-      @inf "disconnected"
+      @inf "Disconnected."
       @hasConnection = false
 
   startup: ->
