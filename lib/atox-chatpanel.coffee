@@ -13,6 +13,8 @@ class Chatpanel extends View
         @div class: 'icon icon-gear aTox-chatpanel-settings'
         @div class: 'aTox-chatpanel-border ui-resizable-handle ui-resizable-n', outlet: 'rborder'
         @ul class: 'aTox-chatpanel-chat-overview', outlet: 'coverview'
+        @div class: 'aTox-chatpanel-groupchat-ulist', outlet: 'ulist', =>
+          @div class: 'aTox-chatpanel-groupchat-ulist-border ui-resizable-handle ui-resizable-w', outlet: 'lborder'
         @div class: 'aTox-chatpanel-chats native-key-bindings', tabindex: '-1', outlet: 'chats'
       @div class: 'aTox-chatpanel-input', outlet: 'input', =>
         @div class: 'aTox-chatpanel-input-status-con', outlet: 'status'
@@ -25,17 +27,32 @@ class Chatpanel extends View
     @scrollBot(params.cid)
 
   addChat: (params) ->
+    if not params.cid?
+      return
+    if params.group? and params.group is true
+      aclass = 'groupchat'
+    else
+      aclass = ''
     @coverview.append $$ ->
-      @li class: 'aTox-chatpanel-chat-status', cid: "#{params.cid}"
+      @li class: "aTox-chatpanel-chat-status #{aclass}", cid: "#{params.cid}"
     @chats.append $$ ->
-      @div class: 'aTox-chatpanel-chat', cid: "#{params.cid}"
+      @div class: "aTox-chatpanel-chat #{aclass}", cid: "#{params.cid}"
+    if params.group? and params.group is true
+      @ulist.append $$ ->
+        @div class: "aTox-chatpanel-groupchat-ulist-con groupchat", cid: "#{params.cid}"
     @coverview.find("[cid='" + params.cid + "']").click =>
       @selectChat(params.cid)
     if params.img != 'none'
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     @selectChat(params.cid)
 
-  update: (params) ->
+  removeChat: (params) ->
+    @coverview.find("[cid='" + params.cid + "']").remove()
+    if @chats.find("[cid='" + params.cid + "']").hasClass('groupchat')
+      @ulist.find("[cid='" + params.cid + "']").remove()
+    @chats.find("[cid='#{params.cid}']").remove()
+
+  updateImg: (params) ->
     if params.img != 'none'
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.data.img})"})
     else if atom.config.get('aTox.userAvatar') != 'none'
@@ -47,9 +64,21 @@ class Chatpanel extends View
   selectChat: (cid) ->
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cid='" + cid + "']").addClass('selected')
+    @ulist.find(".aTox-chatpanel-groupchat-ulist-con").css({display: 'none'})
     @chats.find(".aTox-chatpanel-chat").css({display: 'none'})
+    @ulist.find("[cid='" + cid + "']").css({display: 'block'})
     @chats.find("[cid='" + cid + "']").css({display: 'block'})
+    if @chats.find("[cid='" + cid + "']").hasClass('groupchat')
+      @ulist.css({display: 'block'})
+    else
+      @ulist.css({display: 'none'})
     @scrollBot(cid)
+
+  addUser: (params) ->
+    #Call only if groupchat
+    if @chats.find("[cid='" + params.cid + "']").hasClass('groupchat') is false
+      return
+    @ulist.find("[cid='#{params.cid}']").append "<p style='font-weight:bold;color:#{params.color}'>#{params.name}</p>"
 
   initialize: (params) ->
     @event = params.event
@@ -89,6 +118,7 @@ class Chatpanel extends View
       resize: (event, ui) =>
         id = @coverview.find('.selected').attr('cid') #get cid of selected chat
         @scrollBot(id)
+    jQuery(@ulist).resizable {handles: {w: @lborder}}
     @isOn = true
 
     @statusSelector = new StatusSelector 'panel', @event
