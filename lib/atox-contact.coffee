@@ -165,7 +165,7 @@ class Contact
     @contactView.update temp
     @chatBox.update     temp
 
-    @panel.update {cid: @cid, data: temp}
+    @panel.updateImg {cid: @cid, data: temp}
 
   handleClick: ->
     if @selected
