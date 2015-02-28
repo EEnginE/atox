@@ -28,8 +28,7 @@
     .aTox-chatpanel-border {
       height: 2px;
       background-color: @tool-panel-border-color;
-      cursor: n-resize;
-      cursor: row-resize;
+      cursor: ns-resize;
     }
     .aTox-chatpanel-chat-overview {
       display: block;
@@ -47,6 +46,7 @@
       }
     }
     .aTox-chatpanel-chats {
+      display: block;
       margin-left: 28px;
       padding-left: 4px;
       padding-bottom: 4px;
@@ -57,10 +57,27 @@
       .aTox-chatpanel-chat {
         //height: inherit;
         display: none;
+        float: left;
       }
       p {
         font-size: @font-size;
         color: @text-color;
+      }
+    }
+    .aTox-chatpanel-groupchat-ulist {
+      display: none;
+      width: 125px;
+      height: inherit;
+      float: right;
+      background-color: @base-background-color;
+      .aTox-chatpanel-groupchat-ulist-border {
+        width: 2px;
+        height: inherit;
+        background-color: @tool-panel-border-color;
+        cursor: ew-resize;
+      }
+      .aTox-chatpanel-groupchat-ulist-con {
+        display: none;
       }
     }
 /*
