@@ -6,9 +6,11 @@ Chatpanel     = require './atox-chatpanel'
 Contact       = require './atox-contact'
 Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
+Github        = require './atox-github'
+GithubAuth    = require './atox-githubAuth'
+
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
-Github        = require './atox-github'
 
 module.exports =
   config:
@@ -61,6 +63,7 @@ module.exports =
     @terminal      = new Terminal      {event: @event}
     @TOX           = new ToxWorker     {dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event}
     @github        = new Github
+    @githubauth    = new GithubAuth    {github: @github, event: @event}
 
 
     @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
@@ -83,24 +86,14 @@ module.exports =
     @event.on 'aTox.new-contact',       (data) => @addUserHelper      data
     @event.on 'aTox.select',            (data) => @contactSelected    data
     @event.on 'getChatID',              (data) => @getChatIDFromName  data
+    @event.on 'first-connect',                 => @githubauth.doIt()
 
     $ =>
       @chatpanel    = new Chatpanel {event: @event}
       @chatpanel.addChat { cid: -2, img: 'none', event: @event, group: true }
 
-      @event.on 'aTox.terminal', (data) =>
+      @event.on 'Terminal', (data) =>
         @chatpanel.addMessage {cid: -2, msg: data, name: 'aTox', color: "rgba(255, 255, 255 ,1)"}
-
-      if atom.config.get('aTox.githubToken') != 'none'
-        @github.setToken atom.config.get('aTox.githubToken')
-      if @github.getToken() is undefined or @github.getToken() is 'none'
-        @github.createUserToken {user: 'arvius', password:'****'}, (params) =>
-          atom.config.set 'aTox.githubToken', params.token
-
-      #@github.authentificate {user: 'arvius', password:''}, =>
-        #@event.emit 'aTox.terminal', "Github Token: #{@github.getToken()}"
-        #@github.getUserImage {user: 'mensinda'}, (url) =>
-          #@event.emit 'aTox.terminal', "Github Avatar: #{url}"
 
       @TOX.startup()
       @mainWin.showAT() if atom.config.get 'aTox.showDefault'
@@ -108,10 +101,10 @@ module.exports =
   getChatIDFromName: (data) ->
     for i in @contactsArray
       if i.name == data
-        @event.emit 'aTox.terminal', "getChatIDFromName: #{i.cid} (#{data})"
+        @event.emit 'Terminal', "getChatIDFromName: #{i.cid} (#{data})"
         return i.cid
 
-    @event.emit 'aTox.terminal', "getChatIDFromName: Not Found (#{data})"
+    @event.emit 'Terminal', "getChatIDFromName: Not Found (#{data})"
     return -1
 
   contactSelected: (data) ->

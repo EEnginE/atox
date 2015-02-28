@@ -11,12 +11,17 @@ class ToxWorker
   myInterval: (s, cb) ->
     setInterval cb, s
 
+  myTimeout: (s, cb) ->
+    setTimeout cb, s
+
   isConnected: ->
     if @TOX.isConnectedSync()
       return if @hasConnection is true
       @event.emit 'onlineStatus', {tid: 1, d: 'connected'}
       @inf "Connected!"
       @hasConnection = true
+      @event.emit 'first-connect' if @firstConnect is true
+      @firstConnect  = false
     else
       return if @hasConnection is false
       @event.emit 'onlineStatus', {tid: 1, d: 'disconnected'}
@@ -46,6 +51,7 @@ class ToxWorker
     @event.on 'sendToFriend', (e) => @sendToFriend      e
     @event.on 'addFriend',    (e) => @sendFriendRequest e
     @event.on 'toxDO',            => @TOX.do => @inf "TOX DONE"
+    @event.on 'reqAvatar',        => @reqAvatar()
 
     @event.on 'userStatusAT', (e) => @onlineStatus e
 
@@ -60,6 +66,7 @@ class ToxWorker
 
     @friendOnline = []
 
+    @firstConnect = true
     @myInterval 500, => @isConnected()
 
   avatarDataCB:   (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
@@ -68,6 +75,11 @@ class ToxWorker
   nameChangeCB:   (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
   statusChangeCB: (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
   userStatusCB:   (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
+
+  reqAvatar: ->
+    for i in @TOX.getFriendListSync()
+      @inf "Request Avata (Friend ID: #{i})"
+      @TOX.requestAvatarData( i )
 
   friendRequestCB: (e) ->
     @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
@@ -141,10 +153,7 @@ class ToxWorker
       when 'away'   then status = 1
       when 'busy'   then status = 2
 
-    try
-      @TOX.setUserStatus status # ERROR!!!
-    catch err
-      @err "Failed to set status to #{e.d}"
+    @TOX.setUserStatusSync status
 
     @event.emit 'notify', {
       type:    'inf'
@@ -153,7 +162,7 @@ class ToxWorker
       img:      atom.config.get 'aTox.userAvatar'
     }
 
-    @event.emit  'aTox.terminal', "You are now #{e.d}"
+    @event.emit  'Terminal', "You are now #{e.d}"
 
   friendAutoremove: (params) ->
     return @friendOnline[params.fid] = 0 if params.online is true
@@ -171,7 +180,7 @@ class ToxWorker
       content: msg
     } if atom.config.get 'aTox.debugNotifications'
 
-    @event.emit 'aTox.terminal', "TOX: [Info] #{msg}"
+    @event.emit 'Terminal', "TOX: [Info] #{msg}"
 
   err: (msg) ->
     @event.emit 'notify', {
@@ -180,4 +189,4 @@ class ToxWorker
       content: msg
     }
 
-    @event.emit 'aTox.terminal', "TOX: [Error] #{msg}"
+    @event.emit 'Terminal', "TOX: [Error] #{msg}"

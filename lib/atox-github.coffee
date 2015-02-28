@@ -54,7 +54,7 @@ class Github
         'Accept': 'application/vnd.github.v3+json'
       }
     }
-    if params.otp?
+    if params.otp? and params.otp != ""
       opts.headers['X-GitHub-OTP'] = params.otp
     data = {
       #"client_secret": @client_secret,

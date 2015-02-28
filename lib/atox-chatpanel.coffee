@@ -54,10 +54,12 @@ class Chatpanel extends View
 
   updateImg: (params) ->
     if params.img != 'none'
-      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
+      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.data.img})"})
     else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
+
+    # TODO add other update stuff
 
   selectChat: (cid) ->
     @coverview.find('.selected').removeClass('selected')
@@ -99,7 +101,7 @@ class Chatpanel extends View
         if @hbox.css('display') is 'none'
           @toggleHistory()
       else if e.keyCode is 27
-        @hide()
+        @toggleHistory()
     @btn.click =>
       id = @coverview.find('.selected').attr('cid') #get cid of selected chat
       @event.emit "aTox.add-message", {
