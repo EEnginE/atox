@@ -93,7 +93,7 @@ module.exports =
       @chatpanel.addChat { cid: -2, img: 'none', event: @event }
 
       @event.on 'Terminal', (data) =>
-        @chatpanel.addMessage {cid: -2, msg: data, name: 'aTox', color: "rgba(255, 255, 255 ,1)"}
+        @chatpanel.addMessage {cid: -2, msg: "<span style='font-style:italic;color:rgba(200, 200, 200 ,1)'>" + data + "</span>", name: 'aTox', color: "rgba(255, 255, 255 ,1)"}
 
       @TOX.startup()
       @mainWin.showAT() if atom.config.get 'aTox.showDefault'
