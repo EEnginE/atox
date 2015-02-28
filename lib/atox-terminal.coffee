@@ -10,25 +10,26 @@ class Terminal
       @process data.msg
 
     @cmds = [
-      {command: 'help',      minArgs: 0, description: 'Prints help message',                                           run:     => @help()}
-      {command: 'exit',      minArgs: 0, description: 'Closes terminal window',                                        run:     => @closeChat @cid}
-      {command: 'getChatID', minArgs: 1, description: 'Print chat ID of chat [arg1]',                                  run: (p) => @event.emit 'getChatID', p[0]}
-      {command: 'openChat',  minArgs: 1, description: 'Opens chat with ID [arg1]',                                     run: (p) => @openChat  parseInt p[0]}
-      {command: 'closeChat', minArgs: 1, description: 'Closes the chat with ID [arg1]',                                run: (p) => @closeChat parseInt p[0]}
-      {command: 'setName',   minArgs: 1, description: 'Set name to [arg1]',                                            run: (p) => @setName            p[0]}
-      {command: 'setAvatar', minArgs: 1, description: 'Set avatar to [arg1]',                                          run: (p) => @setAvatar          p[0]}
-      {command: 'setStatus', minArgs: 1, description: 'Set status message to [arg1]',                                  run: (p) => @setStatus          p[0]}
-      {command: 'setOnline', minArgs: 1, description: 'Set online status to [arg1]',                                   run: (p) => @setOnline          p[0]}
-      {command: 'sendMSG',   minArgs: 2, description: 'Send message [arg2] to user [arg1]',                            run: (p) => @sendMSG            p[0], p[1]}
-      {command: 'addFriend', minArgs: 2, description: 'Send friend request to user ID [arg1] with message [args2]',    run: (p) => @addFriend          p[0], p[1]}
-      {command: 'toxDO',     minArgs: 0, description: 'Run TOX.do',             run:     => @toxDO()}
+      {cmd: 'help',      args: 0, desc: 'Prints help message',                                   run:     => @help()                       }
+      {cmd: 'exit',      args: 0, desc: 'Closes terminal window',                                run:     => @closeChat @cid               }
+      {cmd: 'getChatID', args: 1, desc: 'Print chat ID of chat [a1]',                            run: (p) => @event.emit 'getChatID', p[0] }
+      {cmd: 'openChat',  args: 1, desc: 'Opens chat with ID [a1]',                               run: (p) => @openChat  parseInt p[0]      }
+      {cmd: 'closeChat', args: 1, desc: 'Closes the chat with ID [a1]',                          run: (p) => @closeChat parseInt p[0]      }
+      {cmd: 'setName',   args: 1, desc: 'Set name to [a1]',                                      run: (p) => @setName            p[0]      }
+      {cmd: 'setAvatar', args: 1, desc: 'Set avatar to [a1]',                                    run: (p) => @setAvatar          p[0]      }
+      {cmd: 'setStatus', args: 1, desc: 'Set status message to [a1]',                            run: (p) => @setStatus          p[0]      }
+      {cmd: 'setOnline', args: 1, desc: 'Set online status to [a1]',                             run: (p) => @setOnline          p[0]      }
+      {cmd: 'sendMSG',   args: 2, desc: 'Send message [a2] to user [a1]',                        run: (p) => @sendMSG            p[0], p[1]}
+      {cmd: 'addFriend', args: 2, desc: 'Send friend request to user ID [a1] with message [a2]', run: (p) => @addFriend          p[0], p[1]}
+      {cmd: 'toxDO',     args: 0, desc: 'Run TOX.do',                                            run:     => @toxDO()                      }
+      {cmd: 'reqAvatar', args: 0, desc: 'Send a avatar request to all friends',                  run:     => @reqAvatar()                  }
     ]
 
   help: ->
-    @event.emit 'aTox.terminal', 'Commands: (seperator: ", ")'
+    @event.emit 'Terminal', 'Commands: (seperator: ", ")'
 
     for i in @cmds
-      @event.emit 'aTox.terminal', "     \"/#{i.command}\":  #{i.description}"
+      @event.emit 'Terminal', "     \"/#{i.cmd}\":  #{i.desc}"
 
   closeChat: (id)  -> @event.emit "chat-visibility", { cid: id, what: 'hide' }
   openChat:  (id)  -> @event.emit "chat-visibility", { cid: id, what: 'show' }
@@ -39,6 +40,7 @@ class Terminal
   sendMSG:   (f,m) -> @event.emit "sendToFriend",    { tid: f,  d: m }
   addFriend: (a,m) -> @event.emit "addFriend",       { addr: a, msg: m }
   toxDO:           -> @event.emit "toxDO"
+  reqAvatar:       -> @event.emit "reqAvatar"
 
   process: (cmd) ->
     return unless cmd.indexOf('/') == 0
@@ -46,17 +48,17 @@ class Terminal
 
     args = cmd.split /,\s+/
 
-    @err "Empty command" if args.length == 0
+    @err "Empty cmd" if args.length == 0
     return               if args.length == 0
     @cmd = args[0]
     args.shift()
 
     for arg in @cmds
-      if arg.command.toUpperCase() == @cmd.toUpperCase()
-        if args.length < arg.minArgs
-          @err "/#{@cmd} requires #{arg.minArgs} arguments (You gave #{args.length})"
+      if arg.cmd.toUpperCase() == @cmd.toUpperCase()
+        if args.length < arg.args
+          @err "/#{@cmd} requires #{arg.args} arguments (You gave #{args.length})"
           return
-        if arg.minArgs == 0
+        if arg.args == 0
           arg.run()
         else
           arg.run args

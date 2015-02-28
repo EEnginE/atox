@@ -1,5 +1,6 @@
 {Emitter}   = require 'event-kit'
 os          = require 'os'
+fs          = require 'fs'
 
 ContactView = require './atox-contactView'
 ChatBox     = require './atox-chatbox'
@@ -44,26 +45,26 @@ class Contact
 
     @color = @randomColor()
 
-    @event.emit 'aTox.terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
+    @event.emit 'Terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
 
   avatarData: (data) ->
     return unless data.tid == @tid
 
     if data.d.format() == 0
-      @event.emit 'aTox.terminal', "#{@name} has no Avatar"
+      @event.emit 'Terminal', "#{@name} has no Avatar"
       @img = 'none'
       @update()
       return
 
     if ! data.d.isValid()
-      @event.emit 'aTox.terminal', "#{@name} has an invalid (or no) Avatar"
+      @event.emit 'Terminal', "#{@name} has an invalid (or no) Avatar"
       @img = 'none'
       @update()
       return
 
-    @event.emit 'aTox.terminal', "#{@name} has a new Avatar (Format: #{data.d.format()})"
+    @event.emit 'Terminal', "#{@name} has a new Avatar (Format: #{data.d.format()})"
     @img = "#{os.tmpdir()}/atox-Avatar-#{data.d.hashHex()}"
-    @event.emit 'aTox.terminal', "Avatar Path: #{@img}"
+    @event.emit 'Terminal', "Avatar Path: #{@img}"
     fs.writeFile @img, data.d.data(), (error) =>
       return if error
       @update()
@@ -81,19 +82,19 @@ class Contact
 
   nameChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'aTox.terminal', "Name #{@name} is now #{data.d}"
+    @event.emit 'Terminal', "Name #{@name} is now #{data.d}"
     @name = data.d
     @update()
 
   statusChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'aTox.terminal', "Status of #{@name} is now #{data.d}"
+    @event.emit 'Terminal', "Status of #{@name} is now #{data.d}"
     @status = data.d
     @update()
 
   avatarChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'aTox.terminal', "#{@name} changed avatar"
+    @event.emit 'Terminal', "#{@name} changed avatar"
     @online = status
     @update()
 
@@ -107,7 +108,7 @@ class Contact
       when 1 then status = 'away'
       when 2 then status = 'busy'
 
-    @event.emit 'aTox.terminal', "#{@name} changed user status to #{status}"
+    @event.emit 'Terminal', "#{@name} changed user status to #{status}"
     @online = status
     @update()
 
@@ -144,11 +145,11 @@ class Contact
     if newV.what == 'show'
       @chatBox.show()
       @selected = true
-      @event.emit 'aTox.terminal', "Opened chat #{@cid}"
+      @event.emit 'Terminal', "Opened chat #{@cid}"
     else
       @chatBox.hide()
       @selected = false
-      @event.emit 'aTox.terminal', "Closed chat #{@cid}"
+      @event.emit 'Terminal', "Closed chat #{@cid}"
 
     @update()
 
@@ -164,7 +165,7 @@ class Contact
     @contactView.update temp
     @chatBox.update     temp
 
-    @panel.updateImg {cid: @cid, img: @img}
+    @panel.update {cid: @cid, data: temp}
 
   handleClick: ->
     if @selected

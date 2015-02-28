@@ -1,0 +1,120 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@import "./atox-vars";
+
+@height: 300px;
+@width:  500px;
+
+#aTox-GithubAuth-root {
+  position: absolute;
+
+  left: 50%;
+  top:  15%;
+
+  margin-left: -(@width / 2);
+
+
+  width:  @width;
+
+  border-radius: 10px;
+
+  background-color: @app-background-color;
+  opacity:  0;
+  z-index:  150;
+  overflow: auto;
+
+  color:   @text-color;
+  pointer-events: none;
+
+  #aTox-GithubAuth-title {
+    background-color: @tool-panel-background-color;
+    height:           36px;
+    margin:           5px;
+    border-radius:    5px;
+    padding-left:     30px;
+
+    h1 {
+      line-height: 36px;
+      cursor:      move;
+      text-align:  center;
+      margin:      0;
+
+      transition: color 500ms;
+    }
+
+    div {
+      float:         right;
+      margin-top:    36px / 2 - 10;
+      margin-right:  10px;
+      width:         20px;
+      opacity:       0;
+      transition:    opacity 300ms;
+    }
+
+    div.work {
+      opacity: 1;
+    }
+
+  }
+
+  #aTox-GithubAuth-body {
+    background-color: @tool-panel-background-color;
+    margin:           5px;
+    border-radius:    5px;
+    overflow:         auto;
+
+    #normal {
+      margin: 7px;
+
+      background-color: @aTox-Contacts-Base-Color;
+      border-radius:    5px;
+      padding:          7px;
+
+      h2 {
+        text-align:    center;
+        text-height:   35px;
+        margin:        0px;
+        margin-bottom: 7px;
+
+        transition: color 500ms;
+      }
+
+      .empty-space {
+        height: 3px;
+      }
+    }
+
+    #btns {
+      margin: 15px;
+
+      padding-left:     30px;
+      padding-right:    30px;
+
+      #btn2 {float: right;}
+    }
+  }
+
+  transition: opacity 300ms;
+
+  h1.work {color: @text-color-info;}
+  h2.work {color: @text-color-info;}
+
+  h1.err  {color: @text-color-error;}
+  h2.err  {color: @text-color-error;}
+
+  h1.ok   {color: @text-color-success;}
+  h2.ok   {color: @text-color-success;}
+}
+
+#aTox-GithubAuth-root.ui-draggable-dragging {
+  opacity: 0.3;
+  pointer-events: auto;
+}
+
+#aTox-GithubAuth-root.aTox-shown {
+  opacity: 1;
+  pointer-events: auto;
+}
