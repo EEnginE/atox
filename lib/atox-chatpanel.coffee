@@ -47,6 +47,8 @@ class Chatpanel extends View
         @div class: "aTox-chatpanel-groupchat-ulist-con groupchat", cid: "#{params.cid}"
     @coverview.find("[cid='" + params.cid + "']").click =>
       @selectChat(params.cid)
+    if params.cid < 0
+      @coverview.find("[cid='" + params.cid + "']").addClass( 'icon icon-octoface' )
     if params.img != 'none'
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     @selectChat(params.cid)
