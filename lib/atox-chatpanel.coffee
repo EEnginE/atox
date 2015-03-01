@@ -23,12 +23,14 @@ class Chatpanel extends View
 
   addMessage: (params) ->
     return if params.msg is ''
+    nstr = ['http://', 'https://', 'ftp://']
     tmsg = params.msg.split(' ')
     for i in [0..(tmsg.length - 1)]
-      if tmsg[i].indexOf('http://') > -1
-        tmsg[i] = '<a href="' + tmsg[i] + '">' + tmsg[i] + '</a>'
-    tmsg = tmsg.join(' ')
-    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:#{params.color}'>#{params.name}: </span>#{tmsg}</p>"
+      for n in nstr
+        if tmsg[i].indexOf(n) > -1
+          tmsg[i] = '<a href="' + tmsg[i] + '">' + tmsg[i] + '</a>'
+    params.msg = tmsg.join(' ')
+    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:#{params.color}'>#{params.name}: </span>#{params.msg}</p>"
     @scrollBot(params.cid)
 
   addChat: (params) ->
@@ -91,6 +93,8 @@ class Chatpanel extends View
 
     atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
+      if @hbox.css('display') is 'none'
+        @toggleHistory()
       if e.keyCode is 13
         e.preventDefault()
         id = @coverview.find('.selected').attr('cid') #get cid of selected chat
@@ -102,8 +106,6 @@ class Chatpanel extends View
           msg:   @inputField.getText()
         }
         @inputField.setText ''
-        if @hbox.css('display') is 'none'
-          @toggleHistory()
       else if e.keyCode is 27
         @toggleHistory()
     @btn.click =>
