@@ -39,7 +39,7 @@ class GithubAuth extends View
     @isOpen = false
 
   noGithubConnection: ->
-    @event.emit 'Terminal', "No GitHub connection"
+    @event.emit 'Terminal', {cid: -2, msg: "No GitHub connection"}
     @event.emit 'GitHub',   'disabled'
     @removeClass "aTox-shown";
     @isOpen = false
@@ -61,7 +61,7 @@ class GithubAuth extends View
     @github.createUserToken {user: name, password: pw, otp: pw2}, (params) =>
       if params.token?
         if @postTokenGeneration() is false
-          return @doTimeout 500, => @error "Internal", "internal error. Please try again"
+          return @doTimeout 500, => @error "Internal", "Internal error. Please try again"
 
         @doTimeout 500, => @success()
         atom.config.set 'aTox.githubToken', params.token
@@ -86,7 +86,7 @@ class GithubAuth extends View
     return if @isOpen is true
     if atom.config.get('aTox.githubToken') != 'none'
       @github.setToken atom.config.get('aTox.githubToken')
-      @event.emit 'Terminal', "Loaded token from settings #{atom.config.get('aTox.githubToken')}"
+      @event.emit 'Terminal', {cid: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
       return @postTokenGeneration()
 
     if @github.getToken() is undefined or @github.getToken() is 'none'
@@ -98,7 +98,7 @@ class GithubAuth extends View
     return @postTokenGeneration()
 
   postTokenGeneration: -> # TODO rename this
-    @event.emit 'Terminal', "TODO add what to do here"
+    #@event.emit 'Terminal', "TODO add what to do here"
 
     @event.emit 'GitHub',   'done'
     return true

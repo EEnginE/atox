@@ -62,9 +62,9 @@ class Contact
       @update()
       return
 
-    @event.emit 'Terminal', "#{@name} has a new Avatar (Format: #{data.d.format()})"
+    @event.emit 'Terminal', {cid: data.cid, msg: "#{@name} has a new Avatar (Format: #{data.d.format()})"}
     @img = "#{os.tmpdir()}/atox-Avatar-#{data.d.hashHex()}"
-    @event.emit 'Terminal', "Avatar Path: #{@img}"
+    @event.emit 'Terminal', {cid: data.cid, msg: "Avatar Path: #{@img}"}
     fs.writeFile @img, data.d.data(), (error) =>
       return if error
       @update()
@@ -82,19 +82,19 @@ class Contact
 
   nameChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'Terminal', "Name #{@name} is now #{data.d}"
+    @event.emit 'Terminal', {cid: data.cid, msg: "Name #{@name} is now #{data.d}"}
     @name = data.d
     @update()
 
   statusChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'Terminal', "Status of #{@name} is now #{data.d}"
+    @event.emit 'Terminal', { cid: data.cid, msg: "Status of #{@name} is now #{data.d}"}
     @status = data.d
     @update()
 
   avatarChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'Terminal', "#{@name} changed avatar"
+    @event.emit 'Terminal', { cid: data.cid, msg: "#{@name} changed avatar"}
     @online = status
     @update()
 
@@ -108,7 +108,7 @@ class Contact
       when 1 then status = 'away'
       when 2 then status = 'busy'
 
-    @event.emit 'Terminal', "#{@name} changed user status to #{status}"
+    @event.emit 'Terminal', {cid: data.cid, msg: "#{@name} changed user status to #{status}"}
     @online = status
     @update()
 
@@ -142,14 +142,18 @@ class Contact
   visibility: (newV) ->
     return unless newV.cid is @cid
 
+    sourcecid = -2
+    if newV.scid?
+      sourceid = newV.scid
+
     if newV.what == 'show'
       @chatBox.show()
       @selected = true
-      @event.emit 'Terminal', "Opened chat #{@cid}"
+      @event.emit 'Terminal', {cid: sourceid, msg: "Opened chat #{@cid}"}
     else
       @chatBox.hide()
       @selected = false
-      @event.emit 'Terminal', "Closed chat #{@cid}"
+      @event.emit 'Terminal', {cid: sourceid, msg: "Closed chat #{@cid}"}
 
     @update()
 
