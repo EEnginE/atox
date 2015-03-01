@@ -23,7 +23,12 @@ class Chatpanel extends View
 
   addMessage: (params) ->
     return if params.msg is ''
-    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:#{params.color}'>#{params.name}: </span>#{params.msg}</p>"
+    tmsg = params.msg.split(' ')
+    for i in [0..(tmsg.length - 1)]
+      if tmsg[i].indexOf('http://') > -1
+        tmsg[i] = '<a href="' + tmsg[i] + '">' + tmsg[i] + '</a>'
+    tmsg = tmsg.join(' ')
+    @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:#{params.color}'>#{params.name}: </span>#{tmsg}</p>"
     @scrollBot(params.cid)
 
   addChat: (params) ->
@@ -96,7 +101,6 @@ class Chatpanel extends View
           name:  (atom.config.get 'aTox.userName')
           msg:   @inputField.getText()
         }
-        console.log "emit"
         @inputField.setText ''
         if @hbox.css('display') is 'none'
           @toggleHistory()
