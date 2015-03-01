@@ -33,6 +33,11 @@ class GithubAuth extends View
 
     jQuery( "#aTox-GithubAuth-root" ).draggable {handle: '#aTox-GithubAuth-title'}
 
+    for i in [@uName, @pw, @PW2]
+      i.on 'keydown', {t: i}, (e) =>
+        @handleClick()      if e.keyCode is 13
+        e.data.t.setText '' if e.keyCode is 27
+
     @btn1.click => @noGithubConnection()
     @btn2.click => @handleClick()
 
