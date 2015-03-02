@@ -65,6 +65,8 @@ module.exports =
     @github        = new Github
     @githubauth    = new GithubAuth    {github: @github, event: @event}
 
+    @currCID = 0
+
 
     @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'aTox.mainWinLeft'
@@ -137,11 +139,12 @@ module.exports =
       online: params.online
       img:    atom.config.get 'aTox.userAvatar' #TODO: Add img to params
       event:  @event
-      cid:    params.cid
+      cid:    @currCID
       tid:    params.tid
       win:    @mainWin
       panel:  @chatpanel
     }
+    @currCID++
 
   correctPath: (pathArg) ->
     pathArg = path.normalize(pathArg)

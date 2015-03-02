@@ -20,8 +20,10 @@ class Terminal
       {cmd: 'setOnline', args: 1, desc: 'Set online status to [a1]',                             run: (cid, p) => @setOnline cid,          p[0]                   }
       {cmd: 'sendMSG',   args: 2, desc: 'Send message [a2] to user [a1]',                        run: (cid, p) => @sendMSG   cid,          p[0], p[1]             }
       {cmd: 'addFriend', args: 2, desc: 'Send friend request to user ID [a1] with message [a2]', run: (cid, p) => @addFriend cid,          p[0], p[1]             }
-      {cmd: 'toxDO',     args: 0, desc: 'Run TOX.do',                                            run: (cid)    => @toxDO                                       }
-      {cmd: 'reqAvatar', args: 0, desc: 'Send a avatar request to all friends',                  run: (cid)    => @reqAvatar                                   }
+      {cmd: 'toxDO',     args: 0, desc: 'Run TOX.do',                                            run: (cid)    => @toxDO                                          }
+      {cmd: 'reqAvatar', args: 0, desc: 'Send a avatar request to all friends',                  run: (cid)    => @reqAvatar                                      }
+      {cmd: 'addGC',     args: 0, desc: 'Adds a new group chat',                                 run: (cid)    => @addGC     cid                                  }
+      {cmd: 'invite',    args: 2, desc: 'Invites [a1] to group [a2]',                            run: (cid, p) => @invite    cid, p[0], p[1]                      }
     ]
 
   help: (cid) ->
@@ -40,6 +42,8 @@ class Terminal
   addFriend: (cid, a,m) -> @event.emit "addFriend",       { cid: cid, addr: a, msg: m }
   toxDO:                -> @event.emit "toxDO"
   reqAvatar:            -> @event.emit "reqAvatar"
+  addGC:     (cid)      -> @event.emit "addGroupChat",    { cid: cid }
+  invite:    (cid, f,g) -> @event.emit "invite",          { cif: cid, friend: f, gNum: g }
 
   process: (data) ->
     cmd = data.cmd

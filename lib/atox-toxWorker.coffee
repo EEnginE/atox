@@ -54,6 +54,8 @@ class ToxWorker
     @event.on 'onlineStatus', (e) => @onlineStatus      e
     @event.on 'sendToFriend', (e) => @sendToFriend      e
     @event.on 'addFriend',    (e) => @sendFriendRequest e
+    @event.on 'addGroupChat', (e) => @addGroupChat      e
+    @event.on 'invite',       (e) => @invite            e
     @event.on 'toxDO',            => @TOX.do => @inf "TOX DONE"
     @event.on 'reqAvatar',        => @reqAvatar()
 
@@ -102,7 +104,6 @@ class ToxWorker
       name:   e.publicKeyHex()
       status: "Working, please wait..."
       online: 'offline'
-      cid:    fNum
       tid:    fNum
     }
     @inf "Added Friend #{fNum}"
@@ -113,6 +114,27 @@ class ToxWorker
       @TOX.getFriendConnectionStatus fNum, (a, b) =>
         return @err "Friend connection error #{fNum}" if a
         @friendAutoremove {fid: fNum, online: b}
+
+  addGroupChat: (e) ->
+    try
+      ret = @TOX.addGroupchatSync()
+    catch e
+      return @err "Faild to add a group chats"
+
+    @inf "Added group chat #{ret}"
+
+    @event.emit 'aTox.new-contact', {
+      name:   "Group Chat ##{ret}"
+      status: ''
+      online: 'group'
+      tid:    ret
+    }
+
+  invite: (e) ->
+    try
+      @TOX.inviteSync e.friend, e.gNum
+    catch e
+      return @err "Failed to invite friend #{e.friend}"
 
   setName: (name) ->
     @TOX.setName "#{name}"
@@ -141,7 +163,6 @@ class ToxWorker
       name:   e.addr
       status: "Working, please wait..."
       online: 'offline'
-      cid:    fNum
       tid:    fNum
     }
 
