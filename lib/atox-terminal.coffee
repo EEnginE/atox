@@ -25,7 +25,7 @@ class Terminal
     ]
 
   help: (cid) ->
-    @event.emit 'Terminal', {cid: cid, msg: 'Commands: (seperator: ", ")'}
+    @event.emit 'Terminal', {cid: cid, msg: 'Commands: (Strings are encased with "s)'}
 
     for i in @cmds
       @event.emit 'Terminal', {cid: cid, msg: "     \"/#{i.cmd}\":  #{i.desc}"}
@@ -46,7 +46,7 @@ class Terminal
     return unless cmd.indexOf('/') == 0
     cmd = cmd.replace('/', '')
 
-    args = cmd.split /,\s+/ #TODO: Change command seperator
+    args = @handleArgs cmd
 
     @err "Empty cmd" if args.length == 0
     return           if args.length == 0
@@ -66,6 +66,36 @@ class Terminal
         return
 
     @err "Command /#{@cmd} not found"
+
+  handleArgs: (args) ->
+    args = args.split /\"/
+    if args.length > 1
+      for i in [0...args.length] by 1
+        a = -1
+        if i != 0 and i % 2 != 0
+          a = args[i-1].split /\s+/
+          a = a.concat(args[i].replace(/\"/, /''/).split(/\s+/).join(" "))
+        else if i == args.length-1
+          a = args[i].split /\s+/
+        if a != -1
+          if argsTemp?
+            argsTemp = argsTemp.concat(a)
+          else
+            argsTemp = a
+      i = 0
+      x = argsTemp.length
+      while i < x
+        if(argsTemp[i].length == 0)
+          argsTemp.splice(i, 1)
+          x-=1
+        else
+          i += 1
+      args = argsTemp
+    else
+      args = args.join()
+      args = args.split /\s+/
+
+    return args;
 
   err: (what) ->
     @event.emit 'notify', {
