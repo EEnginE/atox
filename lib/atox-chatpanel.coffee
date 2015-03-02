@@ -38,6 +38,8 @@ class Chatpanel extends View
     if parseInt(@coverview.find('.selected').attr('cid')) is params.cid
       if isBot or params.tid is -1
         @scrollBot(params.cid)
+    else
+      @coverview.find("[cid='#{params.cid}']").addClass 'status-modified'
 
   addChat: (params) ->
     if not params.cid?
@@ -79,6 +81,8 @@ class Chatpanel extends View
   selectChat: (cid) ->
     id = @coverview.find('.selected').attr('cid') #get cid of selected chat
     @scrollPos[id] = @chats.scrollTop()
+    if @chats.prop("scrollHeight") - @chats.prop("offsetHeight") is @chats.scrollTop() #isBot?
+      @scrollPos[id] = -1
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cid='" + cid + "']").addClass('selected')
     @ulist.find(".aTox-chatpanel-groupchat-ulist-con").css({display: 'none'})
@@ -89,7 +93,11 @@ class Chatpanel extends View
       @ulist.css({display: 'block'})
     else
       @ulist.css({display: 'none'})
-    @chats.scrollTop(@scrollPos[cid])
+    if @scrollPos[cid] is -1
+      @scrollBot(cid)
+    else
+      @chats.scrollTop(@scrollPos[cid])
+    @coverview.find("[cid='#{cid}']").removeClass 'status-modified'
 
   addUser: (params) ->
     #Call only if groupchat
