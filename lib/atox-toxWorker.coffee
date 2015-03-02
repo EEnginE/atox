@@ -85,7 +85,7 @@ class ToxWorker
 
   reqAvatar: ->
     for i in @TOX.getFriendListSync()
-      @inf "Request Avata (Friend ID: #{i})"
+      @inf "Request Avatar (Friend ID: #{i})"
       @TOX.requestAvatarData( i )
 
   friendRequestCB: (e) ->
@@ -169,7 +169,7 @@ class ToxWorker
       img:      atom.config.get 'aTox.userAvatar'
     }
 
-    @event.emit  'Terminal', "You are now #{e.d}"
+    @event.emit  'Terminal', {cid: -2, msg: "You are now #{e.d}"} #TODO: Send this to all chat windows
 
   friendAutoremove: (params) ->
     return @friendOnline[params.fid] = 0 if params.online is true
@@ -187,7 +187,7 @@ class ToxWorker
       content: msg
     } if atom.config.get 'aTox.debugNotifications'
 
-    @event.emit 'Terminal', "TOX: [Info] #{msg}"
+    @event.emit 'Terminal', {cid: -2, msg: "TOX: [Info] #{msg}"}
 
   err: (msg) ->
     @event.emit 'notify', {
@@ -196,4 +196,4 @@ class ToxWorker
       content: msg
     }
 
-    @event.emit 'Terminal', "TOX: [Error] #{msg}"
+    @event.emit 'Terminal', {cid: -2, msg: "TOX: [Error] #{msg}"}

@@ -94,18 +94,24 @@ module.exports =
       @chatpanel.addChat { cid: -1, img: 'none', event: @event, group: false }
 
       @event.on 'Terminal', (data) =>
-        @chatpanel.addMessage {cid: -2, msg: "<span style='font-style:italic;color:rgba(200, 200, 200 ,1)'>" + data + "</span>", name: 'aTox', color: "rgba(255, 255, 255 ,1)"}
-
+        @event.emit "aTox.add-message", {
+          cid:   data.cid
+          tid:   -2
+          color: "rgba(255, 255, 255 ,1)"
+          name:  "aTox"
+          msg:   "<span style='font-style:italic;color:rgba(200, 200, 200 ,1)'>" + data.msg + "</span>"
+        }
+      @terminal.initialize()
       @TOX.startup()
       @mainWin.showAT() if atom.config.get 'aTox.showDefault'
 
   getChatIDFromName: (data) ->
     for i in @contactsArray
-      if i.name == data
-        @event.emit 'Terminal', "getChatIDFromName: #{i.cid} (#{data})"
+      if i.name == data.name
+        @event.emit 'Terminal', {cid: data.cid, msg: "getChatIDFromName: #{i.cid} (#{data})"}
         return i.cid
 
-    @event.emit 'Terminal', "getChatIDFromName: Not Found (#{data})"
+    @event.emit 'Terminal', {cid: data.cid, msg: "getChatIDFromName: Not Found (#{data})"}
     return -1
 
   contactSelected: (data) ->
