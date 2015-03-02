@@ -91,6 +91,7 @@ module.exports =
     $ =>
       @chatpanel    = new Chatpanel {event: @event}
       @chatpanel.addChat { cid: -2, img: 'none', event: @event, group: true }
+      @chatpanel.addChat { cid: -1, img: 'none', event: @event, group: false }
 
       @event.on 'Terminal', (data) =>
         @chatpanel.addMessage {cid: -2, msg: "<span style='font-style:italic;color:rgba(200, 200, 200 ,1)'>" + data + "</span>", name: 'aTox', color: "rgba(255, 255, 255 ,1)"}

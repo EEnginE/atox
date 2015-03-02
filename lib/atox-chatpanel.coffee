@@ -30,8 +30,14 @@ class Chatpanel extends View
         if tmsg[i].indexOf(n) > -1
           tmsg[i] = '<a href="' + tmsg[i] + '">' + tmsg[i] + '</a>'
     params.msg = tmsg.join(' ')
+
+    isBot = false
+    if @chats.prop("scrollHeight") - @chats.prop("offsetHeight") is @chats.scrollTop()
+      isBot = true
     @chats.find("[cid='#{params.cid}']").append "<p><span style='font-weight:bold;color:#{params.color}'>#{params.name}: </span>#{params.msg}</p>"
-    @scrollBot(params.cid)
+    if parseInt(@coverview.find('.selected').attr('cid')) is params.cid
+      if isBot or params.tid is -1
+        @scrollBot(params.cid)
 
   addChat: (params) ->
     if not params.cid?
@@ -50,7 +56,7 @@ class Chatpanel extends View
     @coverview.find("[cid='" + params.cid + "']").click =>
       @selectChat(params.cid)
     if params.cid < 0
-      @coverview.find("[cid='" + params.cid + "']").addClass( 'icon icon-octoface' )
+      @coverview.find("[cid='" + params.cid + "']").addClass('icon icon-octoface')
     if params.img != 'none'
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     @selectChat(params.cid)
@@ -71,6 +77,8 @@ class Chatpanel extends View
     # TODO add other update stuff
 
   selectChat: (cid) ->
+    id = @coverview.find('.selected').attr('cid') #get cid of selected chat
+    @scrollPos[id] = @chats.scrollTop()
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cid='" + cid + "']").addClass('selected')
     @ulist.find(".aTox-chatpanel-groupchat-ulist-con").css({display: 'none'})
@@ -81,7 +89,7 @@ class Chatpanel extends View
       @ulist.css({display: 'block'})
     else
       @ulist.css({display: 'none'})
-    @scrollBot(cid)
+    @chats.scrollTop(@scrollPos[cid])
 
   addUser: (params) ->
     #Call only if groupchat
@@ -90,6 +98,8 @@ class Chatpanel extends View
     @ulist.find("[cid='#{params.cid}']").append "<p style='font-weight:bold;color:#{params.color}'>#{params.name}</p>"
 
   initialize: (params) ->
+    @scrollPos = []
+
     @event = params.event
     @event.on "aTox.add-message", (msg) => @addMessage msg
 
@@ -134,7 +144,7 @@ class Chatpanel extends View
 
   scrollBot: (cid) -> #Must be fixed
     history = @chats.find("[cid='" + cid + "']")
-    @chats.scrollTop(history.prop("scrollHeight"));
+    @chats.scrollTop(history.prop("scrollHeight"))
 
   show: ->
     @isOn = true
