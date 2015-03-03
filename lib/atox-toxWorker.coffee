@@ -75,8 +75,8 @@ class ToxWorker
 
     @TOX.start()
     @inf "Started TOX"
-    @inf "Name:  #{atom.config.get 'aTox.userName'}"
-    @inf "My ID: #{@TOX.getAddressHexSync()}"
+    @inf "Name:  <span style='color:rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )'>#{atom.config.get 'aTox.userName'}</span>"
+    @inf "My ID: <span style='color:rgba(100, 100, 255, 1)'>#{@TOX.getAddressHexSync()}</span>"
 
     @friendOnline = []
 
@@ -95,7 +95,7 @@ class ToxWorker
 
   reqAvatar: ->
     for i in @TOX.getFriendListSync()
-      @inf "Request Avatar (Friend ID: #{i})"
+      @inf "Requesting Avatar (Friend ID: <span style='color:rgba(100, 100, 255, 1)'>#{i}</span>)"
       @TOX.requestAvatarData( i )
 
   friendRequestCB: (e) ->
@@ -115,7 +115,7 @@ class ToxWorker
       tid:    fNum
       pubKey: e.publicKey()
     }
-    @inf "Added Friend #{fNum}"
+    @inf "Added Friend #{fNum}" #TODO: Move this into the contacts, add the randomized color to this string within the contact
 
     @friendOnline[fNum] = -1
 
@@ -128,7 +128,7 @@ class ToxWorker
     try
       ret = @TOX.addGroupchatSync()
     catch e
-      return @err "Faild to add a group chats"
+      return @err "Failed to add group chat"
 
     @inf "Added group chat #{ret}"
 
@@ -140,7 +140,7 @@ class ToxWorker
     }
 
   groupInviteCB: (e) ->
-    @inf "Recieved group invite from #{e.friend()}"
+    @inf "Received group invite from #{e.friend()}"
 
     try
       ret = @TOX.joinGroupchatSync e.friend(), e.data()
@@ -224,8 +224,19 @@ class ToxWorker
       content: "You are now #{e.d}"
       img:      atom.config.get 'aTox.userAvatar'
     }
+    color = @getColorByStatus(e.d)
+    @event.emit  'Terminal', {cid: -2, msg: "You are now <span style='color:#{color}'>#{e.d}</span>"} #TODO: Send this to all chat windows
 
-    @event.emit  'Terminal', {cid: -2, msg: "You are now #{e.d}"} #TODO: Send this to all chat windows
+  getColorByStatus: (status) ->
+    console.log status
+    if status is "online"
+      return "rgba(50, 255, 50, 1)"
+    else if status is "offline"
+      return "rgba(80, 80, 80, 1)"
+    else if status is "busy"
+      return "rgba(255, 50, 50, 1)"
+    else if status is "away"
+      return "rgba(255, 255, 50, 1)"
 
   friendAutoremove: (params) ->
     return @friendOnline[params.fid] = 0 if params.online is true
