@@ -13,12 +13,6 @@ Adds a message
 | img   | Avatar                                   | no       |
 | msg   | The message string                       | yes      |
 
-## aTox-contact-sent
-
-| Tag   | content                                  | required |
-| :---: | :--------------------------------------- | :------: |
-| cid   | The **CHAT** ID                          | yes      |
-| msg   | The message string                       | yes      |
 
 ## chat-visibility
 

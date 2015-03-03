@@ -82,12 +82,14 @@ module.exports =
 
     @internalContactId = 0
     @contactsArray     = []
+    @contactsPubKey    = []
 
     @hasOpenChat    = false
 
     @event.on 'aTox.new-contact',       (data) => @addUserHelper      data
     @event.on 'aTox.select',            (data) => @contactSelected    data
     @event.on 'getChatID',              (data) => @getChatIDFromName  data
+    @event.on 'getFidFromPubKey',       (data) => @getFidFromPubKey   data
     @event.on 'first-connect',                 => @githubauth.doIt()
 
     $ =>
@@ -145,6 +147,14 @@ module.exports =
       panel:  @chatpanel
     }
     @currCID++
+    @contactsPubKey.push { tid: params.tid, pubKey: params.pubKey }
+
+  getFidFromPubKey: (params) ->
+    fid = -1
+    for i in @contactsPubKey
+      fid = i.tid if i.pubKey is params.pubKey
+
+    params.cb fid
 
   correctPath: (pathArg) ->
     pathArg = path.normalize(pathArg)

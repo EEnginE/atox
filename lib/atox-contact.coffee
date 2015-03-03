@@ -29,7 +29,18 @@ class Contact
     @panel.addChat { cid: @cid, img: @img, event: @event }
 
     @event.on "chat-visibility",   (newV) => @visibility     newV
-    @event.on "aTox-contact-sent", (msg)  => @contactSentMsg msg
+    @event.on 'aTox.add-message',  (data) => @sendMsg        data
+
+    @update()
+    @color = @randomColor()
+    @event.emit 'Terminal', { cid: -2, msg: "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}" }
+
+    if params.online is 'group'
+      @peerlist = []
+      @event.on 'groupMessageAT',  (data) => @groupMessage data
+      @event.on 'groupTitleAT',    (data) => @groupTitle   data
+      @event.on 'gNLC_AT',         (data) => @gNLC         data
+      return
 
     @event.on 'avatarDataAT',      (data) => @avatarData   data
     @event.on 'friendMsgAT',       (data) => @friendMsg    data
@@ -37,40 +48,41 @@ class Contact
     @event.on "statusChangeAT",    (data) => @statusChange data
     @event.on "avatarChangeAT",    (data) => @avatarChange data
     @event.on "userStatusAT",      (data) => @userStatus   data
-    @event.on 'aTox.add-message',  (data) => @sendMsg      data
-
-
-
-    @update()
-
-    @color = @randomColor()
-
-    @event.emit 'Terminal', "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}"
 
   avatarData: (data) ->
     return unless data.tid == @tid
 
     if data.d.format() == 0
-      @event.emit 'Terminal', "#{@name} has no Avatar"
+      @event.emit 'Terminal', { cid: @cid, msg: "#{@name} has no Avatar" }
       @img = 'none'
       @update()
       return
 
     if ! data.d.isValid()
-      @event.emit 'Terminal', "#{@name} has an invalid (or no) Avatar"
+      @event.emit 'Terminal', { cid: @cid, msg: "#{@name} has an invalid (or no) Avatar" }
       @img = 'none'
       @update()
       return
 
-    @event.emit 'Terminal', {cid: data.cid, msg: "#{@name} has a new Avatar (Format: #{data.d.format()})"}
+    @event.emit 'Terminal', {cid: @cid, msg: "#{@name} has a new Avatar (Format: #{data.d.format()})"}
     @img = "#{os.tmpdir()}/atox-Avatar-#{data.d.hashHex()}"
-    @event.emit 'Terminal', {cid: data.cid, msg: "Avatar Path: #{@img}"}
+    @event.emit 'Terminal', {cid: @cid, msg: "Avatar Path: #{@img}"}
     fs.writeFile @img, data.d.data(), (error) =>
       return if error
       @update()
 
   friendMsg: (data) ->
-    return if     @status  == 'group'
+    return unless data.tid == @tid
+    @event.emit "aTox.add-message", {
+      cid:   @cid
+      tid:   @tid
+      color: @color
+      name:  @name
+      msg:   data.d
+    }
+
+
+  groupMessage: (data) ->
     return unless data.tid == @tid
     @event.emit "aTox.add-message", {
       cid:   @cid
@@ -82,19 +94,32 @@ class Contact
 
   nameChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'Terminal', {cid: data.cid, msg: "Name #{@name} is now #{data.d}"}
+    @event.emit 'Terminal', {cid: @cid, msg: "Name #{@name} is now #{data.d}"}
     @name = data.d
     @update()
 
+  groupTitle: (data) ->
+    return unless data.tid == @tid
+    @event.emit 'Terminal', {cid: @cid, msg: "Group #{@name} is now #{data.d} - peer #{data.p}"}
+    @name = data.d
+    @update()
+
+  gNLC: (data) ->
+    return unless data.tid == @tid
+    switch data.d
+      when 0 then @event.emit 'Terminal', {cid: @cid, msg: "New peer in #{@name} - peer #{data.p}"}
+      when 1 then @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} left #{@name}"}
+      when 2 then @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} changed name"}
+
   statusChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'Terminal', { cid: data.cid, msg: "Status of #{@name} is now #{data.d}"}
+    @event.emit 'Terminal', { cid: @cid, msg: "Status of #{@name} is now #{data.d}"}
     @status = data.d
     @update()
 
   avatarChange: (data) ->
     return unless data.tid == @tid
-    @event.emit 'Terminal', { cid: data.cid, msg: "#{@name} changed avatar"}
+    @event.emit 'Terminal', { cid: @cid, msg: "#{@name} changed avatar"}
     @online = status
     @update()
 
@@ -108,7 +133,7 @@ class Contact
       when 1 then status = 'away'
       when 2 then status = 'busy'
 
-    @event.emit 'Terminal', {cid: data.cid, msg: "#{@name} changed user status to #{status}"}
+    @event.emit 'Terminal', {cid: @cid, msg: "#{@name} changed user status to #{status}"}
     @online = status
     @update()
 
@@ -122,22 +147,8 @@ class Contact
   sendMsg: (data) ->
     return unless data.tid == -1
     return unless data.cid == @cid
-    @event.emit 'sendToFriend', {tid: @tid, d: data.msg}
-
-  contactSentMsg: (msg) ->
-    if msg.tid?
-      tid = msg.tid
-    else
-      tid = @cid
-
-    @event.emit "aTox.add-message", {
-      cid:   @cid
-      tid:    tid  # Will be the Tox ID later on
-      color: @color
-      name:  @name
-      img:   @img
-      msg:   msg.msg
-    }
+    return @event.emit 'sendToGC',     {tid: @tid, d: data.msg} if @online is 'group'
+    return @event.emit 'sendToFriend', {tid: @tid, d: data.msg}
 
   visibility: (newV) ->
     return unless newV.cid is @cid

@@ -40,26 +40,31 @@ class ToxWorker
 
     @err "Failed to load TOX" unless @TOX.checkHandle (e) =>
 
-    @TOX.on 'avatarData',     (e) => @avatarDataCB      e
-    @TOX.on 'avatarInfo',     (e) => @avatarInfCB       e
-    @TOX.on 'friendMessage',  (e) => @friendMsgCB       e
-    @TOX.on 'friendRequest',  (e) => @friendRequestCB   e
-    @TOX.on 'nameChange',     (e) => @nameChangeCB      e
-    @TOX.on 'statusMessage',  (e) => @statusChangeCB    e
-    @TOX.on 'userStatus',     (e) => @userStatusCB      e
+    @TOX.on 'avatarData',          (e) => @avatarDataCB          e
+    @TOX.on 'avatarInfo',          (e) => @avatarInfCB           e
+    @TOX.on 'friendMessage',       (e) => @friendMsgCB           e
+    @TOX.on 'friendRequest',       (e) => @friendRequestCB       e
+    @TOX.on 'nameChange',          (e) => @nameChangeCB          e
+    @TOX.on 'statusMessage',       (e) => @statusChangeCB        e
+    @TOX.on 'userStatus',          (e) => @userStatusCB          e
+    @TOX.on 'groupInvite',         (e) => @groupInviteCB         e
+    @TOX.on 'groupMessage',        (e) => @groupMessageCB        e
+    @TOX.on 'groupTitle',          (e) => @groupTitleCB          e
+    @TOX.on 'groupNamelistChange', (e) => @groupNamelistChangeCB e
 
-    @event.on 'setName',      (e) => @setName           e
-    @event.on 'setAvatar',    (e) => @setAvatar         e
-    @event.on 'setStatus',    (e) => @setStatus         e
-    @event.on 'onlineStatus', (e) => @onlineStatus      e
-    @event.on 'sendToFriend', (e) => @sendToFriend      e
-    @event.on 'addFriend',    (e) => @sendFriendRequest e
-    @event.on 'addGroupChat', (e) => @addGroupChat      e
-    @event.on 'invite',       (e) => @invite            e
-    @event.on 'toxDO',            => @TOX.do => @inf "TOX DONE"
-    @event.on 'reqAvatar',        => @reqAvatar()
+    @event.on 'setName',           (e) => @setName               e
+    @event.on 'setAvatar',         (e) => @setAvatar             e
+    @event.on 'setStatus',         (e) => @setStatus             e
+    @event.on 'onlineStatus',      (e) => @onlineStatus          e
+    @event.on 'sendToFriend',      (e) => @sendToFriend          e
+    @event.on 'addFriend',         (e) => @sendFriendRequest     e
+    @event.on 'addGroupChat',      (e) => @addGroupChat          e
+    @event.on 'invite',            (e) => @invite                e
+    @event.on 'sendToGC',          (e) => @sendToGC              e
+    @event.on 'toxDO',                 => @TOX.do => @inf "TOX DONE"
+    @event.on 'reqAvatar',             => @reqAvatar()
 
-    @event.on 'userStatusAT', (e) => @onlineStatus e
+    @event.on 'userStatusAT',      (e) => @onlineStatus e
 
     @event.emit 'setName',   atom.config.get 'aTox.userName'
     @event.emit 'setAvatar', atom.config.get 'aTox.userAvatar'
@@ -78,12 +83,15 @@ class ToxWorker
     @firstConnect = true
     @myInterval 500, => @isConnected()
 
-  avatarDataCB:   (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
-  avatarInfCB:    (e) -> @TOX.requestAvatarData( e.friend() )
-  friendMsgCB:    (e) -> @event.emit 'friendMsgAT',    {tid: e.friend(), d: e.message()}
-  nameChangeCB:   (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
-  statusChangeCB: (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
-  userStatusCB:   (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
+  avatarDataCB:          (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
+  avatarInfCB:           (e) -> @TOX.requestAvatarData( e.friend() )
+  friendMsgCB:           (e) -> @event.emit 'friendMsgAT',    {tid: e.friend(), d: e.message()}
+  nameChangeCB:          (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
+  statusChangeCB:        (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
+  userStatusCB:          (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
+  groupMessageCB:        (e) -> @event.emit 'groupMessageAT', {tid: e.group(),  d: e.message(), p: e.peer()} if not @TOX.peernumberIsOursSync e.group(), e.peer()
+  groupTitleCB:          (e) -> @event.emit 'groupTitleAT',   {tid: e.group(),  d: e.title(),   p: e.peer()}
+  groupNamelistChangeCB: (e) -> @event.emit 'gNLC_AT',        {tid: e.group(),  d: e.change(),  p: e.peer()}
 
   reqAvatar: ->
     for i in @TOX.getFriendListSync()
@@ -105,6 +113,7 @@ class ToxWorker
       status: "Working, please wait..."
       online: 'offline'
       tid:    fNum
+      pubKey: e.publicKey()
     }
     @inf "Added Friend #{fNum}"
 
@@ -125,6 +134,23 @@ class ToxWorker
 
     @event.emit 'aTox.new-contact', {
       name:   "Group Chat ##{ret}"
+      status: ''
+      online: 'group'
+      tid:    ret
+    }
+
+  groupInviteCB: (e) ->
+    @inf "Recieved group invite from #{e.friend()}"
+
+    try
+      ret = @TOX.joinGroupchatSync e.friend(), e.data()
+    catch e
+      return @err "Failed to join group chat"
+
+    @inf "Joined group chat #{ret}"
+
+    @event.emit 'aTox.new-contact', {
+      name:   @TOX.getGroupchatTitle( ret )
       status: ''
       online: 'group'
       tid:    ret
@@ -169,7 +195,16 @@ class ToxWorker
     @inf "Added Friend #{fNum}"
 
   sendToFriend: (e) ->
-    @TOX.sendMessage e.tid, e.d, (a) =>
+    try
+      @TOX.sendMessageSync e.tid, e.d
+    catch e
+      @err "Failed to send MSG to #{e.tid}"
+
+  sendToGC: (e) ->
+    try
+      @TOX.sendGroupchatMessageSync e.tid, e.d
+    catch e
+      @err "Failed to send MSG to group chat #{e.tid}"
 
   onlineStatus: (e) ->
     return unless e.tid < 0
