@@ -48,7 +48,7 @@ class ToxWorker
     @TOX.on 'statusMessage',       (e) => @statusChangeCB        e
     @TOX.on 'userStatus',          (e) => @userStatusCB          e
     @TOX.on 'groupInvite',         (e) => @groupInviteCB         e
-    @TOX.on 'groupMessage',        (e) => @groupMessageCB        e
+    @TOX.on 'groupMessage',        (e) => @groupMessageCB        e unless @TOX.peernumberIsOursSync e.group(), e.peer()
     @TOX.on 'groupTitle',          (e) => @groupTitleCB          e
     @TOX.on 'groupNamelistChange', (e) => @groupNamelistChangeCB e
 
@@ -165,8 +165,16 @@ class ToxWorker
       @event.emit 'getFidFromPubKey', {
         pubKey: key,
         cb: (fid) =>
-          e.cb {key: key, fid: fid, name: name} if e.cb?
-          @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' (#{key})"
+          @inf "FID: #{fid}"
+          if fid < 0
+            e.cb {key: key, fid: fid, name: name, color: "#AAA"} if e.cb?
+            return @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' and NOT A CONTACT (#{key})"
+          @event.emit 'getColor', {
+            tid: fid
+            cb: (color) =>
+              e.cb {key: key, fid: fid, name: name, color: color} if e.cb?
+              @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' (#{key})"
+          }
       }
     catch err
       console.log err

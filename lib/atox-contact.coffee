@@ -48,9 +48,19 @@ class Contact
     @event.on "statusChangeAT",    (data) => @statusChange data
     @event.on "avatarChangeAT",    (data) => @avatarChange data
     @event.on "userStatusAT",      (data) => @userStatus   data
+    @event.on 'getColor',          (data) => @getColor     data
 
     @panel.addChat { cid: @cid, img: @img, event: @event, group: false }
     @update()
+
+#     _____             _             _                 _
+#    /  __ \           | |           | |               | |
+#    | /  \/ ___  _ __ | |_ __ _  ___| |_    ___  _ __ | |_   _
+#    | |    / _ \| '_ \| __/ _` |/ __| __|  / _ \| '_ \| | | | |
+#    | \__/\ (_) | | | | || (_| | (__| |_  | (_) | | | | | |_| |
+#     \____/\___/|_| |_|\__\__,_|\___|\__|  \___/|_| |_|_|\__, |
+#                                                          __/ |
+#                                                         |___/
 
   avatarData: (data) ->
     return unless data.tid == @tid
@@ -84,66 +94,11 @@ class Contact
       msg:   data.d
     }
 
-
-  groupMessage: (data) ->
-    return unless data.tid == @tid
-    console.log data.p
-    @event.emit 'getPeerInfo', {
-      gNum: @tid
-      peer: data.p
-      cb: (params) =>
-        index = @getPeerListIndex params.fid
-        @event.emit "aTox.add-message", {
-          cid:   @cid
-          tid:   @tid
-          color: @color
-          name:  params.name
-          msg:   data.d
-        }
-    }
-
   nameChange: (data) ->
     return unless data.tid == @tid
     @event.emit 'Terminal', {cid: @cid, msg: "Name #{@name} is now #{data.d}"}
     @name = data.d
     @update()
-
-  groupTitle: (data) ->
-    return unless data.tid == @tid
-    @event.emit 'Terminal', {cid: @cid, msg: "Group #{@name} is now #{data.d} - peer #{data.p}"}
-    @name = data.d
-    @update()
-
-  getPeerListIndex: (fid) ->
-    for i in [0..@peerlist.length] by 1
-      return i if @peerlist[i].fid is fid
-
-    return -1
-
-  gNLC: (data) ->
-    return unless data.tid == @tid
-
-    if data.d is 1
-      @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} left #{@name}"}
-      index = @peerlist.indexOf {fid: params.fid, name: params.name}
-      @peerlist.splice index, 1 unless index < 0
-      return @update()
-
-    @event.emit 'getPeerInfo', {
-      gNum: @tid
-      peer: data.p
-      cb: (params) =>
-        switch data.d
-          when 0
-            @event.emit 'Terminal', {cid: @cid, msg: "New peer in #{@name} - peer #{data.p}"}
-            @peerlist.push {fid: params.fid, name: params.name}
-          when 2
-            @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} changed name"}
-            index = @getPeerListIndex params.fid
-            @peerlist[index] = {fid: params.fid, name: params.name} unless index < 0
-
-        @update()
-    }
 
   statusChange: (data) ->
     return unless data.tid == @tid
@@ -177,6 +132,81 @@ class Contact
       content: "#{@name} is now #{status}"
       img:      @img
     }
+
+  getColor: (data) ->
+    return unless data.tid == @tid
+    data.cb @color
+
+#     _____                         _____ _           _                 _
+#    |  __ \                       /  __ \ |         | |               | |
+#    | |  \/_ __ ___  _   _ _ __   | /  \/ |__   __ _| |_    ___  _ __ | |_   _
+#    | | __| '__/ _ \| | | | '_ \  | |   | '_ \ / _` | __|  / _ \| '_ \| | | | |
+#    | |_\ \ | | (_) | |_| | |_) | | \__/\ | | | (_| | |_  | (_) | | | | | |_| |
+#     \____/_|  \___/ \__,_| .__/   \____/_| |_|\__,_|\__|  \___/|_| |_|_|\__, |
+#                          | |                                             __/ |
+#                          |_|                                            |___/
+
+  groupMessage: (data) ->
+    return unless data.tid == @tid
+    console.log data.p
+    @event.emit 'getPeerInfo', {
+      gNum: @tid
+      peer: data.p
+      cb: (params) =>
+        index = @getPeerListIndex params.fid
+        @event.emit "aTox.add-message", {
+          cid:   @cid
+          tid:   @tid
+          color: params.color
+          name:  params.name
+          msg:   data.d
+        }
+    }
+
+  groupTitle: (data) ->
+    return unless data.tid == @tid
+    @event.emit 'Terminal', {cid: @cid, msg: "Group #{@name} is now #{data.d} - peer #{data.p}"}
+    @name = data.d
+    @update()
+
+  getPeerListIndex: (fid) ->
+    for i in [0..@peerlist.length] by 1
+      return i if @peerlist[i].fid is fid
+
+    return -1
+
+  gNLC: (data) ->
+    return unless data.tid == @tid
+
+    if data.d is 1
+      @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} left #{@name}"}
+      index = @peerlist.indexOf {fid: params.fid, name: params.name}
+      @peerlist.splice index, 1 unless index < 0
+      return @update()
+
+    @event.emit 'getPeerInfo', {
+      gNum: @tid
+      peer: data.p
+      cb: (params) =>
+        switch data.d
+          when 0
+            @event.emit 'Terminal', {cid: @cid, msg: "New peer in #{@name} - peer #{data.p}"}
+            @peerlist.push {fid: params.fid, name: params.name, color: params.color}
+          when 2
+            @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} changed name"}
+            index = @getPeerListIndex params.fid
+            @peerlist[index] = {fid: params.fid, name: params.name, color: params.color} unless index < 0
+
+        @update()
+    }
+
+#    ______       _   _
+#    | ___ \     | | | |
+#    | |_/ / ___ | |_| |__
+#    | ___ \/ _ \| __| '_ \
+#    | |_/ / (_) | |_| | | |
+#    \____/ \___/ \__|_| |_|
+#
 
   sendMsg: (data) ->
     return unless data.tid == -1
