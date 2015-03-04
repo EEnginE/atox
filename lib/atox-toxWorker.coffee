@@ -18,14 +18,14 @@ class ToxWorker
     if @TOX.isConnectedSync()
       return if @hasConnection is true
       @event.emit 'onlineStatus', {tid: 1, d: 'connected'}
-      @inf "Connected!"
+      @inf "<span style='color:rgba(0, 255, 0, 1)''>Connected!</span>"
       @hasConnection = true
       @event.emit 'first-connect' if @firstConnect is true
       @firstConnect  = false
     else
       return if @hasConnection is false
       @event.emit 'onlineStatus', {tid: 1, d: 'disconnected'}
-      @inf "Disconnected."
+      @inf "<span style='color:rgba(255, 0, 0, 1)''>Disconnected.</span>"
       @hasConnection = false
 
   startup: ->

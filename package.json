@@ -14,6 +14,6 @@
      "jquery-ui":            "*",
      "jquery":               "*",
      "jquery-mousewheel":    "*",
-     "toxcore":              "/home/daniel/temp/temp/node-toxcore"
+     "toxcore":              "git://github.com/Arvius/node-toxcore.git"
   }
 }
