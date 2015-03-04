@@ -26,20 +26,20 @@ class Contact
       params.win.addContact @contactView, false
     @chatBox     = new ChatBox { cid: @cid, online: @online, event: @event }
 
-    @panel.addChat { cid: @cid, img: @img, event: @event }
-
     @event.on "chat-visibility",   (newV) => @visibility     newV
     @event.on 'aTox.add-message',  (data) => @sendMsg        data
 
-    @update()
     @color = @randomColor()
     @event.emit 'Terminal', { cid: -2, msg: "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}" }
 
-    if params.online is 'group'
+    if @online is 'group'
       @peerlist = []
       @event.on 'groupMessageAT',  (data) => @groupMessage data
       @event.on 'groupTitleAT',    (data) => @groupTitle   data
       @event.on 'gNLC_AT',         (data) => @gNLC         data
+
+      @panel.addChat { cid: @cid, img: @img, event: @event, group: true }
+      @update()
       return
 
     @event.on 'avatarDataAT',      (data) => @avatarData   data
@@ -48,6 +48,9 @@ class Contact
     @event.on "statusChangeAT",    (data) => @statusChange data
     @event.on "avatarChangeAT",    (data) => @avatarChange data
     @event.on "userStatusAT",      (data) => @userStatus   data
+
+    @panel.addChat { cid: @cid, img: @img, event: @event, group: false }
+    @update()
 
   avatarData: (data) ->
     return unless data.tid == @tid
@@ -84,12 +87,19 @@ class Contact
 
   groupMessage: (data) ->
     return unless data.tid == @tid
-    @event.emit "aTox.add-message", {
-      cid:   @cid
-      tid:   @tid
-      color: @color
-      name:  @name
-      msg:   data.d
+    console.log data.p
+    @event.emit 'getPeerInfo', {
+      gNum: @tid
+      peer: data.p
+      cb: (params) =>
+        index = @getPeerListIndex params.fid
+        @event.emit "aTox.add-message", {
+          cid:   @cid
+          tid:   @tid
+          color: @color
+          name:  params.name
+          msg:   data.d
+        }
     }
 
   nameChange: (data) ->
@@ -104,12 +114,36 @@ class Contact
     @name = data.d
     @update()
 
+  getPeerListIndex: (fid) ->
+    for i in [0..@peerlist.length] by 1
+      return i if @peerlist[i].fid is fid
+
+    return -1
+
   gNLC: (data) ->
     return unless data.tid == @tid
-    switch data.d
-      when 0 then @event.emit 'Terminal', {cid: @cid, msg: "New peer in #{@name} - peer #{data.p}"}
-      when 1 then @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} left #{@name}"}
-      when 2 then @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} changed name"}
+
+    if data.d is 1
+      @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} left #{@name}"}
+      index = @peerlist.indexOf {fid: params.fid, name: params.name}
+      @peerlist.splice index, 1 unless index < 0
+      return @update()
+
+    @event.emit 'getPeerInfo', {
+      gNum: @tid
+      peer: data.p
+      cb: (params) =>
+        switch data.d
+          when 0
+            @event.emit 'Terminal', {cid: @cid, msg: "New peer in #{@name} - peer #{data.p}"}
+            @peerlist.push {fid: params.fid, name: params.name}
+          when 2
+            @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} changed name"}
+            index = @getPeerListIndex params.fid
+            @peerlist[index] = {fid: params.fid, name: params.name} unless index < 0
+
+        @update()
+    }
 
   statusChange: (data) ->
     return unless data.tid == @tid
@@ -175,12 +209,18 @@ class Contact
       online:   @online,
       img:      @img,
       selected: @selected,
+      peerlist: @peerlist
     }
 
     @contactView.update temp
     @chatBox.update     temp
 
     @panel.updateImg {cid: @cid, data: temp}
+
+    return unless @online is 'group'
+
+    for i in @peerlist
+      @event.emit 'Terminal', {cid: @cid, msg: "Peerlist: #{i.fid} - #{i.name}"}
 
   handleClick: ->
     if @selected

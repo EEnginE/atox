@@ -61,6 +61,7 @@ class ToxWorker
     @event.on 'addGroupChat',      (e) => @addGroupChat          e
     @event.on 'invite',            (e) => @invite                e
     @event.on 'sendToGC',          (e) => @sendToGC              e
+    @event.on 'getPeerInfo',       (e) => @getPeerInfo           e
     @event.on 'toxDO',                 => @TOX.do => @inf "TOX DONE"
     @event.on 'reqAvatar',             => @reqAvatar()
 
@@ -89,7 +90,7 @@ class ToxWorker
   nameChangeCB:          (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
   statusChangeCB:        (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
   userStatusCB:          (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
-  groupMessageCB:        (e) -> @event.emit 'groupMessageAT', {tid: e.group(),  d: e.message(), p: e.peer()} if not @TOX.peernumberIsOursSync e.group(), e.peer()
+  groupMessageCB:        (e) -> @event.emit 'groupMessageAT', {tid: e.group(),  d: e.message(), p: e.peer()}
   groupTitleCB:          (e) -> @event.emit 'groupTitleAT',   {tid: e.group(),  d: e.title(),   p: e.peer()}
   groupNamelistChangeCB: (e) -> @event.emit 'gNLC_AT',        {tid: e.group(),  d: e.change(),  p: e.peer()}
 
@@ -113,7 +114,7 @@ class ToxWorker
       status: "Working, please wait..."
       online: 'offline'
       tid:    fNum
-      pubKey: e.publicKey()
+      pubKey: e.publicKeyHex()
     }
     @inf "Added Friend #{fNum}" #TODO: Move this into the contacts, add the randomized color to this string within the contact
 
@@ -156,11 +157,26 @@ class ToxWorker
       tid:    ret
     }
 
+  getPeerInfo: (e) ->
+    return if @TOX.peernumberIsOurs e.gNum, e.peer
+    try
+      key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gNum, e.peer
+      name = @TOX.getGroupchatPeernameSync         e.gNum, e.peer
+      @event.emit 'getFidFromPubKey', {
+        pubKey: key,
+        cb: (fid) =>
+          e.cb {key: key, fid: fid, name: name} if e.cb?
+          @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' (#{key})"
+      }
+    catch err
+      console.log err
+      return @err "Failed to get peer (#{e.peer}) info in group #{e.gNum}"
+
   invite: (e) ->
     try
       @TOX.inviteSync e.friend, e.gNum
-    catch e
-      return @err "Failed to invite friend #{e.friend}"
+    catch err
+      return @err "Failed to invite friend #{e.friend} to #{e.gNum}"
 
   setName: (name) ->
     @TOX.setName "#{name}"
