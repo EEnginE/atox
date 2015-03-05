@@ -159,26 +159,26 @@ class ToxWorker
 
   getPeerInfo: (e) ->
     return if @TOX.peernumberIsOurs e.gNum, e.peer
-    #try
-    key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gNum, e.peer
-    name = @TOX.getGroupchatPeernameSync         e.gNum, e.peer
-    @event.emit 'getFidFromPubKey', {
-      pubKey: key,
-      cb: (fid) =>
-        @inf "FID: #{fid}"
-        if fid < 0
-          e.cb {key: key, fid: fid, name: name, color: "#AAA"} if e.cb?
-          return @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' and NOT A CONTACT (#{key})"
-        @event.emit 'getColor', {
-          tid: fid
-          cb: (color) =>
-            e.cb {key: key, fid: fid, name: name, color: color} if e.cb?
-            @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' (#{key})"
-        }
-    }
-    #catch err
-    #  console.log err
-    #  return @err "Failed to get peer (#{e.peer}) info in group #{e.gNum}"
+    try
+      key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gNum, e.peer
+      name = @TOX.getGroupchatPeernameSync         e.gNum, e.peer
+      @event.emit 'getFidFromPubKey', {
+        pubKey: key,
+        cb: (fid) =>
+          @inf "FID: #{fid}"
+          if fid < 0
+            e.cb {key: key, fid: fid, name: name, color: "#AAA"} if e.cb?
+            return @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' and NOT A CONTACT (#{key})"
+          @event.emit 'getColor', {
+            tid: fid
+            cb: (color) =>
+              e.cb {key: key, fid: fid, name: name, color: color} if e.cb?
+              @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' (#{key})"
+          }
+      }
+    catch err
+      console.log err
+      return @err "Failed to get peer (#{e.peer}) info in group #{e.gNum}"
 
   invite: (e) ->
     try

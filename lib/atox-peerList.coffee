@@ -10,6 +10,9 @@ class PeerListItem extends View
     @FID  = params.fid
     @PEER = params.peer
 
+    # TODO: Add functionality: Show additional information: Recent Projects, Contributions to current project, has push rights. Unnecessary: toxID, status, image
+    # TODO: Get the real status of the user, check if User is already added and open the chat window directly
+
   update: (params) ->
     @text  params.name
     @css  {color: params.color}
