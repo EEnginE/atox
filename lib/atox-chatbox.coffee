@@ -1,32 +1,7 @@
 {View, TextEditorView, $, $$} = require 'atom-space-pen-views'
-jQuery = require 'jquery'
+jQuery   = require 'jquery'
+PeerList = require './atox-peerList'
 require 'jquery-ui'
-
-
-class ChatList extends View
-  @content: (params) ->
-    @div id: "aTox-chatbox-#{params.id}-chatlist", class: "aTox-chatbox-chatlist"
-
-  initialize: (params) ->
-    @event = params.event
-    for user in params.users
-      @addUser(user)
-
-  addUser: (user) -> #TODO: Change this to have the color also be synced with the chatpanel
-    jQuery( @element ).append "<p style='font-weight:bold;margin-left:3px;color:rgba(#{@randomNumber(255)}, #{@randomNumber(255)}, #{@randomNumber(255)}, 1)'>#{user}</p>"
-    @paragraph = jQuery( @element ).find( "p:contains('#{user}')" )
-    @paragraph.click =>
-      @event.emit "aTox.new-contact", {name: "#{user}", online: 'offline'} #TODO: Get the real status of the user, check if User is already added and open the chat window directly
-
-    @paragraph.hover =>
-      console.log "Hovered" #TODO: Add functionality: Show additional information: Recent Projects, Contributions to current project, has push rights. Unnecessary: toxID, status, image
-
-
-
-  randomNumber:(max, min=0) ->
-    Math.floor(Math.random() * (max - min) + min)
-
-
 
 module.exports =
 class ChatBox extends View
@@ -66,7 +41,7 @@ class ChatBox extends View
     @chatname = params.name
 
     if params.online is 'group'
-      @chatList = new ChatList {cid: params.cid, event: params.event, users: ["Taiterio", "Mensinda", "Arvius"]} #Handle this somewhere else and get a real list of users
+      @chatList = new PeerList {cid: params.cid, event: params.event}
 
       width = jQuery(@element).css ('width')
       width = parseInt(width)
@@ -88,6 +63,7 @@ class ChatBox extends View
     @online = params.online
     @header.attr 'class', "aTox-chatbox-header-#{params.online}"
     @name.text   params.name
+    @chatList.setList params.peerlist if params.online is 'group'
 
   getColor: ->
     "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"

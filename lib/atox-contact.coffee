@@ -153,7 +153,7 @@ class Contact
       gNum: @tid
       peer: data.p
       cb: (params) =>
-        index = @getPeerListIndex params.fid
+        index = @getPeerListIndex params.fid, data.p
         @event.emit "aTox.add-message", {
           cid:   @cid
           tid:   @tid
@@ -169,9 +169,13 @@ class Contact
     @name = data.d
     @update()
 
-  getPeerListIndex: (fid) ->
-    for i in [0..@peerlist.length] by 1
-      return i if @peerlist[i].fid is fid
+  getPeerListIndex: (fid, peer) ->
+    if fid > 0
+      for dummy, i in @peerlist
+        return i if @peerlist[i].fid is fid
+
+    for dummy, i in @peerlist
+      return i if @peerlist[i].peer is peer
 
     return -1
 
@@ -180,8 +184,9 @@ class Contact
 
     if data.d is 1
       @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} left #{@name}"}
-      index = @peerlist.indexOf {fid: params.fid, name: params.name}
-      @peerlist.splice index, 1 unless index < 0
+      index = @getPeerListIndex -5, data.p
+      return @event.emit 'Terminal', {cid: @cid, msg: "INDEX ERRPR peer: #{data.p}"} if index < 0
+      @peerlist.splice index, 1
       return @update()
 
     @event.emit 'getPeerInfo', {
@@ -191,11 +196,12 @@ class Contact
         switch data.d
           when 0
             @event.emit 'Terminal', {cid: @cid, msg: "New peer in #{@name} - peer #{data.p}"}
-            @peerlist.push {fid: params.fid, name: params.name, color: params.color}
+            @peerlist.push {fid: params.fid, peer: data.p, name: params.name, color: params.color}
           when 2
             @event.emit 'Terminal', {cid: @cid, msg: "Peer #{data.p} changed name"}
-            index = @getPeerListIndex params.fid
-            @peerlist[index] = {fid: params.fid, name: params.name, color: params.color} unless index < 0
+            index = @getPeerListIndex params.fid, data.p
+            return @event.emit 'Terminal', {cid: @cid, msg: "INDEX ERRPR peer: #{data.p}"} if index < 0
+            @peerlist[index] = {fid: params.fid, peer: data.p, name: params.name, color: params.color}
 
         @update()
     }
@@ -234,6 +240,7 @@ class Contact
 
   update: ->
     temp = {
+      cid:      @cid
       name:     @name,
       status:   @status,
       online:   @online,
@@ -244,13 +251,7 @@ class Contact
 
     @contactView.update temp
     @chatBox.update     temp
-
-    @panel.updateImg {cid: @cid, data: temp}
-
-    return unless @online is 'group'
-
-    for i in @peerlist
-      @event.emit 'Terminal', {cid: @cid, msg: "Peerlist: #{i.fid} - #{i.name}"}
+    @panel.update       temp
 
   handleClick: ->
     if @selected

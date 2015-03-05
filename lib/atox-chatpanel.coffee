@@ -69,14 +69,14 @@ class Chatpanel extends View
       @ulist.find("[cid='" + params.cid + "']").remove()
     @chats.find("[cid='#{params.cid}']").remove()
 
-  updateImg: (params) ->
+  update: (params) ->
     if params.img != 'none'
-      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.data.img})"})
+      @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{params.img})"})
     else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @coverview.find("[cid='" + params.cid + "']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
 
-    # TODO add other update stuff
+    # TODO update GC peer list (params.peerlist)
 
   selectChat: (cid) ->
     id = @coverview.find('.selected').attr('cid') #get cid of selected chat
