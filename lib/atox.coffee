@@ -144,6 +144,7 @@ module.exports =
       tid:    params.tid
       win:    @mainWin
       panel:  @chatpanel
+      hidden: params.hidden
     }
     @currCID++
     @contactsPubKey.push { tid: params.tid, pubKey: params.pubKey }

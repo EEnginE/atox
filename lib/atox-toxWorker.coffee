@@ -29,10 +29,11 @@ class ToxWorker
       @hasConnection = false
 
   startup: ->
-    @nodes = [
-      { maintainer: 'Impyy', address: '178.62.250.138', port: 33445, key: '788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B' },
-      { maintainer: 'sonOfRa', address: '144.76.60.215', port: 33445, key: '04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F' }
-    ];
+    rawJSON     = fs.readFileSync "#{__dirname}/../nodes.json"
+    paresedJSON = JSON.parse rawJSON
+    @nodes      = paresedJSON.bootstrapNodes
+    @aToxNodes  = paresedJSON.aToxNodes
+
     if os.platform().indexOf('win') > -1
       @TOX = new toxcore.Tox({av: false, path: "#{@DLL}"})
     else
@@ -73,6 +74,11 @@ class ToxWorker
 
     for n in @nodes
       @TOX.bootstrapFromAddressSync(n.address, n.port, n.key)
+
+    @event.on 'first-connect', =>
+      for n in @aToxNodes
+        @sendFriendRequest {addr: "#{n.key}", msg: "Hello #{n.maintainer}", hidden: true}
+        @inf "Added aTox bot: Maintainer: #{n.maintainer}; Key: #{n.key}"
 
     @TOX.start()
     @inf "Started TOX"
@@ -138,6 +144,7 @@ class ToxWorker
       status: ''
       online: 'group'
       tid:    ret
+      hidden: e.hidden
     }
 
   groupInviteCB: (e) ->
@@ -155,6 +162,7 @@ class ToxWorker
       status: ''
       online: 'group'
       tid:    ret
+      hidden: false
     }
 
   getPeerInfo: (e) ->
@@ -214,6 +222,7 @@ class ToxWorker
       status: "Working, please wait..."
       online: 'offline'
       tid:    fNum
+      hidden: e.hidden
     }
 
     @inf "Added Friend #{fNum}"

@@ -19,7 +19,12 @@ class Contact
     @event    = params.event
     @panel    = params.panel
 
-    @contactView = new ContactView { cid: @cid, handle: => @handleClick() }
+    if params.hidden? and params.hidden is true
+      @hidden = true
+    else
+      @hidden = false
+
+    @contactView = new ContactView { cid: @cid, hidden: @hidden, handle: => @handleClick() }
     if @cid == 0
       params.win.addContact @contactView, true
     else
@@ -28,6 +33,7 @@ class Contact
 
     @event.on "chat-visibility",   (newV) => @visibility     newV
     @event.on 'aTox.add-message',  (data) => @sendMsg        data
+    @event.on 'showAll',           (data) => @showContact    data
 
     @color = @randomColor()
     @event.emit 'Terminal', { cid: -2, msg: "New Contact: Name: #{@name}; Status: #{@status}; ID: #{@cid}" }
@@ -50,7 +56,7 @@ class Contact
     @event.on "userStatusAT",      (data) => @userStatus   data
     @event.on 'getColor',          (data) => @getColor     data
 
-    @panel.addChat { cid: @cid, img: @img, event: @event, group: false }
+    @panel.addChat { cid: @cid, img: @img, event: @event, group: false, hidden: @hidden }
     @update()
 
 #     _____             _             _                 _
@@ -270,6 +276,14 @@ class Contact
 
   showChat: -> @event.emit "chat-visibility", { cid: @cid, what: 'show' }
   hideChat: -> @event.emit "chat-visibility", { cid: @cid, what: 'hide' }
+
+  showContact: (data) ->
+    return unless @hidden is true
+
+    @contactView.show()
+    @event.emit 'Terminal', {cid: data.cid, msg: "Contact #{@name} is now visible"}
+
+    @hidden = false
 
 
   # Utils

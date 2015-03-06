@@ -16,6 +16,7 @@ class ContactView extends View
 
   initialize: (params) ->
     @click => params.handle()
+    @hide() if params.hidden is true
 
   update: (params) ->
     @name.text "#{params.name}"

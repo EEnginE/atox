@@ -25,6 +25,7 @@ class Terminal
       {cmd: 'addGC',     args: 0, desc: 'Adds a new group chat',                                 run: (cid)    => @addGC     cid                                  }
       {cmd: 'invite',    args: 2, desc: 'Invites [a1] to group [a2]',                            run: (cid, p) => @invite    cid, p[0], p[1]                      }
       {cmd: 'peerInfo',  args: 2, desc: 'Get info about peer [a1] in group [a2]',                run: (cid, p) => @peerInfo  cid, p[0], p[1]                      }
+      {cmd: 'showAll',   args: 0, desc: 'Makes ALL chats visible',                               run: (cid)    => @showAll   cid}
     ]
 
   help: (cid) ->
@@ -46,6 +47,7 @@ class Terminal
   addGC:     (cid)      -> @event.emit "addGroupChat",    { cid: cid }
   invite:    (cid, f,g) -> @event.emit "invite",          { cid: cid, friend: f, gNum: g }
   peerInfo:  (cid, p,g) -> @event.emit "getPeerInfo",     { cid: cid, gNum: g, peer: p }
+  showAll:   (cid)      -> @event.emit "showAll",         { cid: cid }
 
   process: (data) ->
     cmd = data.cmd
