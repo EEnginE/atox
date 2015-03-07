@@ -65,7 +65,7 @@
     border-radius:    5px;
     overflow:         auto;
 
-    #normal {
+    #form {
       margin: 7px;
 
       background-color: @aTox-Contacts-Base-Color;
@@ -81,8 +81,14 @@
         transition: color 500ms;
       }
 
-      .empty-space {
-        height: 3px;
+      atom-text-editor[placeholder-text="Username"] {
+        margin-bottom: 3px;
+      }
+      atom-text-editor[placeholder-text="Password"] {
+        margin-bottom: 9px;
+      }
+      atom-text-editor[placeholder-text="Password"]::shadow .lines span {
+        -webkit-text-security: disc;
       }
     }
 

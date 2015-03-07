@@ -9,19 +9,15 @@ class GithubAuth extends View
     @div id: 'aTox-GithubAuth-root', =>
       @div id: 'aTox-GithubAuth-title', =>
         @div outlet: 'working', class: 'loading loading-spinner-tiny inline-block aTox-hidden'
-        @h1  outlet: 't1', "GitHub Connection"
+        @h1  outlet: 'h1', "GitHub Connection"
       @div id: 'aTox-GithubAuth-body', =>
-        @div id: 'normal', =>
-          @h2 outlet: 't2', "Please enter username and password"
-          @subview "uName", new TextEditorView(mini: true, placeholderText: "Your username")
-          @div class: 'empty-space'
-          @subview "pw",    new TextEditorView(mini: true, placeholderText: "Your password")
-          @div class: 'empty-space'
-          @div class: 'empty-space'
-          @div class: 'empty-space'
-          @subview "PW2",   new TextEditorView(mini: true, placeholderText: "Your Two-factor authentication (leave empty if disabled)")
+        @div id: 'form', =>
+          @h2 outlet: 'h2', "Please enter username and password"
+          @subview "uname", new TextEditorView(mini: true, placeholderText: "Username")
+          @subview "pw",    new TextEditorView(mini: true, placeholderText: "Password")
+          @subview "otp",   new TextEditorView(mini: true, placeholderText: "Two-factor authentication (leave empty if disabled)")
         @div id: 'btns', =>
-          @div id: 'btn1', outlet: 'btn1', class: 'btn btn-lg btn-error', 'Do not connect'
+          @div id: 'btn1', outlet: 'btn1', class: 'btn btn-lg btn-error', 'Abort'
           @div id: 'btn2', outlet: 'btn2', class: 'btn btn-lg btn-info',  'Connect'
 
   initialize: (params) ->
@@ -31,9 +27,9 @@ class GithubAuth extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-    jQuery( "#aTox-GithubAuth-root" ).draggable {handle: '#aTox-GithubAuth-title'}
+    jQuery("#aTox-GithubAuth-root").draggable {handle: '#aTox-GithubAuth-title'}
 
-    for i in [@uName, @pw, @PW2]
+    for i in [@uname, @pw, @otp]
       i.on 'keydown', {t: i}, (e) =>
         @handleClick()      if e.keyCode is 13
         e.data.t.setText '' if e.keyCode is 27
@@ -51,19 +47,19 @@ class GithubAuth extends View
 
   handleClick: ->
     @working.removeClass "aTox-hidden"
-    i.addClass 'work' for i in [@t1, @t2, @working]
+    i.addClass 'work' for i in [@h1, @h2, @working]
 
     @doTimeout 500, => @checkInput()
 
   checkInput: ->
-    name = @uName.getText()
+    name = @uname.getText()
     pw   = @pw.getText()
-    pw2  = @PW2.getText()
+    otp  = @otp.getText()
 
     if name is "" or pw is ""
       return @doTimeout 500, => @error "Empty", "Please enter your username and password"
 
-    @github.createUserToken {user: name, password: pw, otp: pw2}, (params) =>
+    @github.createUserToken {user: name, password: pw, otp: otp}, (params) =>
       if params.token?
         if @postTokenGeneration() is false
           return @doTimeout 500, => @error "Internal", "Internal error. Please try again"
@@ -74,16 +70,16 @@ class GithubAuth extends View
         @doTimeout 500, => @error "Failed", "#{params.data.message}"
 
   error: (what, desc) ->
-    i.removeClass 'work' for i in [@t1, @t2, @working]
-    i.addClass    'err'  for i in [@t1, @t2]
+    i.removeClass 'work' for i in [@h1, @h2, @working]
+    i.addClass    'err'  for i in [@h1, @h2]
     @event.emit 'notify', {type: 'err', name: what, content: desc}
     @doTimeout 5000, =>
-      i.removeClass 'err'  for i in [@t1, @t2]
+      i.removeClass 'err'  for i in [@h1, @h2]
 
   success: ->
-    i.removeClass 'work' for i in [@t1, @t2, @working]
-    i.addClass    'ok'   for i in [@t1, @t2]
-    @doTimeout 4000, =>
+    i.removeClass 'work' for i in [@h1, @h2, @working]
+    i.addClass    'ok'   for i in [@h1, @h2]
+    @doTimeout 2500, =>
       @removeClass "aTox-shown"
       @isOpen = false
 

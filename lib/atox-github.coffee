@@ -157,14 +157,13 @@ class Github
   setToken: (token) ->
     @htoken = token
 
-  authentificate: (opts) =>
+  authentificate: (params) =>
     console.log "authentificate called"
-    @createUserToken {user: params.user, password: params.password, otp: params.otp}, (params) =>
-      opts.event.emit 'sendToFriend', {tid: -2, d: params.token}
-      console.log "msg emmitted: ", d
-      opts.event.on 'friendMsgAT', (e) =>
-        console.log e.tid. e.d
-        if e.tid is -3
-          @deleteUserToken {id: params.id, token: params.token}, =>
-            console.log "Token removed: ", params.id, " : ", params.token
-          @setToken e.d
+    #@createUserToken {user: params.user, password: params.password, otp: params.otp}, (opts) =>
+      #Send to friend params.token
+      #on Answer, needs to be fixed
+        #console.log e.tid. e.d
+        #if e.tid is -3
+          #@deleteUserToken {id: params.id, token: params.token}, =>
+            #console.log "Token removed: ", params.id, " : ", params.token
+          #@setToken e.d
