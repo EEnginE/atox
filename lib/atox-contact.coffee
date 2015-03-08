@@ -2,8 +2,8 @@
 os          = require 'os'
 fs          = require 'fs'
 
-ContactView = require './atox-contactView'
-ChatBox     = require './atox-chatbox'
+ContactView = require './GUI/atox-contactView'
+ChatBox     = require './GUI/atox-chatbox'
 
 module.exports =
 class Contact

@@ -1,13 +1,13 @@
 path          = require 'path'
-MainWindow    = require './atox-mainWin'
-Notifications = require './atox-notifications'
-Question = require './atox-questions'
-Chatpanel     = require './atox-chatpanel'
+MainWindow    = require './GUI/atox-mainWin'
+Notifications = require './GUI/atox-notifications'
+Question      = require './GUI/atox-questions'
+Chatpanel     = require './GUI/atox-chatpanel'
 Contact       = require './atox-contact'
 Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
 Github        = require './atox-github'
-GithubAuth    = require './atox-githubAuth'
+GithubAuth    = require './GUI/atox-githubAuth'
 
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
@@ -18,7 +18,7 @@ module.exports =
       title: "Show on startup"
       description: "Automatically displays the main window on startup"
       type: "boolean"
-      default: true
+      default: false
     userAvatar:
       title: "Avatar"
       description: "A full path to your Avatar"
