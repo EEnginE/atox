@@ -132,10 +132,8 @@ class ToxWorker
         @friendAutoremove {fid: fNum, online: b}
 
   addGroupChat: (e) ->
-    try
-      ret = @TOX.addGroupchatSync()
-    catch e
-      return @err "Failed to add group chat"
+    #TODO: Find local repositories and open their chats on startup
+    #atom.project.getRepositories().getConfigValue("remote.origin.url")
 
     @inf "Added group chat #{ret}"
 
@@ -146,6 +144,14 @@ class ToxWorker
       tid:    ret
       hidden: e.hidden
     }
+
+  createGroupChat: (e) ->
+  #TODO: Find local repositories and open their chats on startup
+  #atom.project.getRepositories().getConfigValue("remote.origin.url")
+    try
+      ret = @TOX.addGroupchatSync()
+    catch e
+      return @err "Failed to add group chat"
 
   groupInviteCB: (e) ->
     @inf "Received group invite from #{e.friend()}"
@@ -170,7 +176,7 @@ class ToxWorker
     try
       key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gNum, e.peer
       name = @TOX.getGroupchatPeernameSync         e.gNum, e.peer
-      @event.emit 'getFidFromPubKey', {
+      @event.emit 'getFriendIDFromPubKey', {
         pubKey: key,
         cb: (fid) =>
           @inf "FID: #{fid}"
@@ -261,7 +267,6 @@ class ToxWorker
     @event.emit  'Terminal', {cid: -2, msg: "You are now <span style='color:#{color}'>#{e.d}</span>"} #TODO: Send this to all chat windows
 
   getColorByStatus: (status) ->
-    console.log status
     if status is "online"
       return "rgba(50, 255, 50, 1)"
     else if status is "offline"

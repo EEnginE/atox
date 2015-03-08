@@ -105,9 +105,9 @@ class Terminal
 
     return args;
 
-  err: (what) ->
+  err: (msg) ->
     @event.emit 'notify', {
       type: 'err'
       name: 'aTox'
-      content: what
+      content: msg
     }

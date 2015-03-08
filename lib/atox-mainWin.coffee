@@ -1,5 +1,4 @@
 {View, $} = require 'atom-space-pen-views'
-
 jQuery = require 'jquery'
 require 'jquery-ui/draggable'
 require('jquery-mousewheel')($)
@@ -19,7 +18,6 @@ class MainWindow extends View
       .appendChild @element
 
     @mainEvent = event
-    @addClass 'aTox-hidden'
 
     jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
@@ -34,7 +32,7 @@ class MainWindow extends View
     @deltaScroll   = 0
     @maxScroll     = 0
 
-  scrollHandler: (event) ->
+  scrollHandler: (event) -> #TODO: Fix this
     return if @maxScroll <= @contacts.height()
 
     @deltaScroll += event.deltaY * event.deltaFactor * 0.5
@@ -48,19 +46,19 @@ class MainWindow extends View
       e.stop()
       e.animate { "top": "#{@deltaScroll}px" }, 100
 
-  showAT: ->
+  show: ->
     @isOn = true
-    @removeClass 'aTox-hidden'
+    super() # Calls jQuery's show
 
-  hideAT: ->
+  hide: ->
     @isOn = false
-    @addClass 'aTox-hidden'
+    super() # Calls jQuery's hide
 
   toggle: ->
     if @isOn
-      @hideAT()
+      @hide()
     else
-      @showAT()
+      @show()
 
   addContact: (contact, first) ->
     contact.appendTo @contacts

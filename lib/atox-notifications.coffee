@@ -57,7 +57,7 @@ class Notifications extends View
     temp.fadeIn 250
 
     stimeout  = 4000
-    aduration = 250 + 300 + 200
+    aduration = 750
     if ((Date.now() + stimeout) - @lts) < aduration
       timeout = stimeout + aduration - ((Date.now() + stimeout) - @lts)
     else

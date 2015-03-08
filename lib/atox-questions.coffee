@@ -1,62 +1,55 @@
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
-Button        = require './atox-UI-utils'
 
 module.exports =
-class YesNoQuestion extends View
-  @content: (name, q, yes_t, no_t) ->
-    num = parseInt ( Math.random() * 100000000 ), 10
+class Question extends View
+  @content: (params) ->
+    @div class: "aTox-Question", =>
+      @div class: "aTox-Question-name", => @raw "#{params.name}"
+      @div class: "aTox-Question-question", => @raw "#{params.question}"
+      @div class: "aTox-Question-buttons", outlet: 'buttons'
 
-    #@div class: 'aTox-Q-center-helper', =>
-    @div id: "aTox-YNQ-#{num}", class: "aTox-YNQ", =>
-      @div id: "aTox-YNQ-#{num}-n", class: "aTox-YNQ-n", => @raw "#{name}"
-      @div id: "aTox-YNQ-#{num}-q", class: "aTox-YNQ-q", => @raw "#{q}"
-      @div id: "aTox-YNQ-#{num}-b", class: "aTox-YNQ-b", outlet: 'buttons'
-
-  initialize: (name, q, yes_t, no_t) ->
+  initialize: (params) ->
     @hide()
-
     atom.views.getView atom.workspace
       .appendChild @element
+    @acceptB = $$ ->
+      @div class: "aTox-Button-accept", =>
+        @raw "#{params.accept}"
+    @declineB = $$ ->
+      @div class: "aTox-Button-decline", =>
+        @raw "#{params.decline}"
+    @acceptB.css {"top": "0px", "left":  "25px" }
+    @declineB.css  {"top": "0px", "right": "25px" }
 
-    @yesB = new Button "#{yes_t}", "yes"
-    @noB  = new Button "#{no_t}", "no"
+    @acceptB.click => @accept()
+    @declineB.click  => @decline()
 
-    @yesB.css {"top": "0px", "left":  "25px" }
-    @noB.css  {"top": "0px", "right": "25px" }
+    @buttons.append @acceptB
+    @buttons.append @declineB
 
-    @yesB.click => @yes()
-    @noB.click  => @no()
-
-    @buttons.append @yesB
-    @buttons.append @noB
-
-    @canAsk     = true
+    @canAsk      = true
     @wasAnswered = false
-    @event      = new Emitter
+    @event       = new Emitter
 
   ask: ->
     console.error "Already asked!" if !@canAsk
     @canAsk = false
-    @fadeIn atom.config.get 250
+    @fadeIn 250
 
-  yes: ->
+  accept: ->
     return if @wasAnswered
     @wasAnswered = true
 
     @event.emit 'yes'
-    @delQ()
+    @deleteQ()
 
-  no: ->
+  decline: ->
     return if @wasAnswered
     @wasAnswered = true
 
-    @event.emit 'no'
-    @delQ()
+    @event.emit 'decline'
+    @deleteQ()
 
-  callbacks: (yesC, noC) ->
-    @event.on 'yes', yesC
-    @event.on 'no',  noC
-
-  delQ: ->
+  deleteQ: ->
     @fadeOut 250, => @remove()

@@ -1,7 +1,7 @@
 path          = require 'path'
 MainWindow    = require './atox-mainWin'
 Notifications = require './atox-notifications'
-YesNoQuestion = require './atox-questions'
+Question = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 Contact       = require './atox-contact'
 Terminal      = require './atox-terminal'
@@ -64,9 +64,9 @@ module.exports =
     @TOX           = new ToxWorker     {dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event}
     @github        = new Github
     @githubauth    = new GithubAuth    {github: @github, event: @event}
-
+    @question      = new Question      {name: "Test", question: "You there?", accept: "Ja", decline: "Nein"}
+    @question.ask()
     @currCID = 0
-
 
     @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'aTox.mainWinLeft'
@@ -86,10 +86,10 @@ module.exports =
 
     @hasOpenChat    = false
 
-    @event.on 'aTox.new-contact',       (data) => @addUserHelper      data
-    @event.on 'aTox.select',            (data) => @contactSelected    data
-    @event.on 'getChatID',              (data) => @getChatIDFromName  data
-    @event.on 'getFidFromPubKey',       (data) => @getFidFromPubKey   data
+    @event.on 'aTox.new-contact',       (data) => @addUserHelper           data
+    @event.on 'aTox.select',            (data) => @contactSelected         data
+    @event.on 'getChatID',              (data) => @getChatIDFromName       data
+    @event.on 'getFriendIDFromPubKey',  (data) => @getFriendIDFromPubKey   data
     @event.on 'first-connect',                 => @githubauth.doIt()
 
     $ =>
@@ -106,7 +106,7 @@ module.exports =
         }
       @terminal.initialize()
       @TOX.startup()
-      @mainWin.showAT() if atom.config.get 'aTox.showDefault'
+      @mainWin.show() if atom.config.get 'aTox.showDefault'
 
   getChatIDFromName: (data) ->
     for i in @contactsArray
@@ -149,7 +149,7 @@ module.exports =
     @currCID++
     @contactsPubKey.push { tid: params.tid, pubKey: params.pubKey }
 
-  getFidFromPubKey: (params) ->
+  getFriendIDFromPubKey: (params) ->
     fid = -1
     for i in @contactsPubKey
       fid = i.tid if i.pubKey is params.pubKey

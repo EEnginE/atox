@@ -5,7 +5,76 @@
 @import "ui-variables";
 @import "./atox-vars";
 
-.aTox-YNQ {
+.aTox-Button-BASE {
+  position:    absolute;
+  height:      @aTox-Button-Height;
+  line-height: @aTox-Button-Height;
+  width:       @aTox-Button-Width;
+
+  border-radius: 10px;
+  z-index:       100;
+
+  color:      @text-color;
+  font-size:  150%;
+  text-align: center;
+
+  transition: background 175ms, color 175ms;
+}
+
+
+.aTox-Button-accept {
+  @baseColor: mix( @background-color-info, @overlay-background-color, 25% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @baseColor, 2% ) 0px,
+    lighten( @baseColor, 2% ) 49%,
+    darken(  @baseColor, 1% ) 51%,
+    darken(  @baseColor, 4% ) 100%);
+
+  .aTox-Button-BASE;
+}
+
+.aTox-Button-accept:hover {
+  @baseColor: mix( @background-color-info, @overlay-background-color, 75% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @baseColor, 2% ) 0px,
+    lighten( @baseColor, 2% ) 49%,
+    darken(  @baseColor, 1% ) 51%,
+    darken(  @baseColor, 4% ) 100%);
+
+  color: darken( @text-color, 75% );
+}
+
+.aTox-Button-decline {
+  @baseColor: mix( @background-color-error, @overlay-background-color, 25% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @baseColor, 2% ) 0px,
+    lighten( @baseColor, 2% ) 49%,
+    darken(  @baseColor, 1% ) 51%,
+    darken(  @baseColor, 4% ) 100%);
+
+  .aTox-Button-BASE;
+}
+
+.aTox-Button-decline:hover {
+  @baseColor: mix( @background-color-error, @overlay-background-color, 75% );
+
+  background: -webkit-linear-gradient(
+    top,
+    darken(  @baseColor, 2% ) 0px,
+    lighten( @baseColor, 2% ) 49%,
+    darken(  @baseColor, 1% ) 51%,
+    darken(  @baseColor, 4% ) 100%);
+
+  color: darken( @text-color, 75% );
+}
+
+.aTox-Question {
   h1, h2, h3, h4, p, div, table, ul, li, span {
     margin: 0;
     padding: 0;
@@ -33,7 +102,7 @@
 
   //overflow:     hidden;
 
-  .aTox-YNQ-n {
+  .aTox-Question-name {
     color: @text-color-info;
     font-size: 200%;
 
@@ -44,7 +113,7 @@
     margin-bottom: 10px;
   }
 
-  .aTox-YNQ-q {
+  .aTox-Question-question {
     color: @text-color;
     font-size: 150%;
 
@@ -54,7 +123,7 @@
     margin-bottom: 5px;
   }
 
-  .aTox-YNQ-b {
+  .aTox-Question-buttons {
     position: absolute;
     width:    @aTox-Base-Q-Width - 2 * @aTox-Base-Q-Border;
     bottom:   20px;
