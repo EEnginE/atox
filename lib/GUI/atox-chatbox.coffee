@@ -36,7 +36,7 @@ class ChatBox extends View
         @inputField.setText("");
       else if event.which is 27
         @event.emit "chat-visibility", { cid: @cid, what: 'hide' }
-    )
+
     @chatname = params.name
 
     if params.group? and params.group

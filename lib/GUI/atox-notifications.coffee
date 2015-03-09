@@ -8,7 +8,7 @@ class PopUp extends View
       @div class: "aTox-PopUp-content", => @raw "#{params.content}"
 
   initialize: (params) ->
-    if params.img? and params.img not is "none"
+    if params.img? and params.img is not "none"
       @img.css { "background-image": "url(\"#{params.img}\")" }
     else
       @img.css { "display": "none" }

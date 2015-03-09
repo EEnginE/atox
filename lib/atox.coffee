@@ -68,7 +68,7 @@ module.exports =
     @hasOpenChat    = false
 
     $ =>
-      @gui = new GUI {aTox: this}
+      @gui = new GUI {aTox: this, event: @event}
 
       @event.on 'aTox.new-contact',       (data) => @addUserHelper           data
       @event.on 'getChatID',              (data) => @getChatIDFromName       data
