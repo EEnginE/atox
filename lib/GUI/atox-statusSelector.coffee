@@ -2,8 +2,8 @@
 
 module.exports =
 class StatusSelector extends View
-  @content: (win, event) ->
-    ID    = "aTox-#{win}-status-selector"
+  @content: (params) ->
+    ID    = "aTox-#{params.win}-status-selector"
     CLASS = "aTox-status-selector"
 
     @div id: "#{ID}", class: "#{CLASS}", =>
@@ -13,7 +13,7 @@ class StatusSelector extends View
       @div id: "#{ID}-busy",    class: "#{CLASS}-busy",           outlet: 'busy'
       @div id: "#{ID}-current", class: "#{CLASS}-current-online", outlet: 'status'
 
-  initialize: (win, event) ->
+  initialize: (params) ->
     @status.click  => @openSelector()
     @offline.click => @clickHandler 'offline'
     @online.click  => @clickHandler 'online'
@@ -21,9 +21,9 @@ class StatusSelector extends View
     @busy.click    => @clickHandler 'busy'
 
     @selectorOpen = false
-    @event        = event
+    @event        = params.event
+    @aTox         = params.aTox
 
-    @event.on 'onlineStatus', (newS) => @setStatus newS.d
     @setStatus 'online'
 
   openSelector: ->
@@ -38,7 +38,8 @@ class StatusSelector extends View
 
   clickHandler: (newS) ->
     @openSelector()
-    @event.emit 'onlineStatus', {tid: -1, d: newS} if newS != @currentStatus
+    @aTox.TOX.onlineStatus        newS unless newS is @currentStatus
+    @aTox.gui.setUserOnlineStatus newS unless newS is @currentStatus
 
   setStatus: (newS) ->
     return @status.attr 'class', "aTox-status-selector-current-#{@currentStatus}" if newS is "connected"

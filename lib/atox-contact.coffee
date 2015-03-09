@@ -18,6 +18,7 @@ class Contact
     @online   = params.online
     @event    = params.event
     @panel    = params.panel
+    @aTox     = params.aTox
 
     if params.hidden? and params.hidden is true
       @hidden = true
@@ -132,8 +133,7 @@ class Contact
     @online = status
     @update()
 
-    @event.emit 'notify', {
-      type:    'inf'
+    @aTox.gui.notify {
       name:     status.charAt(0).toUpperCase() + status.slice(1)
       content: "#{@name} is now #{status}"
       img:      @img

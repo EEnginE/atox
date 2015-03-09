@@ -4,9 +4,10 @@ os = require 'os'
 
 module.exports =
 class ToxWorker
-  constructor: (opts) ->
-    @event = opts.event
-    @DLL   = opts.dll
+  constructor: (params) ->
+    @event = params.event
+    @DLL   = params.dll
+    @aTox  = params.aTox
 
   myInterval: (s, cb) ->
     setInterval cb, s
@@ -17,14 +18,14 @@ class ToxWorker
   isConnected: ->
     if @TOX.isConnectedSync()
       return if @hasConnection is true
-      @event.emit 'onlineStatus', {tid: 1, d: 'connected'}
+      @aTox.gui.setUserOnlineStatus 'connected'
       @inf "<span style='color:rgba(0, 255, 0, 1)''>Connected!</span>"
       @hasConnection = true
       @event.emit 'first-connect' if @firstConnect is true
       @firstConnect  = false
     else
       return if @hasConnection is false
-      @event.emit 'onlineStatus', {tid: 1, d: 'disconnected'}
+      @aTox.gui.setUserOnlineStatus 'disconnected'
       @inf "<span style='color:rgba(255, 0, 0, 1)''>Disconnected.</span>"
       @hasConnection = false
 
@@ -56,7 +57,6 @@ class ToxWorker
     @event.on 'setName',           (e) => @setName               e
     @event.on 'setAvatar',         (e) => @setAvatar             e
     @event.on 'setStatus',         (e) => @setStatus             e
-    @event.on 'onlineStatus',      (e) => @onlineStatus          e
     @event.on 'sendToFriend',      (e) => @sendToFriend          e
     @event.on 'addFriend',         (e) => @sendFriendRequest     e
     @event.on 'addGroupChat',      (e) => @addGroupChat          e
@@ -65,8 +65,6 @@ class ToxWorker
     @event.on 'getPeerInfo',       (e) => @getPeerInfo           e
     @event.on 'toxDO',                 => @TOX.do => @inf "TOX DONE"
     @event.on 'reqAvatar',             => @reqAvatar()
-
-    @event.on 'userStatusAT',      (e) => @onlineStatus e
 
     @event.emit 'setName',   atom.config.get 'aTox.userName'
     @event.emit 'setAvatar', atom.config.get 'aTox.userAvatar'
@@ -245,26 +243,23 @@ class ToxWorker
     catch e
       @err "Failed to send MSG to group chat #{e.tid}"
 
-  onlineStatus: (e) ->
-    return unless e.tid < 0
-
+  onlineStatus: (newS) ->
     status = 2
 
-    switch e.d
+    switch newS
       when 'online' then status = 0
       when 'away'   then status = 1
       when 'busy'   then status = 2
 
     @TOX.setUserStatusSync status
 
-    @event.emit 'notify', {
-      type:    'inf'
-      name:     e.d.charAt(0).toUpperCase() + e.d.slice(1)
-      content: "You are now #{e.d}"
+    @aTox.gui.notify {
+      name:     newS.charAt(0).toUpperCase() + newS.slice(1)
+      content: "You are now #{newS}"
       img:      atom.config.get 'aTox.userAvatar'
     }
-    color = @getColorByStatus(e.d)
-    @event.emit  'Terminal', {cid: -2, msg: "You are now <span style='color:#{color}'>#{e.d}</span>"} #TODO: Send this to all chat windows
+    color = @getColorByStatus(newS)
+    @event.emit  'Terminal', {cid: -2, msg: "You are now <span style='color:#{color}'>#{newS}</span>"} #TODO: Send this to all chat windows
 
   getColorByStatus: (status) ->
     if status is "online"
@@ -286,8 +281,7 @@ class ToxWorker
       @friendOnline[params.fid] = -1
 
   inf: (msg) ->
-    @event.emit 'notify', {
-      type: 'inf'
+    @aTox.gui.notify {
       name: 'TOX'
       content: msg
     } if atom.config.get 'aTox.debugNotifications'
@@ -295,7 +289,7 @@ class ToxWorker
     @event.emit 'Terminal', {cid: -2, msg: "TOX: [Info] #{msg}"}
 
   err: (msg) ->
-    @event.emit 'notify', {
+    @aTox.gui.notify {
       type: 'err'
       name: 'TOX'
       content: msg

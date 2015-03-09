@@ -22,7 +22,7 @@ class Notifications extends View
   @content: ->
     @div id: "aTox-PopUp-root"
 
-  initialize: (event) ->
+  initialize: (params) ->
     @currentID = 0
     @PopUps = []
     @run = true
@@ -32,11 +32,11 @@ class Notifications extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @event = event
-    @event.on "notify", (msg) => @add msg
+    @event = params.event
+    @aTox  = params.aTox
     @event.on 'aTox.add-message', (data) =>
       return if data.tid < 0
-      @event.emit 'notify', {
+      @add {
         type:   'inf'
         name:    data.name
         content: data.msg

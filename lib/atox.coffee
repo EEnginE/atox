@@ -1,13 +1,9 @@
 path          = require 'path'
-MainWindow    = require './GUI/atox-mainWin'
-Notifications = require './GUI/atox-notifications'
-Question      = require './GUI/atox-questions'
-Chatpanel     = require './GUI/atox-chatpanel'
+GUI           = require './GUI/atox-GUI'
 Contact       = require './atox-contact'
 Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
 Github        = require './atox-github'
-GithubAuth    = require './GUI/atox-githubAuth'
 
 {View, $, $$} = require 'atom-space-pen-views'
 {Emitter}     = require 'event-kit'
@@ -58,27 +54,12 @@ module.exports =
     atom.commands.add 'atom-workspace', 'aTox:history', => @toggleHistory()
 
     @event         = new Emitter
-    @mainWin       = new MainWindow    @event
-    @notifications = new Notifications @event
-    @terminal      = new Terminal      {event: @event}
-    @TOX           = new ToxWorker     {dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event}
+
+    @terminal      = new Terminal      {event: @event, aTox: this}
+    @TOX           = new ToxWorker     {dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event, aTox: this}
     @github        = new Github
-    @githubauth    = new GithubAuth    {github: @github, event: @event}
-    @question      = new Question      {name: "Test", question: "You there?", accept: "Ja", decline: "Nein"}
-    @question.ask()
+
     @currCID = 0
-
-    @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
-    @mainWin.css 'left', atom.config.get 'aTox.mainWinLeft'
-
-    @mainWin.mouseup =>
-      atom.config.set 'aTox.mainWinTop',  @mainWin.css 'top'
-      atom.config.set 'aTox.mainWinLeft', @mainWin.css 'left'
-
-    atom.config.observe 'aTox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
-    atom.config.observe 'aTox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
-    atom.config.observe 'aTox.githubToken', (newValue) => @github.setToken     newValue
-    atom.config.observe 'aTox.userAvatar',  (newValue) => @correctPath         newValue
 
     @internalContactId = 0
     @contactsArray     = []
@@ -86,15 +67,12 @@ module.exports =
 
     @hasOpenChat    = false
 
-    @event.on 'aTox.new-contact',       (data) => @addUserHelper           data
-    @event.on 'aTox.select',            (data) => @contactSelected         data
-    @event.on 'getChatID',              (data) => @getChatIDFromName       data
-    @event.on 'getFriendIDFromPubKey',  (data) => @getFriendIDFromPubKey   data
-    @event.on 'first-connect',                 => @githubauth.doIt()
-
     $ =>
-      @chatpanel    = new Chatpanel {event: @event}
-      @chatpanel.addChat { cid: -2, img: 'none', event: @event, group: false }
+      @gui = new GUI {event: @event, github: @github, aTox: this}
+
+      @event.on 'aTox.new-contact',       (data) => @addUserHelper           data
+      @event.on 'getChatID',              (data) => @getChatIDFromName       data
+      @event.on 'getFriendIDFromPubKey',  (data) => @getFriendIDFromPubKey   data
 
       @event.on 'Terminal', (data) =>
         @event.emit "aTox.add-message", {
@@ -106,7 +84,6 @@ module.exports =
         }
       @terminal.initialize()
       @TOX.startup()
-      @mainWin.show() if atom.config.get 'aTox.showDefault'
 
   getChatIDFromName: (data) ->
     for i in @contactsArray
@@ -117,22 +94,6 @@ module.exports =
     @event.emit 'Terminal', {cid: data.cid, msg: "getChatIDFromName: Not Found (#{data})"}
     return -1
 
-  contactSelected: (data) ->
-    if data.selected
-      @event.emit 'notify', {
-        type: 'inf'
-        name: "Now chatting with #{data.name}"
-        content: "Opening chat window"
-        img: data.img
-      }
-    else
-      @event.emit 'notify', {
-        type: 'warn'
-        name: "Stopped chatting with #{data.name}"
-        content: "Closing chat window"
-        img: data.img
-      }
-
   addUserHelper: (params) ->
     @contactsArray.push new Contact {
       name:   params.name
@@ -142,9 +103,10 @@ module.exports =
       event:  @event
       cid:    @currCID
       tid:    params.tid
-      win:    @mainWin
-      panel:  @chatpanel
+      win:    @gui.mainWin
+      panel:  @gui.chatpanel
       hidden: params.hidden
+      aTox:   this
     }
     @currCID++
     @contactsPubKey.push { tid: params.tid, pubKey: params.pubKey }
@@ -156,13 +118,8 @@ module.exports =
 
     params.cb fid
 
-  correctPath: (pathArg) ->
-    pathArg = path.normalize(pathArg)
-    pathArg = pathArg.replace(/\\/g, '/')
-    atom.config.set 'aTox.userAvatar', pathArg
-
   toggle: ->
-    @mainWin.toggle()
+    @gui.mainWin.toggle()
 
   toggleHistory: ->
-    @chatpanel.toggleHistory()
+    @gui.chatpanel.toggleHistory()

@@ -13,17 +13,18 @@ class MainWindow extends View
         @h1 "aTox - Main Window",           outlet: 'winName'
       @div id: 'aTox-main-window-contacts', outlet: 'contacts'
 
-  initialize: (event) ->
+  initialize: (params) ->
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @mainEvent = event
+    @mainEvent = params.event # TODO remove event
+    @aTox      = params.aTox
 
     jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
     @contacts.mousewheel (event) => @scrollHandler event
 
-    @statusSelector = new StatusSelector "main-window", @mainEvent
+    @statusSelector = new StatusSelector {aTox: @aTox, win: "main-window", event: @mainEvent} # TODO remove event
     @statusSelector.appendTo @header
 
     @contactsArray = []
@@ -31,6 +32,7 @@ class MainWindow extends View
     @isOn          = false
     @deltaScroll   = 0
     @maxScroll     = 0
+    @hide()
 
   scrollHandler: (event) -> #TODO: Fix this
     return if @maxScroll <= @contacts.height()

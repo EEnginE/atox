@@ -2,6 +2,7 @@ module.exports =
 class Terminal
   constructor: (params) ->
     @event   = params.event
+    @aTox    = params.aTox
 
   initialize: ->
     @event.on 'aTox.add-message', (data) =>
@@ -39,7 +40,7 @@ class Terminal
   setName:   (cid, p)   -> @event.emit "setName",         { cid: cid, p: p}
   setAvatar: (cid, p)   -> @event.emit "setAvatar",       { cid: cid, p: p}
   setStatus: (cid, p)   -> @event.emit "setStatus",       { cid: cid, p: p}
-  setOnline: (cid, p)   -> @event.emit "onlineStatus",    { cid: cid, tid: -1, d: p }
+  setOnline: (cid, p)   -> @aTox.TOX.onlineStatus p; @aTox.gui.setUserOnlineStatus p 
   sendMSG:   (cid, f,m) -> @event.emit "sendToFriend",    { cid: cid, tid: f,  d: m }
   addFriend: (cid, a,m) -> @event.emit "addFriend",       { cid: cid, addr: a, msg: m }
   toxDO:                -> @event.emit "toxDO"
@@ -106,7 +107,7 @@ class Terminal
     return args;
 
   err: (msg) ->
-    @event.emit 'notify', {
+    @aTox.gui.notify {
       type: 'err'
       name: 'aTox'
       content: msg

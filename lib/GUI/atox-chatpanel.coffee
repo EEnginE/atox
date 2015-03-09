@@ -109,6 +109,7 @@ class Chatpanel extends View
     @scrollPos = []
 
     @event = params.event
+    @aTox  = params.aTox
     @event.on "aTox.add-message", (msg) => @addMessage msg
 
     atom.workspace.addBottomPanel {item: @element}
@@ -147,7 +148,7 @@ class Chatpanel extends View
     jQuery(@ulist).resizable {handles: {w: @lborder}}
     @isOn = true
 
-    @statusSelector = new StatusSelector 'panel', @event
+    @statusSelector = new StatusSelector {aTox: @aTox, win: 'panel', event: @event} # TODO remove event 'panel', @event
     @statusSelector.appendTo @status
 
   scrollBot: (cid) -> #Must be fixed

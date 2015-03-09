@@ -4,13 +4,13 @@ jQuery = require 'jquery'
 require 'jquery-ui/draggable'
 
 module.exports =
-class GithubAuth extends View
+class GitHubLogin extends View
   @content: ->
-    @div id: 'aTox-GithubAuth-root', =>
-      @div id: 'aTox-GithubAuth-title', =>
+    @div id: 'aTox-GitHubLogin-root', =>
+      @div id: 'aTox-GitHubLogin-title', =>
         @div outlet: 'working', class: 'loading loading-spinner-tiny inline-block aTox-hidden'
         @h1  outlet: 'h1', "GitHub Connection"
-      @div id: 'aTox-GithubAuth-body', =>
+      @div id: 'aTox-GitHubLogin-body', =>
         @div id: 'form', =>
           @h2 outlet: 'h2', "Please enter username and password"
           @subview "uname", new TextEditorView(mini: true, placeholderText: "Username")
@@ -23,11 +23,12 @@ class GithubAuth extends View
   initialize: (params) ->
     @event  = params.event
     @github = params.github
+    @aTox   = params.aTox
 
     atom.views.getView atom.workspace
       .appendChild @element
 
-    jQuery("#aTox-GithubAuth-root").draggable {handle: '#aTox-GithubAuth-title'}
+    jQuery("#aTox-GitHubLogin-root").draggable {handle: '#aTox-GitHubLogin-title'}
 
     for i in [@uname, @pw, @otp]
       i.on 'keydown', {t: i}, (e) =>
@@ -72,7 +73,7 @@ class GithubAuth extends View
   error: (what, desc) ->
     i.removeClass 'work' for i in [@h1, @h2, @working]
     i.addClass    'err'  for i in [@h1, @h2]
-    @event.emit 'notify', {type: 'err', name: what, content: desc}
+    @aTox.gui.notify {type: 'err', name: what, content: desc}
     @doTimeout 5000, =>
       i.removeClass 'err'  for i in [@h1, @h2]
 
