@@ -133,7 +133,7 @@ class ToxWorker
     #TODO: Find local repositories and open their chats on startup
     #atom.project.getRepositories().getConfigValue("remote.origin.url")
 
-    @inf "Added group chat #{ret}"
+    @inf "Added group chat #{ret}" #TODO ret not set!
 
     @event.emit 'aTox.new-contact', {
       name:   "Group Chat ##{ret}"
@@ -147,7 +147,7 @@ class ToxWorker
   #TODO: Find local repositories and open their chats on startup
   #atom.project.getRepositories().getConfigValue("remote.origin.url")
     try
-      ret = @TOX.addGroupchatSync()
+      return @TOX.addGroupchatSync()
     catch e
       return @err "Failed to add group chat"
 

@@ -21,7 +21,6 @@ class StatusSelector extends View
     @busy.click    => @clickHandler 'busy'
 
     @selectorOpen = false
-    @event        = params.event
     @aTox         = params.aTox
 
     @setStatus 'online'

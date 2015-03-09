@@ -17,14 +17,13 @@ class MainWindow extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @mainEvent = params.event # TODO remove event
     @aTox      = params.aTox
 
     jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
 
     @contacts.mousewheel (event) => @scrollHandler event
 
-    @statusSelector = new StatusSelector {aTox: @aTox, win: "main-window", event: @mainEvent} # TODO remove event
+    @statusSelector = new StatusSelector {aTox: @aTox, win: "main-window"}
     @statusSelector.appendTo @header
 
     @contactsArray = []

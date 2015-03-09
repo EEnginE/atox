@@ -1,56 +1,66 @@
 {View, TextEditorView, $} = require 'atom-space-pen-views'
-
 jQuery = require 'jquery'
 require 'jquery-ui/draggable'
 
 module.exports =
 class GitHubLogin extends View
   @content: ->
-    @div id: 'aTox-GitHubLogin-root', =>
-      @div id: 'aTox-GitHubLogin-title', =>
-        @div outlet: 'working', class: 'loading loading-spinner-tiny inline-block aTox-hidden'
+    @div class: 'aTox-GitHubLogin-root', =>
+      @div class: 'aTox-GitHubLogin-title', =>
+        @div outlet: 'working', class: 'loading loading-spinner-tiny inline-block'
         @h1  outlet: 'h1', "GitHub Connection"
-      @div id: 'aTox-GitHubLogin-body', =>
-        @div id: 'form', =>
+      @div class: 'aTox-GitHubLogin-body', =>
+        @div class: 'form', =>
           @h2 outlet: 'h2', "Please enter username and password"
           @subview "uname", new TextEditorView(mini: true, placeholderText: "Username")
           @subview "pw",    new TextEditorView(mini: true, placeholderText: "Password")
           @subview "otp",   new TextEditorView(mini: true, placeholderText: "Two-factor authentication (leave empty if disabled)")
-        @div id: 'btns', =>
-          @div id: 'btn1', outlet: 'btn1', class: 'btn btn-lg btn-error', 'Abort'
-          @div id: 'btn2', outlet: 'btn2', class: 'btn btn-lg btn-info',  'Connect'
+        @div class: 'btns', =>
+          @div outlet: 'btn1', class: 'btn1 btn btn-lg btn-error', 'Abort'
+          @div outlet: 'btn2', class: 'btn2 btn btn-lg btn-info',  'Login'
 
   initialize: (params) ->
+    @aTox   = params.aTox
     @event  = params.event
     @github = params.github
-    @aTox   = params.aTox
 
     atom.views.getView atom.workspace
       .appendChild @element
 
-    jQuery("#aTox-GitHubLogin-root").draggable {handle: '#aTox-GitHubLogin-title'}
+    jQuery(".aTox-GitHubLogin-root").draggable {handle: '.aTox-GitHubLogin-title'}
 
     for i in [@uname, @pw, @otp]
       i.on 'keydown', {t: i}, (e) =>
-        @handleClick()      if e.keyCode is 13
+        @login()      if e.keyCode is 13
         e.data.t.setText '' if e.keyCode is 27
 
-    @btn1.click => @noGithubConnection()
-    @btn2.click => @handleClick()
+    @btn1.click => @abort()
+    @btn2.click => @login() if @checkInput()
 
     @isOpen = false
 
-  noGithubConnection: ->
+  abort: ->
     @event.emit 'Terminal', {cid: -2, msg: "No GitHub connection"}
     @event.emit 'GitHub',   'disabled'
-    @removeClass "aTox-shown";
     @isOpen = false
+    @hide()
 
-  handleClick: ->
-    @working.removeClass "aTox-hidden"
-    i.addClass 'work' for i in [@h1, @h2, @working]
+  login: ->
+    @working.show()
+    i.addClass 'working' for i in [@h1, @h2, @working]
 
-    @doTimeout 500, => @checkInput()
+    name = @uname.getText()
+    pw   = @pw.getText()
+    otp  = @otp.getText()
+
+    @github.createUserToken {user: name, password: pw, otp: otp}, (params) =>
+      if params.token?
+        if @postTokenGeneration() is false
+          return @doTimeout 500, => @error "Internal", "Internal error. Please try again"
+        @doTimeout 500, => @success()
+        atom.config.set 'aTox.githubToken', params.token
+      else
+        @doTimeout 500, => @error "Failed", "#{params.data.message}"
 
   checkInput: ->
     name = @uname.getText()
@@ -58,50 +68,32 @@ class GitHubLogin extends View
     otp  = @otp.getText()
 
     if name is "" or pw is ""
-      return @doTimeout 500, => @error "Empty", "Please enter your username and password"
+      @doTimeout 500, => @error "Empty", "Please enter your username and password"
+      return false
+    return true
 
-    @github.createUserToken {user: name, password: pw, otp: otp}, (params) =>
-      if params.token?
-        if @postTokenGeneration() is false
-          return @doTimeout 500, => @error "Internal", "Internal error. Please try again"
 
-        @doTimeout 500, => @success()
-        atom.config.set 'aTox.githubToken', params.token
-      else
-        @doTimeout 500, => @error "Failed", "#{params.data.message}"
-
-  error: (what, desc) ->
-    i.removeClass 'work' for i in [@h1, @h2, @working]
-    i.addClass    'err'  for i in [@h1, @h2]
-    @aTox.gui.notify {type: 'err', name: what, content: desc}
-    @doTimeout 5000, =>
-      i.removeClass 'err'  for i in [@h1, @h2]
+  error: (name, desc) ->
+    i.removeClass 'working' for i in [@h1, @h2, @working]
+    i.addClass    'error'   for i in [@h1, @h2]
+    @event.emit 'notify', {type: 'err', name: name, content: desc}
+    @doTimeout 2500, =>
+      i.removeClass 'error' for i in [@h1, @h2]
 
   success: ->
-    i.removeClass 'work' for i in [@h1, @h2, @working]
-    i.addClass    'ok'   for i in [@h1, @h2]
+    i.removeClass 'working' for i in [@h1, @h2, @working]
+    i.addClass    'success' for i in [@h1, @h2]
     @doTimeout 2500, =>
-      @removeClass "aTox-shown"
       @isOpen = false
+      @hide()
 
-  doIt: ->
+  show: ->
     return if @isOpen is true
-    if atom.config.get('aTox.githubToken') != 'none'
-      @github.setToken atom.config.get('aTox.githubToken')
-      @event.emit 'Terminal', {cid: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
-      return @postTokenGeneration()
-
     if @github.getToken() is undefined or @github.getToken() is 'none'
-      @css {display: 'block'}
-      @addClass "aTox-shown";
       @isOpen = true
-      return false
+      super()
 
-    return @postTokenGeneration()
-
-  postTokenGeneration: -> # TODO rename this
-    #@event.emit 'Terminal', "TODO add what to do here"
-
+  postTokenGeneration: ->
     @event.emit 'GitHub',   'done'
     return true
 

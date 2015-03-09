@@ -13,14 +13,19 @@ class GUI
     @github = params.github
     @aTox   = params.aTox
 
-    @mainWin       = new MainWindow    {aTox: @aTox, event: @event}
-    @notifications = new Notifications {aTox: @aTox, event: @event}
+    @mainWin       = new MainWindow    {aTox: @aTox}
+    @notifications = new Notifications {aTox: @aTox}
     @GitHubLogin   = new GitHubLogin   {aTox: @aTox, event: @event, github: @github}
     @chatpanel     = new Chatpanel     {aTox: @aTox, event: @event}
 
     @chatpanel.addChat { cid: -2, img: 'none', event: @event, group: false }
 
-    @event.on 'first-connect',      => @GitHubLogin.doIt() # TODO remove event
+    @event.on 'first-connect',      =>
+      if atom.config.get('aTox.githubToken') != 'none'
+        @github.setToken atom.config.get('aTox.githubToken')
+        @event.emit 'Terminal', {cid: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
+      else
+        @githubauth.show()
     @event.on 'aTox.select', (data) => @contactSelected         data
 
     @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'

@@ -8,9 +8,8 @@
 @height: 300px;
 @width:  500px;
 
-#aTox-GitHubLogin-root {
+.aTox-GitHubLogin-root {
   position: absolute;
-
   left: 50%;
   top:  15%;
 
@@ -21,14 +20,12 @@
   border-radius: 10px;
 
   background-color: @app-background-color;
-  opacity:  0;
+  color: @text-color;
   z-index:  150;
   overflow: auto;
+  display: none;
 
-  color:   @text-color;
-  pointer-events: none;
-
-  #aTox-GitHubLogin-title {
+  .aTox-GitHubLogin-title {
     background-color: @tool-panel-background-color;
     height:           36px;
     margin:           5px;
@@ -53,19 +50,19 @@
       transition:    opacity 300ms;
     }
 
-    div.work {
+    div.workinging {
       opacity: 1;
     }
 
   }
 
-  #aTox-GitHubLogin-body {
+  .aTox-GitHubLogin-body {
     background-color: @tool-panel-background-color;
     margin:           5px;
     border-radius:    5px;
     overflow:         auto;
 
-    #form {
+    .form {
       margin: 7px;
 
       background-color: @aTox-Contacts-Base-Color;
@@ -92,20 +89,20 @@
       }
     }
 
-    #btns {
+    .btns {
       margin: 15px;
 
       padding-left:     30px;
       padding-right:    30px;
 
-      #btn2 {float: right;}
+      .btn2 {float: right;}
     }
   }
 
   transition: opacity 300ms;
 
-  h1.work {color: @text-color-info;}
-  h2.work {color: @text-color-info;}
+  h1.working {color: @text-color-info;}
+  h2.working {color: @text-color-info;}
 
   h1.err  {color: @text-color-error;}
   h2.err  {color: @text-color-error;}
@@ -114,12 +111,7 @@
   h2.ok   {color: @text-color-success;}
 }
 
-#aTox-GitHubLogin-root.ui-draggable-dragging {
+.aTox-GitHubLogin-root.ui-draggable-dragging {
   opacity: 0.3;
-  pointer-events: auto;
-}
-
-#aTox-GitHubLogin-root.aTox-shown {
-  opacity: 1;
   pointer-events: auto;
 }
