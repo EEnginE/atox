@@ -10,15 +10,15 @@ module.exports =
 class GUI
   constructor: (params) ->
     @event  = params.event
-    @github = params.github
     @aTox   = params.aTox
+    @github = @aTox.github
 
     @mainWin       = new MainWindow    {aTox: @aTox}
     @notifications = new Notifications {aTox: @aTox}
-    @GitHubLogin   = new GitHubLogin   {aTox: @aTox, event: @event, github: @github}
+    @GitHubLogin   = new GitHubLogin   {aTox: @aTox, event: @event}
     @chatpanel     = new Chatpanel     {aTox: @aTox, event: @event}
 
-    @chatpanel.addChat { cid: -2, img: 'none', event: @event, group: false }
+    @chatpanel.addChat { cid: -2, img: 'none', group: false }
 
     @event.on 'first-connect',      =>
       if atom.config.get('aTox.githubToken') != 'none'
@@ -42,7 +42,7 @@ class GUI
 
     @mainWin.show() if atom.config.get 'aTox.showDefault'
 
-    #@question      = new Question      {name: "Test", question: "You there?", accept: "Ja", decline: "Nein"}
+    #@question      = new Question {name: "Test", question: "You there?", accept: "Ja", decline: "Nein", cb: this.callback}
     #@question.ask()
 
   correctPath: (pathArg) ->

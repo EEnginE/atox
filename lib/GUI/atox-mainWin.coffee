@@ -8,32 +8,29 @@ StatusSelector = require './atox-statusSelector'
 module.exports =
 class MainWindow extends View
   @content: ->
-    @div id: 'aTox-main-window', outlet: 'mainWin', =>
-      @div id: 'aTox-main-window-header',   outlet: 'header', =>
-        @h1 "aTox - Main Window",           outlet: 'winName'
-      @div id: 'aTox-main-window-contacts', outlet: 'contacts'
+    @div class: 'aTox-main-window', outlet: 'mainWin', =>
+      @div class: 'aTox-main-window-header', outlet: 'header', =>
+        @h1 "aTox - Main Window", outlet: 'winName'
+      @div class: 'aTox-main-window-contacts', outlet: 'contacts'
 
   initialize: (params) ->
+    @aTox = params.aTox
+
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @aTox      = params.aTox
-
-    jQuery( "#aTox-main-window" ).draggable {handle: '#aTox-main-window-header'}
-
-    @contacts.mousewheel (event) => @scrollHandler event
+    jQuery(@mainWin).draggable {handle: @header}
+    @contacts.mousewheel (event) => @scrollHandler event #Remove that!
 
     @statusSelector = new StatusSelector {aTox: @aTox, win: "main-window"}
     @statusSelector.appendTo @header
 
     @contactsArray = []
-
-    @isOn          = false
     @deltaScroll   = 0
     @maxScroll     = 0
     @hide()
 
-  scrollHandler: (event) -> #TODO: Fix this
+  scrollHandler: (event) -> #TODO: Fix this!
     return if @maxScroll <= @contacts.height()
 
     @deltaScroll += event.deltaY * event.deltaFactor * 0.5
@@ -64,5 +61,5 @@ class MainWindow extends View
   addContact: (contact, first) ->
     contact.appendTo @contacts
     @maxScroll += contact.outerHeight() + parseInt contact.css( "margin" ), 10
-    @maxScroll += ( parseInt contact.css( "margin" ), 10 ) if first
+    @maxScroll += ( parseInt contact.css( "margin" ) ) if first
     @contactsArray.push contact

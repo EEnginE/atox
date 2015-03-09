@@ -55,8 +55,8 @@ module.exports =
 
     @event         = new Emitter
 
-    @terminal      = new Terminal      {event: @event, aTox: this}
-    @TOX           = new ToxWorker     {dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event, aTox: this}
+    @terminal      = new Terminal      {aTox: this, event: @event}
+    @TOX           = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event}
     @github        = new Github
 
     @currCID = 0
@@ -68,7 +68,7 @@ module.exports =
     @hasOpenChat    = false
 
     $ =>
-      @gui = new GUI {event: @event, github: @github, aTox: this}
+      @gui = new GUI {aTox: this}
 
       @event.on 'aTox.new-contact',       (data) => @addUserHelper           data
       @event.on 'getChatID',              (data) => @getChatIDFromName       data

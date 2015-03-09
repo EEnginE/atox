@@ -3,17 +3,16 @@
 module.exports =
 class StatusSelector extends View
   @content: (params) ->
-    ID    = "aTox-#{params.win}-status-selector"
-    CLASS = "aTox-status-selector"
-
-    @div id: "#{ID}", class: "#{CLASS}", =>
-      @div id: "#{ID}-offline", class: "#{CLASS}-offline",        outlet: 'offline'
-      @div id: "#{ID}-online",  class: "#{CLASS}-online",         outlet: 'online'
-      @div id: "#{ID}-away",    class: "#{CLASS}-away",           outlet: 'away'
-      @div id: "#{ID}-busy",    class: "#{CLASS}-busy",           outlet: 'busy'
-      @div id: "#{ID}-current", class: "#{CLASS}-current-online", outlet: 'status'
+    @div class: "aTox-status-selector", =>
+      @div class: "aTox-status-selector-offline", outlet: 'offline'
+      @div class: "aTox-status-selector-online", outlet: 'online'
+      @div class: "aTox-status-selector-away", outlet: 'away'
+      @div class: "aTox-status-selector-busy", outlet: 'busy'
+      @div class: "aTox-status-selector-current-online", outlet: 'status'
 
   initialize: (params) ->
+    @aTox         = params.aTox
+
     @status.click  => @openSelector()
     @offline.click => @clickHandler 'offline'
     @online.click  => @clickHandler 'online'
@@ -21,7 +20,6 @@ class StatusSelector extends View
     @busy.click    => @clickHandler 'busy'
 
     @selectorOpen = false
-    @aTox         = params.aTox
 
     @setStatus 'online'
 

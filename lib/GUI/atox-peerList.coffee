@@ -28,7 +28,6 @@ class PeerList extends View
     @div id: "aTox-chatbox-#{params.id}-PeerList", class: "aTox-PeerList"
 
   initialize: (params) ->
-    @event = params.event
     @list  = []
 
   setList: (list) ->

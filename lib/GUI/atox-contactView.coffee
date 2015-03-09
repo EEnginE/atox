@@ -1,26 +1,21 @@
 {View, $, $$} = require 'atom-space-pen-views'
 
-ChatBox       = require './atox-chatbox'
-
 module.exports =
 class ContactView extends View
   @content: (params) ->
-    ID    = "aTox-Contact-#{params.cid}"
-    CLASS = "aTox-Contact"
-
-    @div id: "#{ID}", class: 'aTox-Contact-offline', outlet: 'mainWin', =>
-      @div id: "#{ID}-img",    class: "#{CLASS}-img",    outlet: 'img'
-      @div id: "#{ID}-name",   class: "#{CLASS}-name",   outlet: 'name'
-      @div id: "#{ID}-status", class: "#{CLASS}-status", outlet: 'status'
-      @div id: "#{ID}-online", class: "#{CLASS}-os",     outlet: 'online'
+    @div class: 'aTox-Contact-offline', outlet: 'mainWin', =>
+      @div class: "aTox-Contact-img", outlet: 'img'
+      @div class: "aTox-Contact-name", outlet: 'name'
+      @div class: "aTox-Contact-status", outlet: 'status'
+      @div class: "aTox-Contact-os", outlet: 'online'
 
   initialize: (params) ->
-    @click => params.handle()
-    @hide() if params.hidden is true
+    @click => params.cb()
+    @hide() if params.hidden is true #What's that? Why do we create it if it is hidden!?!?
 
   update: (params) ->
-    @name.text "#{params.name}"
-    @status.text "#{params.status}"
+    @name.text params.name
+    @status.text params.status
 
     if params.img != 'none'
       @img.css { "background-image": "url(\"#{params.img}\")" }
@@ -29,6 +24,6 @@ class ContactView extends View
       @img.css { "background-image": "url(\"#{atom.config.get 'aTox.userAvatar'}\")" }
 
     if params.selected
-      @attr "class", "aTox-Contact-#{params.online}-select"
+      @addClass "aTox-Contact-#{params.online}-select"
     else
-      @attr "class", "aTox-Contact-#{params.online}"
+      @removeClass "aTox-Contact-#{params.online}-select"

@@ -6,7 +6,7 @@
 @import "./atox-vars";
 @import "./atox-statusSelector";
 
-#aTox-main-window {
+.aTox-main-window {
   /* reset */
   h1, h2, h3, h4, p, div, table, ul, li, span {
     margin: 0;
@@ -26,7 +26,7 @@
   padding: @aTox-main-space;
   overflow: visible;
 
-  #aTox-main-window-header {
+  .aTox-main-window-header {
     background:    @tool-panel-background-color;
     display: block;
     height: @aTox-main-height * 0.1;
@@ -48,7 +48,7 @@
     }
   }
 
-  #aTox-main-window-contacts {
+  .aTox-main-window-contacts {
     background:    @tool-panel-background-color;
     border-radius: 5px;
     display:       block;
@@ -60,6 +60,6 @@
   transition: opacity 300ms;
 }
 
-#aTox-main-window.ui-draggable-dragging {
+.aTox-main-window.ui-draggable-dragging {
   opacity: 0.3;
 }

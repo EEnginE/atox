@@ -1,7 +1,6 @@
 {Emitter}   = require 'event-kit'
 os          = require 'os'
 fs          = require 'fs'
-
 ContactView = require './GUI/atox-contactView'
 ChatBox     = require './GUI/atox-chatbox'
 
@@ -25,7 +24,7 @@ class Contact
     else
       @hidden = false
 
-    @contactView = new ContactView { cid: @cid, hidden: @hidden, handle: => @handleClick() }
+    @contactView = new ContactView { hidden: @hidden, cb: => @handleClick() }
     if @cid == 0
       params.win.addContact @contactView, true
     else

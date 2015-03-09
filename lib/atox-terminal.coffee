@@ -1,8 +1,8 @@
 module.exports =
 class Terminal
   constructor: (params) ->
-    @event   = params.event
     @aTox    = params.aTox
+    @event   = params.event
 
   initialize: ->
     @event.on 'aTox.add-message', (data) =>
@@ -35,14 +35,15 @@ class Terminal
     for i in @cmds
       @event.emit 'Terminal', {cid: cid, msg: "     \"/#{i.cmd}\":  #{i.desc}"}
 
+  #FUCKING EVENTS! FIX THIS!
   closeChat: (cid, id)  -> @event.emit "chat-visibility", { scid: cid, cid: id, what: 'hide' }
   openChat:  (cid, id)  -> @event.emit "chat-visibility", { scid: cid, cid: id, what: 'show' }
   setName:   (cid, p)   -> @event.emit "setName",         { cid: cid, p: p}
   setAvatar: (cid, p)   -> @event.emit "setAvatar",       { cid: cid, p: p}
   setStatus: (cid, p)   -> @event.emit "setStatus",       { cid: cid, p: p}
-  setOnline: (cid, p)   -> @aTox.TOX.onlineStatus p; @aTox.gui.setUserOnlineStatus p 
-  sendMSG:   (cid, f,m) -> @event.emit "sendToFriend",    { cid: cid, tid: f,  d: m }
-  addFriend: (cid, a,m) -> @event.emit "addFriend",       { cid: cid, addr: a, msg: m }
+  setOnline: (cid, p)   -> @aTox.TOX.onlineStatus p; @aTox.gui.setUserOnlineStatus p
+  sendMSG:   (cid, f, m)-> @event.emit "sendToFriend",    { cid: cid, tid: f,  d: m }
+  addFriend: (cid, a, m)-> @event.emit "addFriend",       { cid: cid, addr: a, msg: m }
   toxDO:                -> @event.emit "toxDO"
   reqAvatar:            -> @event.emit "reqAvatar"
   addGC:     (cid)      -> @event.emit "addGroupChat",    { cid: cid }

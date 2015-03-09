@@ -2,20 +2,16 @@
 
 class PopUp extends View
   @content: (params) ->
-    tName = "aTox-PopUp-#{params.cid}_#{params.type}"
-    tType = "aTox-PopUp"
-
-    @div id: "#{tName}", class: "#{tType}-#{params.type}", =>
-      @div id: "#{tName}-img",     class: "#{tType}-img", outlet: 'img'
-      @div id: "#{tName}-name",    class: "#{tType}-name",    => @raw "#{params.name}"
-      @div id: "#{tName}-content", class: "#{tType}-content", => @raw "#{params.content}"
+    @div class: "aTox-PopUp-#{params.type}", =>
+      @div class: "aTox-PopUp-img", outlet: 'img'
+      @div class: "aTox-PopUp-name", => @raw "#{params.name}"
+      @div class: "aTox-PopUp-content", => @raw "#{params.content}"
 
   initialize: (params) ->
-    if params.img? && params.img != "none"
+    if params.img? and params.img not is "none"
       @img.css { "background-image": "url(\"#{params.img}\")" }
     else
       @img.css { "display": "none" }
-
 
 module.exports =
 class Notifications extends View
@@ -24,9 +20,7 @@ class Notifications extends View
 
   initialize: (params) ->
     @aTox  = params.aTox
-    @currentID = 0
     @PopUps = []
-    @run = true
     @lts = 0
     @ani = false
 
@@ -39,8 +33,7 @@ class Notifications extends View
         @add msg
       , 100
       return
-    temp = new PopUp { id: @currentID, type: msg.type, name: msg.name, content: msg.content, img: msg.img }
-    @currentID++
+    temp = new PopUp { type: msg.type, name: msg.name, content: msg.content, img: msg.img }
 
     temp.hide()
     temp.appendTo this

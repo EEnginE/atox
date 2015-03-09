@@ -21,8 +21,7 @@ class GitHubLogin extends View
 
   initialize: (params) ->
     @aTox   = params.aTox
-    @event  = params.event
-    @github = params.github
+    @github = @aTox.github
 
     atom.views.getView atom.workspace
       .appendChild @element
@@ -40,8 +39,6 @@ class GitHubLogin extends View
     @isOpen = false
 
   abort: ->
-    @event.emit 'Terminal', {cid: -2, msg: "No GitHub connection"}
-    @event.emit 'GitHub',   'disabled'
     @isOpen = false
     @hide()
 
@@ -76,7 +73,11 @@ class GitHubLogin extends View
   error: (name, desc) ->
     i.removeClass 'working' for i in [@h1, @h2, @working]
     i.addClass    'error'   for i in [@h1, @h2]
-    @event.emit 'notify', {type: 'err', name: name, content: desc}
+    @aTox.gui.notify {
+      type:     'err'
+      name:     name
+      content:  desc
+    }
     @doTimeout 2500, =>
       i.removeClass 'error' for i in [@h1, @h2]
 
@@ -94,13 +95,7 @@ class GitHubLogin extends View
       super()
 
   postTokenGeneration: ->
-    @event.emit 'GitHub',   'done'
     return true
-
-    #@github.authentificate {user: 'arvius', password:''}, =>
-      #@event.emit 'Terminal', "Github Token: #{@github.getToken()}"
-      #@github.getUserImage {user: 'mensinda'}, (url) =>
-        #@event.emit 'Terminal', "Github Avatar: #{url}"
 
   doTimeout: (s, cb) ->
     setTimeout cb, s
