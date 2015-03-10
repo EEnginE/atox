@@ -11,7 +11,6 @@ class ContactView extends View
 
   initialize: (params) ->
     @click => params.cb()
-    @hide() if params.hidden is true #What's that? Why do we create it if it is hidden!?!?
 
   update: (params) ->
     @name.text params.name

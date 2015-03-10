@@ -25,7 +25,7 @@ class GUI
         @github.setToken atom.config.get('aTox.githubToken')
         @event.emit 'Terminal', {cid: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
       else
-        @githubauth.show()
+        @GitHubLogin.show()
     @event.on 'aTox.select', (data) => @contactSelected         data
 
     @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
