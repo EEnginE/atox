@@ -2,54 +2,42 @@ module.exports =
 class Terminal
   constructor: (params) ->
     @aTox    = params.aTox
-    @event   = params.event
-
-  initialize: ->
-    @event.on 'aTox.add-message', (data) =>
-      return unless data.tid is -1
-      @process {cid: data.cid, cmd: data.msg}
 
     @cmds = [ #TODO: Test commands
-      {cmd: 'help',      args: 0, desc: 'Prints help message',                                   run: (cid)    => @help      cid                                  }
-      {cmd: 'exit',      args: 0, desc: 'Closes terminal window',                                run: (cid)    => @closeChat cid, @cid                            }
-      {cmd: 'getChatID', args: 1, desc: 'Print chat ID of chat [a1]',                            run: (cid, p) => @event.emit 'getChatID', {cid: cid, name: p[0]} }
-      {cmd: 'openChat',  args: 1, desc: 'Opens chat with ID [a1]',                               run: (cid, p) => @openChat  cid, parseInt p[0]                   }
-      {cmd: 'closeChat', args: 1, desc: 'Closes the chat with ID [a1]',                          run: (cid, p) => @closeChat cid, parseInt p[0]                   }
-      {cmd: 'setName',   args: 1, desc: 'Set name to [a1]',                                      run: (cid, p) => @setName   cid,          p[0]                   }
-      {cmd: 'setAvatar', args: 1, desc: 'Set avatar to [a1]',                                    run: (cid, p) => @setAvatar cid,          p[0]                   }
-      {cmd: 'setStatus', args: 1, desc: 'Set status message to [a1]',                            run: (cid, p) => @setStatus cid,          p[0]                   }
-      {cmd: 'setOnline', args: 1, desc: 'Set online status to [a1]',                             run: (cid, p) => @setOnline cid,          p[0]                   }
-      {cmd: 'sendMSG',   args: 2, desc: 'Send message [a2] to user [a1]',                        run: (cid, p) => @sendMSG   cid,          p[0], p[1]             }
-      {cmd: 'addFriend', args: 2, desc: 'Send friend request to user ID [a1] with message [a2]', run: (cid, p) => @addFriend cid,          p[0], p[1]             }
-      {cmd: 'toxDO',     args: 0, desc: 'Run TOX.do',                                            run: (cid)    => @toxDO                                          }
-      {cmd: 'reqAvatar', args: 0, desc: 'Send a avatar request to all friends',                  run: (cid)    => @reqAvatar                                      }
-      {cmd: 'addGC',     args: 0, desc: 'Adds a new group chat',                                 run: (cid)    => @addGC     cid                                  }
-      {cmd: 'invite',    args: 2, desc: 'Invites [a1] to group [a2]',                            run: (cid, p) => @invite    cid, p[0], p[1]                      }
-      {cmd: 'peerInfo',  args: 2, desc: 'Get info about peer [a1] in group [a2]',                run: (cid, p) => @peerInfo  cid, p[0], p[1]                      }
-      {cmd: 'showAll',   args: 0, desc: 'Makes ALL chats visible',                               run: (cid)    => @showAll   cid}
+      {cmd: 'help',      args: 0, desc: 'Prints help message',                                   run: (cID)    => @help        cID       }
+      {cmd: 'openChat',  args: 1, desc: 'Opens chat with ID [a1]',                               run: (cID, p) => @openChat    p[0]      }
+      {cmd: 'closeChat', args: 1, desc: 'Closes the chat with ID [a1]',                          run: (cID, p) => @closeChat   p[0]      }
+      {cmd: 'setName',   args: 1, desc: 'Set name to [a1]',                                      run: (cID, p) => @setName     p[0]      }
+      {cmd: 'setAvatar', args: 1, desc: 'Set avatar to [a1]',                                    run: (cID, p) => @setAvatar   p[0]      }
+      {cmd: 'setStatus', args: 1, desc: 'Set status message to [a1]',                            run: (cID, p) => @setStatus   p[0]      }
+      {cmd: 'setOnline', args: 1, desc: 'Set online status to [a1]',                             run: (cID, p) => @setOnline   p[0]      }
+      {cmd: 'sendMSG',   args: 2, desc: 'Send message [a2] to user [a1]',                        run: (cID, p) => @sendMSG     p[0], p[1]}
+      {cmd: 'sendToGC',  args: 2, desc: 'Send message [a2] to group chat [a1]',                  run: (cID, p) => @sendToGC    p[0], p[1]}
+      {cmd: 'addFriend', args: 2, desc: 'Send friend request to user ID [a1] with message [a2]', run: (cID, p) => @addFriend   p[0], p[1]}
+      {cmd: 'reqAvatar', args: 0, desc: 'Send a avatar request to all friends',                  run: (cID)    => @reqAvatar()           }
+      {cmd: 'addGC',     args: 0, desc: 'Adds a new group chat',                                 run: (cID)    => @addGC()               }
+      {cmd: 'invite',    args: 2, desc: 'Invites [a1] to group [a2]',                            run: (cID, p) => @invite      p[0], p[1]}
     ]
 
-  help: (cid) ->
-    @event.emit 'Terminal', {cid: cid, msg: 'Commands: (Strings are encased with "s)'}
+  help: (cID) ->
+    @inf   {cID: cID, msg: 'Commands: (Strings are encased with "s)'}
 
     for i in @cmds
-      @event.emit 'Terminal', {cid: cid, msg: "     \"/#{i.cmd}\":  #{i.desc}"}
+      @inf {cID: cID, msg: "     \"/#{i.cmd}\":  #{i.desc}"}
 
   #FUCKING EVENTS! FIX THIS!
-  closeChat: (cid, id)  -> @event.emit "chat-visibility", { scid: cid, cid: id, what: 'hide' }
-  openChat:  (cid, id)  -> @event.emit "chat-visibility", { scid: cid, cid: id, what: 'show' }
-  setName:   (cid, p)   -> @event.emit "setName",         { cid: cid, p: p}
-  setAvatar: (cid, p)   -> @event.emit "setAvatar",       { cid: cid, p: p}
-  setStatus: (cid, p)   -> @event.emit "setStatus",       { cid: cid, p: p}
-  setOnline: (cid, p)   -> @aTox.TOX.onlineStatus p; @aTox.gui.setUserOnlineStatus p
-  sendMSG:   (cid, f, m)-> @event.emit "sendToFriend",    { cid: cid, tid: f,  d: m }
-  addFriend: (cid, a, m)-> @event.emit "addFriend",       { cid: cid, addr: a, msg: m }
-  toxDO:                -> @event.emit "toxDO"
-  reqAvatar:            -> @event.emit "reqAvatar"
-  addGC:     (cid)      -> @event.emit "addGroupChat",    { cid: cid }
-  invite:    (cid, f,g) -> @event.emit "invite",          { cid: cid, friend: f, gNum: g }
-  peerInfo:  (cid, p,g) -> @event.emit "getPeerInfo",     { cid: cid, gNum: g, peer: p }
-  showAll:   (cid)      -> @event.emit "showAll",         { cid: cid }
+  closeChat: (id)       -> @aTox.gui.chats[parseInt id].closeChat()
+  openChat:  (id)       -> @aTox.gui.chats[parseInt id].openChat()
+  setName:   (p)        -> @aTox.TOX.setName   p
+  setAvatar: (p)        -> @aTox.TOX.setAvatar p
+  setStatus: (p)        -> @aTox.TOX.setStatus p
+  setOnline: (p)        -> @aTox.TOX.onlineStatus p; @aTox.gui.setUserOnlineStatus p
+  sendMSG:   (f, m)     -> @aTox.TOX.sendToFriend      { fID: f,  msg: m }
+  sendToGC:  (f, m)     -> @aTox.TOX.sendToGC          { gID: f,  msg: m }
+  addFriend: (a, m)     -> @aTox.TOX.sendFriendRequest { addr: a, msg: m }
+  reqAvatar:            -> @aTox.TOX.reqAvatar()
+  addGC:                -> @aTox.TOX.createGroupChat()
+  invite:    (f,g)      -> @aTox.TOX.invite        { fID: f, gID: g }
 
   process: (data) ->
     cmd = data.cmd
@@ -69,9 +57,9 @@ class Terminal
           @err "/#{@cmd} requires #{arg.args} arguments (You gave #{args.length})"
           return
         if arg.args == 0
-          arg.run data.cid #TODO: Stop sending the message when a command is found
+          arg.run data.cID #TODO: Stop sending the message when a command is found
         else
-          arg.run data.cid, args
+          arg.run data.cID, args
 
         return
 
@@ -107,9 +95,38 @@ class Terminal
 
     return args;
 
-  err: (msg) ->
-    @aTox.gui.notify {
-      type: 'err'
-      name: 'aTox'
-      content: msg
-    }
+  inf: (data) ->
+    msg = "<span style='font-style:italic;color:#979797'><b>Info:</b> #{data.msg}</span>"
+
+    data.cID = -1 unless data.cID?
+
+    if data.cID < 0
+      @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
+    else
+      @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
+
+    @aTox.gui.notify { type: 'inf', name: 'aTox', content: data.msg } if atom.config.get 'aTox.debugNotifications'
+
+  warn: (data) ->
+    msg = "<span style='font-style:italic;color:#c19a00'><b>Warning:</b> #{data.msg}</span>"
+
+    data.cID = -1 unless data.cID?
+
+    if data.cID < 0
+      @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
+    else
+      @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
+
+    @aTox.gui.notify { type: 'warn', name: 'aTox', content: data.msg }
+
+  err: (data) ->
+    msg = "<span style='font-style:italic;color:#bc0000'><b>ERROR:</b> #{data.msg}</span>"
+
+    data.cID = -1 unless data.cID?
+
+    if data.cID < 0
+      @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
+    else
+      @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
+
+    @aTox.gui.notify { type: 'err', name: 'aTox', content: data.msg }

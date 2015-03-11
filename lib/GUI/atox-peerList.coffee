@@ -2,12 +2,12 @@
 
 class PeerListItem extends View
   @content: (params) ->
-    @p id: "aTox-LI-#{params.peer}-#{params.fid}", class: 'aTox-PeerList-item'
+    @p id: "aTox-LI-#{params.peer}-#{params.fID}", class: 'aTox-PeerList-item'
 
   initialize: (params) ->
     @text  params.name
     @css  {color: params.color}
-    @FID  = params.fid
+    @FID  = params.fID
     @PEER = params.peer
 
     # TODO: Add functionality: Show additional information: Recent Projects, Contributions to current project, has push rights. Unnecessary: toxID, status, image
@@ -16,10 +16,10 @@ class PeerListItem extends View
   update: (params) ->
     @text  params.name
     @css  {color: params.color}
-    @FID  = params.fid
+    @FID  = params.fID
     @PEER = params.peer
 
-  fid:  -> return @FID
+  fID:  -> return @FID
   peer: -> return @PEER
 
 module.exports =
@@ -34,10 +34,10 @@ class PeerList extends View
     for i, index in @list
       found = false
       for j in list
-        if j.fid < 0
+        if j.fID < 0
           found = true unless i.peer() is j.peer
         else
-          found = true unless i.fid()  is j.fid
+          found = true unless i.fID()  is j.fID
 
         break  if found is true
       continue if found is true
@@ -47,10 +47,10 @@ class PeerList extends View
     for i in list
       found = false
       for j, index in @list
-        if j.fid < 0
+        if j.fID < 0
           continue unless i.peer is j.peer()
         else
-          continue unless i.fid  is j.fid()
+          continue unless i.fID  is j.fID()
 
         @list[index].update i
         found = true

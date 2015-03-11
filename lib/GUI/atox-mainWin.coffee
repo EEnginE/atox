@@ -19,7 +19,7 @@ class MainWindow extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
-    jQuery(@mainWin).draggable {handle: @header}
+    jQuery(@element).draggable {handle: @header}
     @contacts.mousewheel (event) => @scrollHandler event #Remove that!
 
     @statusSelector = new StatusSelector {aTox: @aTox, win: "main-window"}
@@ -29,6 +29,8 @@ class MainWindow extends View
     @deltaScroll   = 0
     @maxScroll     = 0
     @hide()
+
+    @firstContactView = true
 
   scrollHandler: (event) -> #TODO: Fix this!
     return if @maxScroll <= @contacts.height()
@@ -58,8 +60,9 @@ class MainWindow extends View
     else
       @show()
 
-  addContact: (contact, first) ->
+  addContact: (contact) ->
     contact.appendTo @contacts
     @maxScroll += contact.outerHeight() + parseInt contact.css( "margin" ), 10
-    @maxScroll += ( parseInt contact.css( "margin" ) ) if first
+    @maxScroll += ( parseInt contact.css( "margin" ) ) if @firstContactView
     @contactsArray.push contact
+    @firstContactView = false

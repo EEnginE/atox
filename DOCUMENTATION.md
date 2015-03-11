@@ -6,8 +6,8 @@ Adds a message
 
 | Tag   | content                                  | required |
 | :---: | :--------------------------------------- | :------: |
-| cid   | The **CHAT** ID                          | yes      |
-| tid   | The **TOX** ID (currently cid or -1)     | yes      |
+| cID   | The **CHAT** ID                          | yes      |
+| tid   | The **TOX** ID (currently cID or -1)     | yes      |
 | color | A valid CSS color string                 | yes      |
 | name  | The name of the user sending the message | yes      |
 | img   | Avatar                                   | no       |
@@ -18,7 +18,7 @@ Adds a message
 
 | Tag   | content                                  | required |
 | :---: | :--------------------------------------- | :------: |
-| cid   | The **CHAT** ID                          | yes      |
+| cID   | The **CHAT** ID                          | yes      |
 | what  | What to do. *MUST* be 'hide' or 'show'   | yes      |
 
 ## notify

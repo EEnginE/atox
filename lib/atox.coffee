@@ -1,12 +1,10 @@
 path          = require 'path'
 GUI           = require './GUI/atox-GUI'
-Contact       = require './atox-contact'
 Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
 Github        = require './atox-github'
 
 {View, $, $$} = require 'atom-space-pen-views'
-{Emitter}     = require 'event-kit'
 
 module.exports =
   config:
@@ -53,70 +51,27 @@ module.exports =
     atom.commands.add 'atom-workspace', 'aTox:toggle',  => @toggle()
     atom.commands.add 'atom-workspace', 'aTox:history', => @toggleHistory()
 
-    @event         = new Emitter
-
-    @terminal      = new Terminal      {aTox: this, event: @event}
-    @TOX           = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll", event: @event}
+    @term          = new Terminal      {aTox: this}
+    @TOX           = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll", fConnectCB: => @onFirstConnect()}
     @github        = new Github
 
     @currCID = 0
-
-    @internalContactId = 0
-    @contactsArray     = []
-    @contactsPubKey    = []
-
     @hasOpenChat    = false
 
+    atom.config.observe 'aTox.githubToken', (newValue)  => @github.setToken  newValue
+
     $ =>
-      @gui = new GUI {aTox: this, event: @event}
-
-      @event.on 'aTox.new-contact',       (data) => @addUserHelper           data
-      @event.on 'getChatID',              (data) => @getChatIDFromName       data
-      @event.on 'getFriendIDFromPubKey',  (data) => @getFriendIDFromPubKey   data
-
-      @event.on 'Terminal', (data) =>
-        @event.emit "aTox.add-message", {
-          cid:   data.cid
-          tid:   -2
-          color: "rgba(255, 255, 255 ,1)"
-          name:  "aTox"
-          msg:   "<span style='font-style:italic;color:rgba(200, 200, 200 ,1)'>" + data.msg + "</span>"
-        }
-      @terminal.initialize()
+      @gui = new GUI {aTox: this}
       @TOX.startup()
 
-  getChatIDFromName: (data) ->
-    for i in @contactsArray
-      if i.name == data.name
-        @event.emit 'Terminal', {cid: data.cid, msg: "getChatIDFromName: #{i.cid} (#{data})"}
-        return i.cid
+  onFirstConnect: ->
+    if atom.config.get('aTox.githubToken') != 'none'
+      @github.setToken atom.config.get('aTox.githubToken')
+      @aTox.term.inf {cID: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
+    else
+      @gui.GitHubLogin.show()
 
-    @event.emit 'Terminal', {cid: data.cid, msg: "getChatIDFromName: Not Found (#{data})"}
-    return -1
-
-  addUserHelper: (params) ->
-    @contactsArray.push new Contact {
-      name:   params.name
-      status: params.status
-      online: params.online
-      img:    atom.config.get 'aTox.userAvatar' #TODO: Add img to params
-      event:  @event
-      cid:    @currCID
-      tid:    params.tid
-      win:    @gui.mainWin
-      panel:  @gui.chatpanel
-      hidden: params.hidden
-      aTox:   this
-    }
-    @currCID++
-    @contactsPubKey.push { tid: params.tid, pubKey: params.pubKey }
-
-  getFriendIDFromPubKey: (params) ->
-    fid = -1
-    for i in @contactsPubKey
-      fid = i.tid if i.pubKey is params.pubKey
-
-    params.cb fid
+  getCID: -> return @currCID++
 
   toggle: ->
     @gui.mainWin.toggle()

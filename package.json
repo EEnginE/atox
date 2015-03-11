@@ -10,7 +10,6 @@
   },
   "dependencies": {
      "atom-space-pen-views": "*",
-     "event-kit":            "*",
      "jquery-ui":            "*",
      "jquery":               "*",
      "jquery-mousewheel":    "*",

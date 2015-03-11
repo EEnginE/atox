@@ -14,33 +14,22 @@ class ChatBox extends View
         @subview "inputField", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
 
   initialize: (params) ->
-    @cid   = params.cid
-    @event = params.event
-    @chatname = params.name
+    @cID    = params.cID
+    @parent = params.parent
 
     atom.views.getView atom.workspace
       .appendChild @element
 
-    @event.on "aTox.add-message", (msg) => @addMessage msg
-
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown (event) =>
       if event.which is 13 and @inputField.getText() != ""
-        @event.emit "aTox.add-message", {
-          cid:   @cid
-          tid:   -1
-          color: @getColor()
-          name:  (atom.config.get 'aTox.userName')
-          msg:   @inputField.getText()
-        }
+        @parent.sendMSG @inputField.getText()
         @inputField.setText("");
       else if event.which is 27
-        @event.emit "chat-visibility", { cid: @cid, what: 'hide' }
-
-    @chatname = params.name
+        @parent.closeChat()
 
     if params.group? and params.group
-      @chatList = new PeerList {cid: params.cid, event: params.event}
+      @chatList = new PeerList {cID: params.cID}
 
       width = jQuery(@element).css ('width')
       width = parseInt(width)
@@ -49,20 +38,14 @@ class ChatBox extends View
       jQuery(@textfield).css ({ width: jQuery(@header).css('width')})
       @chatList.appendTo @element
 
-
     @hide()
 
-  addMessage: (params) ->
-    return unless params.cid is @cid
-    return if params.msg is ''
-    @chathistory.append "<p><span style='font-weight:bold;color:#{params.color};margin-left:5px;margin-top:5px'>#{params.name}: </span><span style='cursor:text;-webkit-user-select:text;'>#{params.msg}</p>"
+  addMessage: (msg) ->
+    @chathistory.append msg
     @chathistory.scrollTop(@chathistory.prop('scrollHeight'));
 
-  update: (params) ->
-    @online = params.online
-    @header.addClass "aTox-chatbox-header-#{params.online}"
-    @name.text params.name
-    @chatList.setList params.peerlist if params.group? and params.group
-
-  getColor: ->
-    "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
+  update: (what) ->
+    switch what
+      when 'name'   then @name.text @parent.name()
+      when 'online' then @header.attr {class: "aTox-chatbox-header-#{@parent.online()}"}
+      when 'peers'  then @chatList.setList @parent.peerlist()

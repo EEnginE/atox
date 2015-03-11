@@ -2,12 +2,15 @@ toxcore = require 'toxcore'
 fs = require 'fs'
 os = require 'os'
 
+Friend = require './atox-friend'
+Group  = require './atox-group'
+
 module.exports =
 class ToxWorker
   constructor: (params) ->
-    @event = params.event
-    @DLL   = params.dll
-    @aTox  = params.aTox
+    @DLL        = params.dll
+    @aTox       = params.aTox
+    @fConnectCB = params.fConnectCB
 
   myInterval: (s, cb) ->
     setInterval cb, s
@@ -21,7 +24,7 @@ class ToxWorker
       @aTox.gui.setUserOnlineStatus 'connected'
       @inf "<span style='color:rgba(0, 255, 0, 1)''>Connected!</span>"
       @hasConnection = true
-      @event.emit 'first-connect' if @firstConnect is true
+      @firstConnectCB() if @firstConnect is true
       @firstConnect  = false
     else
       return if @hasConnection is false
@@ -52,31 +55,17 @@ class ToxWorker
     @TOX.on 'groupInvite',         (e) => @groupInviteCB         e
     @TOX.on 'groupMessage',        (e) => @groupMessageCB        e unless @TOX.peernumberIsOursSync e.group(), e.peer()
     @TOX.on 'groupTitle',          (e) => @groupTitleCB          e
-    @TOX.on 'groupNamelistChange', (e) => @groupNamelistChangeCB e
+    @TOX.on 'groupNamelistChange', (e) => @groupNamelistChangeCB e if @groups[e.group()]?
 
-    @event.on 'setName',           (e) => @setName               e
-    @event.on 'setAvatar',         (e) => @setAvatar             e
-    @event.on 'setStatus',         (e) => @setStatus             e
-    @event.on 'sendToFriend',      (e) => @sendToFriend          e
-    @event.on 'addFriend',         (e) => @sendFriendRequest     e
-    @event.on 'addGroupChat',      (e) => @addGroupChat          e
-    @event.on 'invite',            (e) => @invite                e
-    @event.on 'sendToGC',          (e) => @sendToGC              e
-    @event.on 'getPeerInfo',       (e) => @getPeerInfo           e
-    @event.on 'toxDO',                 => @TOX.do => @inf "TOX DONE"
-    @event.on 'reqAvatar',             => @reqAvatar()
+    @friends = []
+    @groups  = []
 
-    @event.emit 'setName',   atom.config.get 'aTox.userName'
-    @event.emit 'setAvatar', atom.config.get 'aTox.userAvatar'
-    @event.emit 'setStatus', "I am a Bot :)"
+    @setName   atom.config.get 'aTox.userName'
+    @setAvatar atom.config.get 'aTox.userAvatar'
+    @setStatus "I am a Bot :)"
 
     for n in @nodes
       @TOX.bootstrapFromAddressSync(n.address, n.port, n.key)
-
-    @event.on 'first-connect', =>
-      for n in @aToxNodes
-        @sendFriendRequest {addr: "#{n.key}", msg: "Hello #{n.maintainer}", hidden: true}
-        @inf "Added aTox bot: Maintainer: #{n.maintainer}; Key: #{n.key}"
 
     @TOX.start()
     @inf "Started TOX"
@@ -88,15 +77,22 @@ class ToxWorker
     @firstConnect = true
     @myInterval 500, => @isConnected()
 
-  avatarDataCB:          (e) -> @event.emit 'avatarDataAT',   {tid: e.friend(), d: e}
+  firstConnectCB: ->
+    for n in @aToxNodes
+      @sendFriendRequest {addr: "#{n.key}", msg: "Hello #{n.maintainer}", hidden: true}
+      @inf "Added aTox bot: Maintainer: #{n.maintainer}; Key: #{n.key}"
+
+    @fConnectCB()
+
   avatarInfCB:           (e) -> @TOX.requestAvatarData( e.friend() )
-  friendMsgCB:           (e) -> @event.emit 'friendMsgAT',    {tid: e.friend(), d: e.message()}
-  nameChangeCB:          (e) -> @event.emit 'nameChangeAT',   {tid: e.friend(), d: e.name()}
-  statusChangeCB:        (e) -> @event.emit 'statusChangeAT', {tid: e.friend(), d: e.statusMessage()}
-  userStatusCB:          (e) -> @event.emit 'userStatusAT',   {tid: e.friend(), d: e.status()}
-  groupMessageCB:        (e) -> @event.emit 'groupMessageAT', {tid: e.group(),  d: e.message(), p: e.peer()}
-  groupTitleCB:          (e) -> @event.emit 'groupTitleAT',   {tid: e.group(),  d: e.title(),   p: e.peer()}
-  groupNamelistChangeCB: (e) -> @event.emit 'gNLC_AT',        {tid: e.group(),  d: e.change(),  p: e.peer()}
+  avatarDataCB:          (e) -> @friends[e.friend()].avatarData   e
+  friendMsgCB:           (e) -> @friends[e.friend()].receivedMsg  e.message()
+  nameChangeCB:          (e) -> @friends[e.friend()].nameChange   e.name()
+  statusChangeCB:        (e) -> @friends[e.friend()].statusChange e.statusMessage()
+  userStatusCB:          (e) -> @friends[e.friend()].userStatus   e.status()
+  groupMessageCB:        (e) -> @groups[e.group()].groupMessage  {d: e.message(), p: e.peer()}
+  groupTitleCB:          (e) -> @groups[e.group()].groupTitle    {d: e.title(),   p: e.peer()}
+  groupNamelistChangeCB: (e) -> @groups[e.group()].gNLC          {d: e.change(),  p: e.peer()}
 
   reqAvatar: ->
     for i in @TOX.getFriendListSync()
@@ -105,98 +101,117 @@ class ToxWorker
 
   friendRequestCB: (e) ->
     @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
-    fNum = 0
+    fID = 0
 
     try
-      fNum = @TOX.addFriendNoRequestSync e.publicKey()
+      fID = @TOX.addFriendNoRequestSync e.publicKey()
     catch error
       @err "Failed to add Friend"
       return
 
-    @event.emit 'aTox.new-contact', {
+    @friends[fID] = new Friend {
       name:   e.publicKeyHex()
-      status: "Working, please wait..."
+      fID:    fID
       online: 'offline'
-      tid:    fNum
+      status: "Working, please wait..."
+      aTox:   @aTox
       pubKey: e.publicKeyHex()
     }
-    @inf "Added Friend #{fNum}" #TODO: Move this into the contacts, add the randomized color to this string within the contact
 
-    @friendOnline[fNum] = -1
+    @inf "Added Friend #{fID}" #TODO: Move this into the contacts, add the randomized color to this string within the contact
+
+    @friendOnline[fID] = -1
 
     @myInterval 1000, =>
-      @TOX.getFriendConnectionStatus fNum, (a, b) =>
-        return @err "Friend connection error #{fNum}" if a
-        @friendAutoremove {fid: fNum, online: b}
+      @TOX.getFriendConnectionStatus fID, (a, b) =>
+        return @err "Friend connection error #{fID}" if a
+        @friendAutoremove {fID: fID, online: b}
 
-  addGroupChat: (e) ->
-    #TODO: Find local repositories and open their chats on startup
-    #atom.project.getRepositories().getConfigValue("remote.origin.url")
 
-    @inf "Added group chat #{ret}" #TODO ret not set!
+  getFIDfromKEY: (key) ->
+    for i in @friends
+      return i.fID if i.pubKey is key
 
-    @event.emit 'aTox.new-contact', {
-      name:   "Group Chat ##{ret}"
-      status: ''
-      online: 'group'
-      tid:    ret
-      hidden: e.hidden
-    }
+    return -1
+
+#     _____                         _____ _          __  __
+#    |  __ \                       /  ___| |        / _|/ _|
+#    | |  \/_ __ ___  _   _ _ __   \ `--.| |_ _   _| |_| |_
+#    | | __| '__/ _ \| | | | '_ \   `--. \ __| | | |  _|  _|
+#    | |_\ \ | | (_) | |_| | |_) | /\__/ / |_| |_| | | | |
+#     \____/_|  \___/ \__,_| .__/  \____/ \__|\__,_|_| |_|
+#                          | |
+#                          |_|
 
   createGroupChat: (e) ->
   #TODO: Find local repositories and open their chats on startup
   #atom.project.getRepositories().getConfigValue("remote.origin.url")
     try
-      return @TOX.addGroupchatSync()
+      gID = @TOX.addGroupchatSync()
     catch e
       return @err "Failed to add group chat"
+
+    @inf "Added group chat #{gID}" #TODO ret not set!
+
+    @groups[gID] = new Group {
+      name:   "Group Chat ##{gID}"
+      gID:    gID
+      aTox:   @aTox
+    }
 
   groupInviteCB: (e) ->
     @inf "Received group invite from #{e.friend()}"
 
     try
-      ret = @TOX.joinGroupchatSync e.friend(), e.data()
+      gID = @TOX.joinGroupchatSync e.friend(), e.data()
     catch e
       return @err "Failed to join group chat"
 
-    @inf "Joined group chat #{ret}"
+    @inf "Joined group chat #{gID}"
 
-    @event.emit 'aTox.new-contact', {
-      name:   @TOX.getGroupchatTitle( ret )
-      status: ''
-      online: 'group'
-      tid:    ret
-      hidden: false
+    @groups[gID] = new Group {
+      name:   "Group Chat ##{ret}"
+      gID:    @TOX.getGroupchatTitle( ret )
+      aTox:   @aTox
     }
 
   getPeerInfo: (e) ->
-    return if @TOX.peernumberIsOurs e.gNum, e.peer
-    try
-      key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gNum, e.peer
-      name = @TOX.getGroupchatPeernameSync         e.gNum, e.peer
-      @event.emit 'getFriendIDFromPubKey', {
-        pubKey: key,
-        cb: (fid) =>
-          @inf "FID: #{fid}"
-          if fid < 0
-            e.cb {key: key, fid: fid, name: name, color: "#AAA"} if e.cb?
-            return @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' and NOT A CONTACT (#{key})"
-          @event.emit 'getColor', {
-            tid: fid
-            cb: (color) =>
-              e.cb {key: key, fid: fid, name: name, color: color} if e.cb?
-              @inf "Peer #{e.peer} in GC #{e.gNum} is '#{name}' (#{key})"
-          }
-      }
-    catch err
-      console.log err
-      return @err "Failed to get peer (#{e.peer}) info in group #{e.gNum}"
+    return if @TOX.peernumberIsOurs e.gID, e.peer
+    #try
+    key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gID, e.peer
+    name = @TOX.getGroupchatPeernameSync         e.gID, e.peer
+    fID  = @getFIDfromKEY                        key
+    @inf "FID: #{fID}"
+
+    if fID < 0
+      e.cb {key: key, fID: -1, name: name, color: "#AAA"} if e.cb?
+      return @inf "Peer #{e.peer} in GC #{e.gID} is '#{name}' and NOT A CONTACT (#{key})"
+
+    e.cb {key: key, fID: fID, name: name, color: @friends[fID].color} if e.cb?
+    @inf "Peer #{e.peer} in GC #{e.gID} is '#{name}' (#{key})"
+    #catch err
+    #  console.log err
+    #  return @err "Failed to get peer (#{e.peer}) info in group #{e.gID}"
 
   invite: (e) ->
     try
-      @TOX.inviteSync e.friend, e.gNum
+      @TOX.inviteSync e.fID, e.gID
     catch err
-      return @err "Failed to invite friend #{e.friend} to #{e.gNum}"
+      return @err "Failed to invite friend #{e.fID} to #{e.gID}"
+
+  sendToGC: (e) ->
+    try
+      @TOX.sendGroupchatMessageSync e.gID, e.msg
+    catch e
+      @err "Failed to send MSG to group chat #{e.gID}"
+
+#     _____      _     _____ _______   __
+#    /  ___|    | |   |_   _|  _  \ \ / /
+#    \ `--.  ___| |_    | | | | | |\ V /
+#     `--. \/ _ \ __|   | | | | | |/   \
+#    /\__/ /  __/ |_    | | \ \_/ / /^\ \
+#    \____/ \___|\__|   \_/  \___/\/   \/
+#
 
   setName: (name) ->
     @TOX.setName "#{name}"
@@ -216,32 +231,27 @@ class ToxWorker
     @inf "Sent friend request: #{e.addr}"
 
     try
-      fNum = @TOX.addFriendSync "#{e.addr}", "#{e.msg}"
+      fID = @TOX.addFriendSync "#{e.addr}", "#{e.msg}"
     catch err
       @err "Failed to send friend request"
       return
 
-    @event.emit 'aTox.new-contact', {
+    @friends[fID] = new Friend {
       name:   e.addr
-      status: "Working, please wait..."
+      fID:    fID
       online: 'offline'
-      tid:    fNum
-      hidden: e.hidden
+      status: "Working, please wait..."
+      aTox:   @aTox
+      pubKey: e.addr
     }
 
-    @inf "Added Friend #{fNum}"
+    @inf "Added Friend #{fID}"
 
   sendToFriend: (e) ->
     try
-      @TOX.sendMessageSync e.tid, e.d
+      @TOX.sendMessageSync e.fID, e.msg
     catch e
-      @err "Failed to send MSG to #{e.tid}"
-
-  sendToGC: (e) ->
-    try
-      @TOX.sendGroupchatMessageSync e.tid, e.d
-    catch e
-      @err "Failed to send MSG to group chat #{e.tid}"
+      @err "Failed to send MSG to #{e.fID}"
 
   onlineStatus: (newS) ->
     status = 2
@@ -259,7 +269,7 @@ class ToxWorker
       img:      atom.config.get 'aTox.userAvatar'
     }
     color = @getColorByStatus(newS)
-    @event.emit  'Terminal', {cid: -2, msg: "You are now <span style='color:#{color}'>#{newS}</span>"} #TODO: Send this to all chat windows
+    @inf msg: "You are now <span style='color:#{color}'>#{newS}</span>" # TODO send this to all chats
 
   getColorByStatus: (status) ->
     if status is "online"
@@ -272,27 +282,13 @@ class ToxWorker
       return "rgba(255, 255, 50, 1)"
 
   friendAutoremove: (params) ->
-    return @friendOnline[params.fid] = 0 if params.online is true
-    return if @friendOnline[params.fid] < 0
+    return @friendOnline[params.fID] = 0 if params.online is true
+    return if @friendOnline[params.fID] < 0
 
-    @friendOnline[params.fid]++
-    if @friendOnline[params.fid] > 2
-      @event.emit 'userStatusAT', {tid: params.fid, d: 3}
-      @friendOnline[params.fid] = -1
+    @friendOnline[params.fID]++
+    if @friendOnline[params.fID] > 2
+      @friends[fID].userStatus 3
+      @friendOnline[params.fID] = -1
 
-  inf: (msg) ->
-    @aTox.gui.notify {
-      name: 'TOX'
-      content: msg
-    } if atom.config.get 'aTox.debugNotifications'
-
-    @event.emit 'Terminal', {cid: -2, msg: "TOX: [Info] #{msg}"}
-
-  err: (msg) ->
-    @aTox.gui.notify {
-      type: 'err'
-      name: 'TOX'
-      content: msg
-    }
-
-    @event.emit 'Terminal', {cid: -2, msg: "TOX: [Error] #{msg}"}
+  inf: (msg) -> @aTox.term.inf {msg: "TOX: #{msg}"}
+  err: (msg) -> @aTox.term.err {msg: "TOX: #{msg}"}

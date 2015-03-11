@@ -6,27 +6,38 @@ GitHubLogin   = require './atox-GitHubLogin'
 
 {View, $, $$} = require 'atom-space-pen-views'
 
+class TempChatHelper
+  constructor: (aTox) -> @aTox = aTox
+
+  processMsg: (params) ->
+    return if params.msg is ''
+    msg = "<p><span style='font-weight:bold;color:#{params.color};margin-left:5px;margin-top:5px'>#{params.name}: </span><span style='cursor:text;-webkit-user-select:text;'>#{params.msg}</span></p>"
+
+    @aTox.gui.chatpanel.addMessage {msg: msg, cID: -1}
+
+  sendMSG: (msg) ->
+    @processMsg {
+      msg:   msg
+      name:  (atom.config.get 'aTox.userName') # TODO Use GitHub name
+      color: "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
+    }
+
+    @aTox.term.process {cmd: msg, cID: @cID} if msg[0] is '/'
+
+
 module.exports =
 class GUI
   constructor: (params) ->
-    @event  = params.event
     @aTox   = params.aTox
-    @github = @aTox.github
+
+    @chatpanel     = new Chatpanel     {aTox: @aTox}
+    @chatpanel.addChat {cID: -1, img: 'none', group: false, parent: new TempChatHelper @aTox} # Terminal chat
 
     @mainWin       = new MainWindow    {aTox: @aTox}
     @notifications = new Notifications {aTox: @aTox}
-    @GitHubLogin   = new GitHubLogin   {aTox: @aTox, event: @event}
-    @chatpanel     = new Chatpanel     {aTox: @aTox, event: @event}
+    @GitHubLogin   = new GitHubLogin   {aTox: @aTox}
 
-    @chatpanel.addChat { cid: -2, img: 'none', group: false }
-
-    @event.on 'first-connect',      =>
-      if atom.config.get('aTox.githubToken') != 'none'
-        @github.setToken atom.config.get('aTox.githubToken')
-        @event.emit 'Terminal', {cid: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
-      else
-        @GitHubLogin.show()
-    @event.on 'aTox.select', (data) => @contactSelected         data
+    @chats = [] # Contains EVERY chat
 
     @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
     @mainWin.css 'left', atom.config.get 'aTox.mainWinLeft'
@@ -37,7 +48,6 @@ class GUI
 
     atom.config.observe 'aTox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
     atom.config.observe 'aTox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
-    atom.config.observe 'aTox.githubToken', (newValue) => @github.setToken     newValue
     atom.config.observe 'aTox.userAvatar',  (newValue) => @correctPath         newValue
 
     @mainWin.show() if atom.config.get 'aTox.showDefault'
@@ -49,21 +59,6 @@ class GUI
     pathArg = path.normalize(pathArg)
     pathArg = pathArg.replace(/\\/g, '/')
     atom.config.set 'aTox.userAvatar', pathArg
-
-  contactSelected: (data) ->
-    if data.selected
-      @notify {
-        name: "#{data.name}"
-        content: "Opening chat window"
-        img: data.img
-      }
-    else
-      @notify {
-        type: 'warn'
-        name: "#{data.name}"
-        content: "Closing chat window"
-        img: data.img
-      }
 
   notify: (params) ->
     params.type = 'inf' unless params.type?
