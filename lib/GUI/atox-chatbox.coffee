@@ -22,11 +22,11 @@ class ChatBox extends View
 
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown (event) =>
-      if event.which is 13 and @inputField.getText() != ""
-        @parent.sendMSG @inputField.getText()
-        @inputField.setText("");
-      else if event.which is 27
-        @parent.closeChat()
+      switch event.which
+        when 13 then @parent.sendMSG @inputField.getText(); @inputField.setText ""
+        when 38 then @inputField.setText @parent.getPreviousEntry()
+        when 40 then @inputField.setText @parent.getNextEntry()
+        when 27 then @parent.closeChat()
 
     if params.group? and params.group
       @chatList = new PeerList {cID: params.cID}

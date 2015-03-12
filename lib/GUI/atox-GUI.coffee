@@ -7,7 +7,10 @@ GitHubLogin   = require './atox-GitHubLogin'
 {View, $, $$} = require 'atom-space-pen-views'
 
 class TempChatHelper
-  constructor: (aTox) -> @aTox = aTox
+  constructor: (aTox) ->
+    @aTox = aTox
+    @userHistory       = []
+    @currentHistoryPos = 0
 
   processMsg: (params) ->
     return if params.msg is ''
@@ -22,7 +25,20 @@ class TempChatHelper
       color: "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
     }
 
+    @userHistory.push msg
+    @currentHistoryPos = @userHistory.length
+
     @aTox.term.process {cmd: msg, cID: @cID} if msg[0] is '/'
+
+  getPreviousEntry: ->
+    return @userHistory[@currentHistoryPos] if @currentHistoryPos is 0
+    @currentHistoryPos--
+    return @userHistory[@currentHistoryPos]
+
+  getNextEntry: ->
+    return '' if @currentHistoryPos is (@userHistory.length - 1)
+    @currentHistoryPos++
+    return @userHistory[@currentHistoryPos]
 
 
 module.exports =

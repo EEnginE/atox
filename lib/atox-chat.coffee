@@ -39,6 +39,9 @@ class Chat
     @update 'img'
     @update 'name'
 
+    @userHistory       = []
+    @currentHistoryPos = 0
+
   processMsg: (params) ->
     return if params.msg is ''
 
@@ -72,6 +75,16 @@ class Chat
     @chatBox.show()
     @update 'select'
 
+  getPreviousEntry: ->
+    return @userHistory[@currentHistoryPos] if @currentHistoryPos is 0
+    @currentHistoryPos--
+    return @userHistory[@currentHistoryPos]
+
+  getNextEntry: ->
+    return '' if @currentHistoryPos is (@userHistory.length - 1)
+    @currentHistoryPos++
+    return @userHistory[@currentHistoryPos]
+
   update: (what) ->
     @chatBox.update     what
     @contactView.update what
@@ -79,11 +92,15 @@ class Chat
     @aTox.gui.chatpanel.update @cID
 
   sendMSG: (msg) ->
+    return if msg is ''
     @processMsg {
       msg:   msg
       name:  (atom.config.get 'aTox.userName') # TODO Use GitHub name
       color: "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
     }
+
+    @userHistory.push msg
+    @currentHistoryPos = @userHistory.length
 
     if msg[0] is '/'
       @aTox.term.process {cmd: msg, cID: @cID}

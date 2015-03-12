@@ -28,15 +28,18 @@ class Chatpanel extends View
 
     atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
-      if @hbox.css('display') is 'none'
-        @toggleHistory()
-      if e.keyCode is 13
-        e.preventDefault()
-        id = @coverview.find('.selected').attr('cID') #get cID of selected chat
-        @chatClasses[parseInt id].sendMSG @inputField.getText()
-        @inputField.setText ''
-      else if e.keyCode is 27
-        @toggleHistory()
+      return if @hbox.css('display') is 'none' and event.which is 27 # Do not toggle on and off when already of
+      @toggleHistory() if @hbox.css('display') is 'none'
+
+      id = @coverview.find('.selected').attr('cID') #get cID of selected chat
+      switch event.which
+        when 13
+          @chatClasses[parseInt id].sendMSG @inputField.getText()
+          @inputField.setText ''
+        when 38 then @inputField.setText @chatClasses[parseInt id].getPreviousEntry()
+        when 40 then @inputField.setText @chatClasses[parseInt id].getNextEntry()
+        when 27 then @toggleHistory()
+
     @btn.click =>
       id = @coverview.find('.selected').attr('cID') #get cID of selected chat
       @chatClasses[parseInt id].sendMSG @inputField.getText()
