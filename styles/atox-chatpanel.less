@@ -11,7 +11,21 @@
   h1, h2, h3, h4, p, div, table, ul, li, span, input {
     margin: 0;
     padding: 0;
+    .ui;
   }
+
+  span.historyName {
+    font-weight: bold;
+    margin-left: 5px;
+    margin-top:  5px;
+    -webkit-user-select: text;
+  }
+
+  span {
+    cursor: text;
+    -webkit-user-select: text;
+  }
+
   .aTox-chatpanel-history-box {
     height: 70px;
     white-space: pre;
@@ -64,14 +78,6 @@
         //height: inherit;
         display: none;
         float: left;
-      }
-      p {
-        font-size: @font-size;
-        color: @text-color;
-      }
-      a {
-        color: @text-color-info;
-        font-style: italic;
       }
     }
     .aTox-chatpanel-groupchat-ulist {

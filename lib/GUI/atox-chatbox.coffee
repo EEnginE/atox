@@ -12,6 +12,7 @@ class ChatBox extends View
       @div class: "aTox-chatbox-chathistory native-key-bindings", tabindex: '-1', outlet: 'chathistory'
       @div class: 'aTox-chatbox-textfield', outlet: 'textfield',  =>
         @subview "inputField", new TextEditorView(mini: true, placeholderText: "Type here to write something.")
+      @div class: 'aTox-chatbox-resizeHandler ui-resizable-handle ui-resizable-se', outlet: 'resizeHandler'
 
   initialize: (params) ->
     @cID    = params.cID
@@ -20,6 +21,7 @@ class ChatBox extends View
     atom.views.getView atom.workspace
       .appendChild @element
 
+    jQuery( @element   ).resizable { handles: { se: @resizeHandler } }
     jQuery( @element   ).draggable { handle: @header }
     jQuery( @textfield ).keydown (event) =>
       switch event.which

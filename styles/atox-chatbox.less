@@ -30,20 +30,20 @@
   color: @text-color;
   //border: 2px solid #000;
   border-radius: 10px;
-  padding: @aTox-chatbox-space;
+  display: flex;
+  flex-direction: column;
 
   .aTox-chatbox-header {
+    margin:       @aTox-chatbox-space;
     border-radius: 5px;
     overflow:      hidden;
-    display: block;
-    height: @aTox-chatbox-height * 0.1;
-    cursor: move;
+    display:       flex;
+    align-items:   center;
+    height:       @aTox-chatbox-height * 0.1;
+    cursor:        move;
     h1 {
-      display: inline-block;
       margin-left: 15px;
-      float: left;
       cursor: move;
-      line-height: @aTox-chatbox-height * 0.1;
     }
   }
 
@@ -107,21 +107,40 @@
 
   .aTox-chatbox-chathistory {
     background-color: @tool-panel-background-color;
-    border-radius: 5px;
-    margin-top: @aTox-chatbox-space;
-    display: block;
-    float: left;
-    width: @aTox-chatbox-width - @aTox-chatbox-space * 2;
-    height: @aTox-chatbox-height - @aTox-chatbox-space * 4 - @aTox-chatbox-height * 0.1 - 28px;
-    overflow-y: scroll;
+    border-radius:    5px;
+    display:          flex;
+    margin-left:      @aTox-chatbox-space;
+    margin-right:     @aTox-chatbox-space;
+    overflow-y:       scroll;
+    flex-grow:        1;
+    flex-direction:   column;
+
+    span.historyName {
+      font-weight: bold;
+      margin-left: 5px;
+      margin-top:  5px;
+      -webkit-user-select: text;
+    }
+
+    span {
+      cursor: text;
+      -webkit-user-select: text;
+    }
   }
   .aTox-chatbox-textfield {
     border-radius: 5px;
-    margin-top: @aTox-chatbox-space;
-    display: block;
-    float: left;
-    width: @aTox-chatbox-width - @aTox-chatbox-space * 2;
+    margin-top:   @aTox-chatbox-space;
+    margin-left:  @aTox-chatbox-space;
+    margin-right: @aTox-chatbox-space;
     height: 28px;
+  }
+
+  .aTox-chatbox-resizeHandler {
+    width:      @aTox-chatbox-space * 2;
+    height:     @aTox-chatbox-space * 2;
+    cursor:      se-resize;
+    margin-left: auto;
+    margin-top:-@aTox-chatbox-space;
   }
 
   .aTox-PeerList {

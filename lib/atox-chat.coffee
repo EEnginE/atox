@@ -54,7 +54,7 @@ class Chat
           tmsg[i] = '<a href="' + tmsg[i] + '">' + tmsg[i] + '</a>'
     params.msg = tmsg.join(' ')
 
-    msg = "<p><span style='font-weight:bold;color:#{params.color};margin-left:5px;margin-top:5px'>#{params.name}: </span><span style='cursor:text;-webkit-user-select:text;'>#{params.msg}</span></p>"
+    msg = "<p><span style='color:#{params.color};' class='historyName'>#{params.name}: </span><span>#{params.msg}</span></p>"
 
     @chatBox.addMessage msg
     @aTox.gui.chatpanel.addMessage {msg: msg, cID: @cID}
