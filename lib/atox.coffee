@@ -67,7 +67,7 @@ module.exports =
   onFirstConnect: ->
     if atom.config.get('aTox.githubToken') != 'none'
       @github.setToken atom.config.get('aTox.githubToken')
-      @aTox.term.inf {cID: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
+      @term.inf {cID: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
     else
       @gui.GitHubLogin.show()
 

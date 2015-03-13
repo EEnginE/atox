@@ -20,7 +20,8 @@ class Terminal
     ]
 
   help: (cID) ->
-    @inf   {cID: cID, msg: 'Commands: (Strings are encased with "s)'}
+    @inf   {cID: cID, msg: ' Commands start with a \\. Use \\\\ to send a \\'}
+    @inf   {cID: cID, msg: ' (Strings are encased with "s)'}
 
     for i in @cmds
       @inf {cID: cID, msg: "     \"/#{i.cmd}\":  #{i.desc}"}
@@ -46,7 +47,7 @@ class Terminal
 
     args = @handleArgs cmd
 
-    @err "Empty cmd" if args.length == 0
+    @err {msg: "Empty cmd", cID: data.cID} if args.length == 0
     return           if args.length == 0
     @cmd = args[0]
     args.shift()
@@ -63,7 +64,7 @@ class Terminal
 
         return
 
-    @err "Command /#{@cmd} not found"
+    @err {msg: "Command /#{@cmd} not found", cID: data.cID}
 
   handleArgs: (args) ->
     args = args.split /\"/
