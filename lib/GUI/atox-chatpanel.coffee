@@ -28,16 +28,15 @@ class Chatpanel extends View
 
     atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
-      return if @hbox.css('display') is 'none' and event.which is 27 # Do not toggle on and off when already of
-      @toggleHistory() if @hbox.css('display') is 'none'
+      @toggleHistory() if @hbox.css('display') is 'none' and event.which is not 27
 
-      id = @coverview.find('.selected').attr('cID') #get cID of selected chat
+      id = parseInt @coverview.find('.selected').attr('cID') #get cID of selected chat
       switch event.which
         when 13
-          @chatClasses[parseInt id].sendMSG @inputField.getText()
+          @chatClasses[id].sendMSG @inputField.getText()
           @inputField.setText ''
-        when 38 then @inputField.setText @chatClasses[parseInt id].getPreviousEntry()
-        when 40 then @inputField.setText @chatClasses[parseInt id].getNextEntry()
+        when 38 then @inputField.setText @chatClasses[id].getPreviousEntry()
+        when 40 then @inputField.setText @chatClasses[id].getNextEntry()
         when 27 then @toggleHistory()
 
     @btn.click =>
@@ -109,7 +108,8 @@ class Chatpanel extends View
 
   selectChat: (cID) ->
     id = @coverview.find('.selected').attr('cID') #get cID of selected chat
-    @scrollPos[id] = @chats.scrollTop()
+    if id? and @chats.children().length > 0
+      @scrollPos[id] = @chats.prop("scrollHeight")
     if @chats.prop("scrollHeight") - @chats.prop("offsetHeight") is @chats.scrollTop() #isBot?
       @scrollPos[id] = -1
     @coverview.find('.selected').removeClass('selected')
@@ -124,7 +124,7 @@ class Chatpanel extends View
       @ulist.css({display: 'none'})
     if @scrollPos[cID] is -1
       @scrollBot(cID)
-    else
+    else if @scrollPos[cID]?
       @chats.scrollTop(@scrollPos[cID])
     @coverview.find("[cID='#{cID}']").removeClass 'status-modified'
 

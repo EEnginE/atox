@@ -34,7 +34,7 @@ class GitHubLogin extends View
         e.data.t.setText '' if e.keyCode is 27
 
     @btn1.click => @abort()
-    @btn2.click => @login()
+    @btn2.click => @login() if @checkInput()
 
     @isOpen = false
 
@@ -45,10 +45,6 @@ class GitHubLogin extends View
   login: ->
     @working.show()
     i.addClass 'working' for i in [@h1, @h2, @working]
-
-    if @checkInput() is false
-      @doTimeout 500, => @error "Empty", "Please enter your username and password"
-      return
 
     name = @uname.getText()
     pw   = @pw.getText()
@@ -69,6 +65,7 @@ class GitHubLogin extends View
     otp  = @otp.getText()
 
     if name is "" or pw is ""
+      @doTimeout 500, => @error "Empty", "Please enter your username and password"
       return false
     return true
 
