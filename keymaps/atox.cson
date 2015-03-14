@@ -10,3 +10,4 @@
 'atom-workspace':
   'ctrl-alt-t ctrl-alt-t': 'aTox:toggle'
   'ctrl-alt-t ctrl-alt-h': 'aTox:history'
+  'shift-enter':           'aTox:quickChat'

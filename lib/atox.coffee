@@ -48,8 +48,9 @@ module.exports =
 
 
   activate: ->
-    atom.commands.add 'atom-workspace', 'aTox:toggle',  => @toggle()
-    atom.commands.add 'atom-workspace', 'aTox:history', => @toggleHistory()
+    atom.commands.add 'atom-workspace', 'aTox:toggle',    => @gui.mainWin.toggle()
+    atom.commands.add 'atom-workspace', 'aTox:history',   => @gui.chatpanel.toggleHistory()
+    atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.openQuickChat()
 
     @term          = new Terminal      {aTox: this}
     @TOX           = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll", fConnectCB: => @onFirstConnect()}
@@ -72,9 +73,3 @@ module.exports =
       @gui.GitHubLogin.show()
 
   getCID: -> return @currCID++
-
-  toggle: ->
-    @gui.mainWin.toggle()
-
-  toggleHistory: ->
-    @gui.chatpanel.toggleHistory()

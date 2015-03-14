@@ -56,6 +56,9 @@ class Chatpanel extends View
     @statusSelector = new StatusSelector {aTox: @aTox, win: 'panel'}
     @statusSelector.appendTo @status
 
+  getSelectedChatCID: ->
+    return parseInt @coverview.find('.selected').attr('cID')
+
   addMessage: (params) ->
     return if params.msg is ''
 

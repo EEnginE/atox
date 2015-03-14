@@ -3,6 +3,7 @@ Notifications = require './atox-notifications'
 Question      = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 GitHubLogin   = require './atox-GitHubLogin'
+QuickChat     = require './atox-quickChat'
 
 {View, $, $$} = require 'atom-space-pen-views'
 
@@ -52,6 +53,7 @@ class GUI
     @mainWin       = new MainWindow    {aTox: @aTox}
     @notifications = new Notifications {aTox: @aTox}
     @GitHubLogin   = new GitHubLogin   {aTox: @aTox}
+    @quickChat     = new QuickChat     {aTox: @aTox}
 
     @chats = [] # Contains EVERY chat
 
@@ -84,3 +86,5 @@ class GUI
   setUserOnlineStatus: (params) ->
     @mainWin.statusSelector.setStatus   params
     @chatpanel.statusSelector.setStatus params
+
+  openQuickChat: -> @quickChat.show @chatpanel.getSelectedChatCID()

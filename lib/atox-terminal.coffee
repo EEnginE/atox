@@ -26,7 +26,6 @@ class Terminal
     for i in @cmds
       @inf {cID: cID, msg: "     \"/#{i.cmd}\":  #{i.desc}"}
 
-  #FUCKING EVENTS! FIX THIS!
   closeChat: (id)       -> @aTox.gui.chats[parseInt id].closeChat()
   openChat:  (id)       -> @aTox.gui.chats[parseInt id].openChat()
   setName:   (p)        -> @aTox.TOX.setName   p
