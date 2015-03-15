@@ -4,6 +4,7 @@ Question      = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 GitHubLogin   = require './atox-GitHubLogin'
 QuickChat     = require './atox-quickChat'
+CollabSelect  = require './atox-collabSelect'
 
 {View, $, $$} = require 'atom-space-pen-views'
 
@@ -54,6 +55,7 @@ class GUI
     @notifications = new Notifications {aTox: @aTox}
     @GitHubLogin   = new GitHubLogin   {aTox: @aTox}
     @quickChat     = new QuickChat     {aTox: @aTox}
+    @collabSelct   = new CollabSelect  {aTox: @aTox}
 
     @chats = [] # Contains EVERY chat
 

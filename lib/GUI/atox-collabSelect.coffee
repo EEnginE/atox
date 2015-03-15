@@ -1,0 +1,95 @@
+{SelectListView, View} = require 'atom-space-pen-views'
+
+class Item extends View
+  @content: (params) ->
+    @li       outlet: 'root',    class: 'two-lines', =>
+      @div    outlet: 'status',  class: 'status'
+      @div    outlet: 'primary', class: 'primary-line', =>
+        @span outlet: 'action',  class: '',                       params.action
+        @span outlet: 'msg',     class: 'text-highlight',        " #{params.primary}"
+      @div    outlet: 'desc',    class: 'secondary-line no-icon', params.desc
+
+  initialize: (params) ->
+    switch params.action
+      when 'Join'
+        @status.addClass  'status-renamed icon icon-diff-renamed'
+        @primary.addClass 'status-added   icon icon-chevron-right'
+        @action.addClass  'highlight-info'
+      when 'Create'
+        @status.addClass  'status-added icon icon-diff-added'
+        @primary.addClass 'icon icon-file-text'
+        @action.addClass  'highlight-success'
+      when 'Close'
+        @status.addClass  'status-removed  icon icon-diff-removed'
+        @primary.addClass 'status-modified icon icon-zap'
+        @action.addClass  'highlight-error'
+
+    @action = params.action
+    @path   = params.path
+
+module.exports =
+class CollabSelect extends SelectListView
+  initialize: (params) ->
+    @aTox = params.aTox
+
+    super
+    @panel = atom.workspace.addModalPanel {item: this, visible: false}
+
+  viewForItem: (item) -> new Item item
+  confirmed: (item)   ->
+    @panel.hide()
+
+    switch item.action
+      when 'Create' then @aTox.collab.newCollab   item.path
+      when 'Join'   then @aTox.collab.joinCollab  item.path
+      when 'Close'  then @aTox.collab.closeCollab item.path
+
+  cancel: ->
+    @panel.hide()
+
+  show: ->
+    unless @aTox.collab.getIsGitRepository()
+      @setError 'aTox CollabEdit needs a git repository!'
+      @setItems []
+      @panel.show()
+      return
+
+    @setError ''
+    items = []
+
+    currentFile = @aTox.collab.getCurrentFile()
+    unless currentFile.error
+      if currentFile.collabExists
+        items.push {
+          action:  "Join"
+          primary: "Collab for this file"
+          desc:    "Join the already existing Collab for this file (#{currentFile.path})"
+          path:    currentFile.path
+        }
+      else
+        items.push {
+          action:  "Create"
+          primary: "Collab for this file"
+          desc:    "Create a new collab for the current file (#{currentFile.path})"
+          path:    currentFile.path
+        }
+
+    for i in @aTox.collab.getJoinableList()
+      items.push {
+        action:  'Join'
+        primary: "#{i}"
+        desc:    "Join active collab '#{i}'"
+        path: i
+      }
+
+    for i in @aTox.collab.getCollabList()
+      items.push {
+        action:  'Close'
+        primary: "#{i}"
+        desc:    "Closes collab '#{i}'"
+        path: i
+      }
+
+    @setItems items
+    @panel.show()
+    @focusFilterEditor()

@@ -1,40 +1,37 @@
-{View, TextEditorView, $, $$} = require 'atom-space-pen-views'
-jQuery    = require 'jquery'
-require 'jquery-ui'
+{View, TextEditorView} = require 'atom-space-pen-views'
 
 module.exports =
 class QuickChat extends View
   @content: ->
-    @div    class: 'aTox-quickChat', =>
-      @div  class: 'chatName',       => @h1 outlet: 'chatName'
-      @div  class: 'input',          =>
-        @subview 'msg', new TextEditorView(mini: true, placeholderText: "Message")
-        @div class: 'btns', =>
-          @div outlet: 'btn1', class: 'btn1 btn btn-lg btn-error', 'Abort'
-          @div outlet: 'btn2', class: 'btn2 btn btn-lg btn-info',  'Send'
+    @div class: 'aTox-quickChat', =>
+      @h1 outlet: 'chatName'
+      @subview 'msg', new TextEditorView(mini: true, placeholderText: "Message")
+      @div outlet: 'btns', =>
+        @div outlet: 'btn1', class: 'btn1 btn btn-lg btn-error', 'Abort'
+        @div outlet: 'btn2', class: 'btn2 btn btn-lg btn-info',  'Send'
 
   initialize: (params) ->
-    @aTox = params.aTox
-    @isVisible = false;
-
-    atom.views.getView atom.workspace
-      .appendChild @element
+    @aTox  = params.aTox
+    @panel = atom.workspace.addModalPanel {item: this, visible: false}
 
     @msg.on 'keydown', (e) =>
       @send() if e.keyCode is 13
       @hide() if e.keyCode is 27
 
-    @hide()
+    @btn1.click => @hide()
+    @btn2.click => @send()
+
+    @chatName.css {'overflow':     'hidden'}
+    @btns.css     {'padding-left': '50px', 'padding-right': '50px'}
+    @btn2.css     {'float':        'right'}
 
   show: (cID) ->
-    return if @isVisible
     return unless @aTox.gui.chats[cID]?
-    @isVisible  = true
     @currentCID = cID
 
     @chatName.text @aTox.gui.chats[@currentCID].name()
-    super()
 
+    @panel.show()
     @msg.focus()
 
   send: ->
@@ -42,7 +39,6 @@ class QuickChat extends View
     @hide()
 
   hide: ->
-    @isVisible  = false
+    @panel.hide()
     @msg.setText   ''
     @chatName.text ''
-    super()
