@@ -11,4 +11,5 @@
   'ctrl-alt-t ctrl-alt-t': 'aTox:toggle'
   'ctrl-alt-t ctrl-alt-h': 'aTox:history'
   'ctrl-alt-t ctrl-alt-c': 'aTox:collab'
+'atom-text-editor:not([mini])':
   'shift-enter':           'aTox:quickChat'

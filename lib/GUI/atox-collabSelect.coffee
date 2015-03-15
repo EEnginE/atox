@@ -93,3 +93,5 @@ class CollabSelect extends SelectListView
     @setItems items
     @panel.show()
     @focusFilterEditor()
+
+  getFilterKey: -> return "primary"
