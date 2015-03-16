@@ -17,6 +17,7 @@ class Terminal
       {cmd: 'reqAvatar', args: 0, desc: 'Send a avatar request to all friends',                  run: (cID)    => @reqAvatar()           }
       {cmd: 'addGC',     args: 0, desc: 'Adds a new group chat',                                 run: (cID)    => @addGC()               }
       {cmd: 'invite',    args: 2, desc: 'Invites [a1] to group [a2]',                            run: (cID, p) => @invite      p[0], p[1]}
+      {cmd: 'login',     args: 0, desc: 'Opens GitHub login popup',                              run: (cID)    => @login()               }
     ]
 
   help: (cID) ->
@@ -37,7 +38,8 @@ class Terminal
   addFriend: (a, m)     -> @aTox.TOX.sendFriendRequest { addr: a, msg: m }
   reqAvatar:            -> @aTox.TOX.reqAvatar()
   addGC:                -> @aTox.TOX.createGroupChat()
-  invite:    (f,g)      -> @aTox.TOX.invite        { fID: f, gID: g }
+  invite:    (f,g)      -> @aTox.TOX.invite            { fID: f, gID: g }
+  login:                -> @aTox.authManager.requestNewToken()
 
   process: (data) ->
     cmd = data.cmd
@@ -117,7 +119,7 @@ class Terminal
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'warn', name: 'aTox', content: data.msg }
+    @aTox.gui.notify { type: 'warn', name: 'aTox', content: data.msg } unless data.notify? and data.notify is false
 
   err: (data) ->
     msg = "<span style='font-style:italic;color:#bc0000'><b>ERROR:</b> #{data.msg}</span>"
@@ -129,4 +131,4 @@ class Terminal
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'err', name: 'aTox', content: data.msg }
+    @aTox.gui.notify { type: 'err', name: 'aTox', content: data.msg } unless data.notify? and data.notify is false

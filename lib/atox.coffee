@@ -5,6 +5,7 @@ Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
 Github        = require './atox-github'
 CollabManager = require './atox-collabManager'
+AuthManager   = require './atox-authManager'
 
 module.exports =
   config:
@@ -57,21 +58,17 @@ module.exports =
     @TOX           = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll", fConnectCB: => @onFirstConnect()}
     @github        = new Github
     @collab        = new CollabManager {aTox: this}
+    @authManager   = new AuthManager   {aTox: this}
 
     @currCID = 0
     @hasOpenChat    = false
 
-    atom.config.observe 'aTox.githubToken', (newValue)  => @github.setToken  newValue
+    atom.config.observe 'aTox.githubToken', (newValue)  => @github.setToken newValue
 
     $ =>
       @gui = new GUI {aTox: this}
       @TOX.startup()
 
-  onFirstConnect: ->
-    if atom.config.get('aTox.githubToken') != 'none'
-      @github.setToken atom.config.get('aTox.githubToken')
-      @term.inf {cID: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
-    else
-      @gui.GitHubLogin.show()
+  onFirstConnect: -> @authManager.aToxAuth()
 
   getCID: -> return @currCID++

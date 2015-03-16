@@ -9,94 +9,62 @@
 @width:  500px;
 
 .aTox-GitHubLogin-root {
-  position: absolute;
-  left: 50%;
-  top:  15%;
-
-  margin-left: -(@width / 2);
-
-  width:  @width;
-
-  border-radius: 10px;
-
-  background-color: @app-background-color;
   color: @text-color;
-  z-index:  150;
   overflow: auto;
-  display: none;
 
-  .aTox-GitHubLogin-title {
-    background-color: @tool-panel-background-color;
-    height:           36px;
-    margin:           5px;
-    border-radius:    5px;
-    padding-left:     30px;
-
-    h1 {
-      line-height: 36px;
-      cursor:      move;
-      text-align:  center;
-      margin:      0;
-
-      transition: color 500ms;
-    }
-
-    div {
-      float:         right;
-      margin-top:    36px / 2 - 10;
-      margin-right:  10px;
-      width:         20px;
-      opacity:       0;
-      transition:    opacity 300ms;
-    }
-
-    div.working {
-      opacity: 1;
-    }
-
+  h1 {
+    text-align:   center;
+    padding-left: 30px;
+    transition:   color 500ms;
   }
 
-  .aTox-GitHubLogin-body {
-    background-color: @tool-panel-background-color;
-    margin:           5px;
+  div.loading {
+    float:         right;
+    margin-right:  10px;
+    width:         20px;
+    opacity:       0;
+    transition:    opacity 300ms;
+  }
+
+  div.loading.working {
+    opacity: 1;
+  }
+
+  .form {
+    background-color: @aTox-Contacts-Base-Color;
     border-radius:    5px;
-    overflow:         auto;
+    padding:          7px;
+    padding-bottom:   1px;
+    margin-bottom:    10px;
 
-    .form {
-      margin: 7px;
-
-      background-color: @aTox-Contacts-Base-Color;
-      border-radius:    5px;
-      padding:          7px;
-
-      h2 {
-        text-align:    center;
-        text-height:   35px;
-        margin:        0px;
-        margin-bottom: 7px;
-
-        transition: color 500ms;
-      }
-
-      atom-text-editor[placeholder-text="Username"] {
-        margin-bottom: 3px;
-      }
-      atom-text-editor[placeholder-text="Password"] {
-        margin-bottom: 9px;
-      }
-      atom-text-editor[placeholder-text="Password"]::shadow .lines span {
-        -webkit-text-security: disc;
-      }
+    h2 {
+      text-align: center;
+      transition: color 500ms;
+      margin-top: 0px;
     }
 
-    .btns {
-      margin: 15px;
-
-      padding-left:     30px;
-      padding-right:    30px;
-
-      .btn2 {float: right;}
+    atom-text-editor[placeholder-text="Username"] {
+      margin-bottom: 3px;
     }
+    atom-text-editor[placeholder-text="Password"] {
+      margin-bottom: 9px;
+    }
+    atom-text-editor[placeholder-text="Password"]::shadow .lines span {
+      -webkit-text-security: disc;
+    }
+
+    atom-text-editor {
+      margin-bottom: 0px;
+    }
+  }
+
+  .btn1 {
+    margin-left:  40px;
+  }
+
+  .btn2 {
+    margin-right: 40px;
+    float:         right;
   }
 
   transition: opacity 300ms;
@@ -109,9 +77,4 @@
 
   h1.success {color: @text-color-success;}
   h2.success {color: @text-color-success;}
-}
-
-.aTox-GitHubLogin-root.ui-draggable-dragging {
-  opacity: 0.3;
-  pointer-events: auto;
 }

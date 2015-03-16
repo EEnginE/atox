@@ -64,10 +64,10 @@ class Github
       "note": "aTox github binding"
     }
     @sendRequest {opts: opts, data: data}, (data) =>
-      console.log data
-      console.log JSON.parse(data)
-      @setToken JSON.parse(data).token
-      callback({id: JSON.parse(data).id, token: JSON.parse(data).token, data: JSON.parse(data)})
+      parsedData = JSON.parse(data)
+      console.log parsedData
+      @setToken parsedData.token
+      callback({id: parsedData.id, token: parsedData.token, data: parsedData})
 
 
   deleteUserToken: (params, callback) ->
