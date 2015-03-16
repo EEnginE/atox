@@ -3,21 +3,22 @@ class Terminal
   constructor: (params) ->
     @aTox    = params.aTox
 
+    # Icons: https://octicons.github.com/
     @cmds = [ #TODO: Test commands
-      {cmd: 'help',      args: 0, desc: 'Prints help message',                                   run: (cID)    => @help        cID       }
-      {cmd: 'openChat',  args: 1, desc: 'Opens chat with ID [a1]',                               run: (cID, p) => @openChat    p[0]      }
-      {cmd: 'closeChat', args: 1, desc: 'Closes the chat with ID [a1]',                          run: (cID, p) => @closeChat   p[0]      }
-      {cmd: 'setName',   args: 1, desc: 'Set name to [a1]',                                      run: (cID, p) => @setName     p[0]      }
-      {cmd: 'setAvatar', args: 1, desc: 'Set avatar to [a1]',                                    run: (cID, p) => @setAvatar   p[0]      }
-      {cmd: 'setStatus', args: 1, desc: 'Set status message to [a1]',                            run: (cID, p) => @setStatus   p[0]      }
-      {cmd: 'setOnline', args: 1, desc: 'Set online status to [a1]',                             run: (cID, p) => @setOnline   p[0]      }
-      {cmd: 'sendMSG',   args: 2, desc: 'Send message [a2] to user [a1]',                        run: (cID, p) => @sendMSG     p[0], p[1]}
-      {cmd: 'sendToGC',  args: 2, desc: 'Send message [a2] to group chat [a1]',                  run: (cID, p) => @sendToGC    p[0], p[1]}
-      {cmd: 'addFriend', args: 2, desc: 'Send friend request to user ID [a1] with message [a2]', run: (cID, p) => @addFriend   p[0], p[1]}
-      {cmd: 'reqAvatar', args: 0, desc: 'Send a avatar request to all friends',                  run: (cID)    => @reqAvatar()           }
-      {cmd: 'addGC',     args: 0, desc: 'Adds a new group chat',                                 run: (cID)    => @addGC()               }
-      {cmd: 'invite',    args: 2, desc: 'Invites [a1] to group [a2]',                            run: (cID, p) => @invite      p[0], p[1]}
-      {cmd: 'login',     args: 0, desc: 'Opens GitHub login popup',                              run: (cID)    => @login()               }
+      {cmd: 'help',      argc: 0, desc: 'Prints help message',                                   icon: 'book',               run: (cID)    => @help        cID       }
+      {cmd: 'invite',    argc: 2, desc: 'Invites [a1] to group [a2]',                            icon: 'gift',               run: (cID, p) => @invite      p[0], p[1]}
+      {cmd: 'addGC',     argc: 0, desc: 'Adds a new group chat',                                 icon: 'diff-added',         run: (cID)    => @addGC()               }
+      {cmd: 'login',     argc: 0, desc: 'Opens GitHub login popup',                              icon: 'key',                run: (cID)    => @login()               }
+      {cmd: 'addFriend', argc: 2, desc: 'Send friend request to user ID [a1] with message [a2]', icon: 'diff-added',         run: (cID, p) => @addFriend   p[0], p[1]}
+      {cmd: 'setName',   argc: 1, desc: 'Set name to [a1]',                                      icon: 'pencil',             run: (cID, p) => @setName     p[0]      }
+      {cmd: 'setAvatar', argc: 1, desc: 'Set avatar to [a1]',                                    icon: 'file-media',         run: (cID, p) => @setAvatar   p[0]      }
+      {cmd: 'setStatus', argc: 1, desc: 'Set status message to [a1]',                            icon: 'pencil',             run: (cID, p) => @setStatus   p[0]      }
+      {cmd: 'setOnline', argc: 1, desc: 'Set online status to [a1]',                             icon: 'globe',              run: (cID, p) => @setOnline   p[0]      }
+      {cmd: 'openChat',  argc: 1, desc: 'Opens chat with ID [a1]',                               icon: 'link-external',      run: (cID, p) => @openChat    p[0]      }
+      {cmd: 'closeChat', argc: 1, desc: 'Closes the chat with ID [a1]',                          icon: 'x',                  run: (cID, p) => @closeChat   p[0]      }
+      {cmd: 'sendMSG',   argc: 2, desc: 'Send message [a2] to user [a1]',                        icon: 'comment',            run: (cID, p) => @sendMSG     p[0], p[1]}
+      {cmd: 'sendToGC',  argc: 2, desc: 'Send message [a2] to group chat [a1]',                  icon: 'comment-discussion', run: (cID, p) => @sendToGC    p[0], p[1]}
+      {cmd: 'reqAvatar', argc: 0, desc: 'Send a avatar request to all friends',                  icon: 'cloud-download',     run: (cID)    => @reqAvatar()           }
     ]
 
   help: (cID) ->
@@ -55,10 +56,10 @@ class Terminal
 
     for arg in @cmds
       if arg.cmd.toUpperCase() == @cmd.toUpperCase()
-        if args.length < arg.args
-          @err "/#{@cmd} requires #{arg.args} arguments (You gave #{args.length})"
+        if args.length < arg.argc
+          @err "/#{@cmd} requires #{arg.argc} arguments (You gave #{args.length})"
           return
-        if arg.args == 0
+        if arg.argc == 0
           arg.run data.cID #TODO: Stop sending the message when a command is found
         else
           arg.run data.cID, args

@@ -51,8 +51,9 @@ module.exports =
   activate: ->
     atom.commands.add 'atom-workspace', 'aTox:toggle',    => @gui.mainWin.toggle()
     atom.commands.add 'atom-workspace', 'aTox:history',   => @gui.chatpanel.toggleHistory()
-    atom.commands.add 'atom-workspace', 'aTox:collab',    => @gui.collabSelct.show()
+    atom.commands.add 'atom-workspace', 'aTox:collab',    => @gui.collabSelect.show()
     atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.openQuickChat()
+    atom.commands.add 'atom-workspace', 'aTox:terminal',  => @gui.termSelect.show()
 
     @term          = new Terminal      {aTox: this}
     @TOX           = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll", fConnectCB: => @onFirstConnect()}

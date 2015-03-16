@@ -5,7 +5,7 @@ class QuickChat extends View
   @content: ->
     @div class: 'aTox-quickChat', =>
       @h1 outlet: 'chatName'
-      @subview 'msg', new TextEditorView(mini: true, placeholderText: "Message")
+      @subview 'msg', new TextEditorView mini: true, placeholderText: "Message"
       @div outlet: 'btns', =>
         @div outlet: 'btn1', class: 'btn1 btn btn-lg btn-error', 'Abort'
         @div outlet: 'btn2', class: 'btn2 btn btn-lg btn-info',  'Send'
