@@ -22,7 +22,7 @@ class Terminal
     ]
 
   help: (cID) ->
-    @inf   {cID: cID, msg: ' Commands start with a \\. Use \\\\ to send a \\'}
+    @inf   {cID: cID, msg: ' Commands start with a /. Use // to send a /'}
     @inf   {cID: cID, msg: ' (Strings are encased with "s)'}
 
     for i in @cmds

@@ -37,7 +37,7 @@ class CollabSelect extends SelectListView
 
   viewForItem: (item) -> new Item item
   confirmed: (item)   ->
-    @panel.hide()
+    @cancel()
 
     switch item.action
       when 'Create' then @aTox.collab.newCollab   item.path
@@ -46,6 +46,7 @@ class CollabSelect extends SelectListView
 
   cancel: ->
     @panel.hide()
+    super()
 
   show: ->
     unless @aTox.collab.getIsGitRepository()
@@ -92,6 +93,7 @@ class CollabSelect extends SelectListView
 
     @setItems items
     @panel.show()
+    @storeFocusedElement()
     @focusFilterEditor()
 
   getFilterKey: -> return "primary"

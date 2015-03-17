@@ -36,7 +36,7 @@ class GetArgs extends View
     @icon.attr {"class": "icon icon-#{params.icon}"}
 
     for i in [0..(params.argc-1)] by 1
-      @editors[i] = new TextEditorView mini: true, placeholderText: "Arg #{i}"
+      @editors[i] = new TextEditorView mini: true, placeholderText: "Arg #{i + 1}"
       @editors[i].on 'keydown', (e) =>
         @run()  if e.keyCode is 13
         @hide() if e.keyCode is 27
@@ -87,11 +87,16 @@ class TermSelect extends SelectListView
         icon: item.icon
       }
 
+    @cancel()
+
   cancel: ->
     @panel.hide()
+    super()
 
   show: ->
+    @populateList()
     @panel.show()
+    @storeFocusedElement()
     @focusFilterEditor()
 
   getFilterKey: -> return "cmd"
