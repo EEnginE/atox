@@ -11,26 +11,13 @@ class ToxWorker
     @DLL        = params.dll
     @aTox       = params.aTox
     @fConnectCB = params.fConnectCB
+    @consts     = toxcore.new.Consts
 
   myInterval: (s, cb) ->
     setInterval cb, s
 
   myTimeout: (s, cb) ->
     setTimeout cb, s
-
-  isConnected: ->
-    if @TOX.isConnectedSync()
-      return if @hasConnection is true
-      @aTox.gui.setUserOnlineStatus 'connected'
-      @inf "<span style='color:rgba(0, 255, 0, 1)''>Connected!</span>"
-      @hasConnection = true
-      @firstConnectCB() if @firstConnect is true
-      @firstConnect  = false
-    else
-      return if @hasConnection is false
-      @aTox.gui.setUserOnlineStatus 'disconnected'
-      @inf "<span style='color:rgba(255, 0, 0, 1)''>Disconnected.</span>"
-      @hasConnection = false
 
   startup: ->
     rawJSON     = fs.readFileSync "#{__dirname}/../nodes.json"
@@ -39,23 +26,25 @@ class ToxWorker
     @aToxNodes  = paresedJSON.aToxNodes
 
     if os.platform().indexOf('win') > -1
-      @TOX = new toxcore.Tox({av: false, path: "#{@DLL}"})
+      @TOX = new toxcore.new.Tox({av: false, path: "#{@DLL}"})
     else
-      @TOX = new toxcore.Tox({av: false})
+      @TOX = new toxcore.new.Tox({av: false})
 
-    @err "Failed to load TOX" unless @TOX.checkHandle (e) =>
+    @aTox.gui.setUserOnlineStatus 'disconnected'
 
-    @TOX.on 'avatarData',          (e) => @avatarDataCB          e
-    @TOX.on 'avatarInfo',          (e) => @avatarInfCB           e
-    @TOX.on 'friendMessage',       (e) => @friendMsgCB           e
-    @TOX.on 'friendRequest',       (e) => @friendRequestCB       e
-    @TOX.on 'nameChange',          (e) => @nameChangeCB          e
-    @TOX.on 'statusMessage',       (e) => @statusChangeCB        e
-    @TOX.on 'userStatus',          (e) => @userStatusCB          e
-    @TOX.on 'groupInvite',         (e) => @groupInviteCB         e
-    @TOX.on 'groupMessage',        (e) => @groupMessageCB        e unless @TOX.peernumberIsOursSync e.group(), e.peer()
-    @TOX.on 'groupTitle',          (e) => @groupTitleCB          e
-    @TOX.on 'groupNamelistChange', (e) => @groupNamelistChangeCB e if @groups[e.group()]?
+    #@TOX.on 'avatarData',             (e) => @avatarDataCB             e
+    #@TOX.on 'avatarInfo',             (e) => @avatarInfCB              e
+    @TOX.on 'friendMessage',          (e) => @friendMsgCB              e
+    @TOX.on 'friendRequest',          (e) => @friendRequestCB          e
+    @TOX.on 'friendName',             (e) => @friendNameCB             e
+    @TOX.on 'friendStatusMessage',    (e) => @friendStatusMessageCB    e
+    @TOX.on 'friendStatus',           (e) => @friendStatusCB           e
+    @TOX.on 'friendConnectionStatus', (e) => @friendConnectionStatusCB e
+    @TOX.on 'selfConnectionStatus',   (e) => @selfConnectionStatusCB   e
+    #@TOX.on 'groupInvite',            (e) => @groupInviteCB            e
+    #@TOX.on 'groupMessage',           (e) => @groupMessageCB           e unless @TOX.peernumberIsOursSync e.group(), e.peer()
+    #@TOX.on 'groupTitle',             (e) => @groupTitleCB             e
+    #@TOX.on 'groupNamelistChange',    (e) => @groupNamelistChangeCB    e if @groups[e.group()]?
 
     @friends = []
     @groups  = []
@@ -65,39 +54,61 @@ class ToxWorker
     @setStatus "I am a Bot :)"
 
     for n in @nodes
-      @TOX.bootstrapFromAddressSync(n.address, n.port, n.key)
+      @TOX.bootstrapSync(n.address, n.port, n.key)
 
     @TOX.start()
+    @err "Failed to start TOX" unless @TOX.isStarted()
     @inf "Started TOX"
     @inf "Name:  <span style='color:rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )'>#{atom.config.get 'aTox.userName'}</span>"
     @inf "My ID: <span style='color:rgba(100, 100, 255, 1)'>#{@TOX.getAddressHexSync()}</span>"
 
-    @friendOnline = []
-
+    @isConnected  = false
     @firstConnect = true
-    @myInterval 500, => @isConnected()
 
   firstConnectCB: ->
+    return @stub 'firstConnectCB'
     for n in @aToxNodes
-      @sendFriendRequest {addr: "#{n.key}", msg: "Hello #{n.maintainer}", hidden: true}
-      @inf "Added aTox bot: Maintainer: #{n.maintainer}; Key: #{n.key}"
+      continue unless n.maintainer is 'Mense'
+      @addAToxBot {"maintainer": "#{n.maintainer}", "addr": "#{n.key}"}
+      break
 
     @fConnectCB()
 
-  avatarInfCB:           (e) -> @TOX.requestAvatarData( e.friend() )
-  avatarDataCB:          (e) -> @friends[e.friend()].avatarData   e
-  friendMsgCB:           (e) -> @friends[e.friend()].receivedMsg  e.message()
-  nameChangeCB:          (e) -> @friends[e.friend()].nameChange   e.name()
-  statusChangeCB:        (e) -> @friends[e.friend()].statusChange e.statusMessage()
-  userStatusCB:          (e) -> @friends[e.friend()].userStatus   e.status()
-  groupMessageCB:        (e) -> @groups[e.group()].groupMessage  {d: e.message(), p: e.peer()}
-  groupTitleCB:          (e) -> @groups[e.group()].groupTitle    {d: e.title(),   p: e.peer()}
-  groupNamelistChangeCB: (e) -> @groups[e.group()].gNLC          {d: e.change(),  p: e.peer()}
+  addAToxBot: (params) ->
+    @sendFriendRequest {
+      addr: "#{params.addr}",
+      msg: "aTox - client",
+      hidden: true,
+      onFirstOnline: (friend) => @aTox.botManager.addBot friend
+    }
+    @inf "Added aTox bot: Maintainer: #{params.maintainer}; Key: #{params.addr}"
+
+  friendMsgCB:              (e) -> @friends[e.friend()].receivedMsg            e.message()
+  friendNameCB:             (e) -> @friends[e.friend()].friendName             e.name()
+  friendStatusMessageCB:    (e) -> @friends[e.friend()].friendStatusMessage    e.statusMessage()
+  friendStatusCB:           (e) -> @friends[e.friend()].friendStatus           e.status()
+  friendConnectionStatusCB: (e) -> @friends[e.friend()].friendConnectionStatus e.connectionStatus()
+  groupMessageCB:           (e) -> @groups[e.group()].groupMessage            {d: e.message(), p: e.peer()}
+  groupTitleCB:             (e) -> @groups[e.group()].groupTitle              {d: e.title(),   p: e.peer()}
+  groupNamelistChangeCB:    (e) -> @groups[e.group()].gNLC                    {d: e.change(),  p: e.peer()}
+
+  selfConnectionStatusCB: (e) ->
+    if e.isConnected()
+      @aTox.gui.setUserOnlineStatus 'connected'
+      @inf "<span style='color:rgba(0, 255, 0, 1)''>Connected!</span>"
+      @isConnected = true
+      @firstConnectCB() if @firstConnect is true
+      @firstConnect = false
+    else
+      @aTox.gui.setUserOnlineStatus 'disconnected'
+      @inf "<span style='color:rgba(255, 0, 0, 1)''>Disconnected.</span>"
+      @isConnected = false
 
   reqAvatar: ->
-    for i in @TOX.getFriendListSync()
-      @inf "Requesting Avatar (Friend ID: <span style='color:rgba(100, 100, 255, 1)'>#{i}</span>)"
-      @TOX.requestAvatarData( i )
+    return @stub 'reqAvatar'
+    #for i in @TOX.getFriendListSync()
+    #  @inf "Requesting Avatar (Friend ID: <span style='color:rgba(100, 100, 255, 1)'>#{i}</span>)"
+    #  @TOX.requestAvatarData( i )
 
   friendRequestCB: (e) ->
     @inf "Friend request: #{e.publicKeyHex()} (Autoaccept)"
@@ -119,14 +130,6 @@ class ToxWorker
     }
 
     @inf "Added Friend #{fID}" #TODO: Move this into the contacts, add the randomized color to this string within the contact
-
-    @friendOnline[fID] = -1
-
-    @myInterval 1000, =>
-      @TOX.getFriendConnectionStatus fID, (a, b) =>
-        return @err "Friend connection error #{fID}" if a
-        @friendAutoremove {fID: fID, online: b}
-
 
   getFIDfromKEY: (key) ->
     for i in @friends
@@ -214,18 +217,19 @@ class ToxWorker
 #
 
   setName: (name) ->
-    @TOX.setName "#{name}"
+    @TOX.setNameSync "#{name}"
 
   setAvatar: (path) ->
-    if path != 'none'
-      fs.readFile "#{path}", (err, data) =>
-        if err
-          @err "Failed to load #{path}"
-          return
-        @TOX.setAvatar 1, data
+    return @stub "setAvatar"
+    #if path != 'none'
+    #  fs.readFile "#{path}", (err, data) =>
+    #    if err
+    #      @err "Failed to load #{path}"
+    #      return
+    #    @TOX.setAvatar 1, data
 
   setStatus: (s) ->
-    @TOX.setStatusMessage "#{s}"
+    @TOX.setStatusMessageSync "#{s}"
 
   sendFriendRequest: (e) ->
     @inf "Sent friend request: #{e.addr}"
@@ -243,13 +247,17 @@ class ToxWorker
       status: "Working, please wait..."
       aTox:   @aTox
       pubKey: e.addr
+      hidden: e.hidden
+
+      onFirstOnline: e.onFirstOnline
     }
 
     @inf "Added Friend #{fID}"
+    return @friends[fID]
 
   sendToFriend: (e) ->
     try
-      @TOX.sendMessageSync e.fID, e.msg
+      @TOX.sendFriendMessageSync e.fID, e.msg
     catch e
       @err "Failed to send MSG to #{e.fID}"
 
@@ -257,11 +265,11 @@ class ToxWorker
     status = 2
 
     switch newS
-      when 'online' then status = 0
-      when 'away'   then status = 1
-      when 'busy'   then status = 2
+      when 'online' then status = @consts.TOX_USER_STATUS_NONE
+      when 'away'   then status = @consts.TOX_USER_STATUS_AWAY
+      when 'busy'   then status = @consts.TOX_USER_STATUS_BUSY
 
-    @TOX.setUserStatusSync status
+    @TOX.setStatusSync status
 
     @aTox.gui.notify {
       name:     newS.charAt(0).toUpperCase() + newS.slice(1)
@@ -281,14 +289,7 @@ class ToxWorker
     else if status is "away"
       return "rgba(255, 255, 50, 1)"
 
-  friendAutoremove: (params) ->
-    return @friendOnline[params.fID] = 0 if params.online is true
-    return if @friendOnline[params.fID] < 0
-
-    @friendOnline[params.fID]++
-    if @friendOnline[params.fID] > 2
-      @friends[fID].userStatus 3
-      @friendOnline[params.fID] = -1
-
-  inf: (msg) -> @aTox.term.inf {msg: "TOX: #{msg}"}
-  err: (msg) -> @aTox.term.err {msg: "TOX: #{msg}"}
+  inf:  (msg) -> @aTox.term.inf  {msg: "TOX: #{msg}"}
+  err:  (msg) -> @aTox.term.err  {msg: "TOX: #{msg}"}
+  warn: (msg) -> @aTox.term.warn {msg: "TOX: #{msg}"}
+  stub: (msg) -> @aTox.term.stub {msg: "TOX::#{msg}"}

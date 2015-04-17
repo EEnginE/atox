@@ -6,6 +6,7 @@ class Terminal
     # Icons: https://octicons.github.com/
     @cmds = [ #TODO: Test commands
       {cmd: 'help',      argc: 0, desc: 'Prints help message',                                   icon: 'book',               run: (cID)    => @help        cID       }
+      {cmd: 'makeGC',    argc: 1, desc: 'Creates - or joins - a group chat with the id [a1]',    icon: 'ruby',               run: (cID, p) => @makeGC      p[0]      }
       {cmd: 'invite',    argc: 2, desc: 'Invites [a1] to group [a2]',                            icon: 'gift',               run: (cID, p) => @invite      p[0], p[1]}
       {cmd: 'addGC',     argc: 0, desc: 'Adds a new group chat',                                 icon: 'diff-added',         run: (cID)    => @addGC()               }
       {cmd: 'login',     argc: 0, desc: 'Opens GitHub login popup',                              icon: 'key',                run: (cID)    => @login()               }
@@ -41,6 +42,7 @@ class Terminal
   addGC:                -> @aTox.TOX.createGroupChat()
   invite:    (f,g)      -> @aTox.TOX.invite            { fID: f, gID: g }
   login:                -> @aTox.authManager.requestNewToken()
+  makeGC:    (n)        -> @aTox.botManager.makeGCformName n
 
   process: (data) ->
     cmd = data.cmd
@@ -101,35 +103,42 @@ class Terminal
   inf: (data) ->
     msg = "<span style='font-style:italic;color:#979797'><b>Info:</b> #{data.msg}</span>"
 
-    data.cID = -1 unless data.cID?
+    data.cID   = -1     unless data.cID?
+    data.title = 'aTox' unless data.title?
 
     if data.cID < 0
       @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'inf', name: 'aTox', content: data.msg } if atom.config.get 'aTox.debugNotifications'
+    @aTox.gui.notify { type: 'inf', name: data.title, content: data.msg } if atom.config.get 'aTox.debugNotifications'
 
   warn: (data) ->
     msg = "<span style='font-style:italic;color:#c19a00'><b>Warning:</b> #{data.msg}</span>"
 
-    data.cID = -1 unless data.cID?
+    data.cID   = -1     unless data.cID?
+    data.title = 'aTox' unless data.title?
 
     if data.cID < 0
       @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'warn', name: 'aTox', content: data.msg } unless data.notify? and data.notify is false
+    @aTox.gui.notify { type: 'warn', name: data.title, content: data.msg } unless data.notify? and data.notify is false
 
   err: (data) ->
     msg = "<span style='font-style:italic;color:#bc0000'><b>ERROR:</b> #{data.msg}</span>"
 
-    data.cID = -1 unless data.cID?
+    data.cID   = -1     unless data.cID?
+    data.title = 'aTox' unless data.title?
 
     if data.cID < 0
       @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'err', name: 'aTox', content: data.msg } unless data.notify? and data.notify is false
+    @aTox.gui.notify { type: 'err', name: data.title, content: data.msg } unless data.notify? and data.notify is false
+
+  stub: (data) ->
+    data.msg = "#{data.msg} is a stub!"
+    @warn data

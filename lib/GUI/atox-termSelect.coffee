@@ -58,9 +58,13 @@ class GetArgs extends View
 class Item extends View
   @content: (params, parent) ->
     @li    outlet: 'root',    class: 'two-lines', =>
-      @div outlet: 'status',  class: 'status icon badge badge-info',          params.argc
+      @div outlet: 'status',  class: "status badge badge-medium",             params.argc
       @div outlet: 'primary', class: "primary-line icon icon-#{params.icon}", params.cmd
       @div outlet: 'desc',    class: 'secondary-line no-icon',                params.desc
+
+  initialize: (params, parent) ->
+    @status.css {"float": "right"}
+    @status.addClass "badge-info" if params.argc > 0
 
 
 module.exports =

@@ -13,6 +13,6 @@
      "jquery-ui":            "*",
      "jquery":               "*",
      "jquery-mousewheel":    "*",
-     "toxcore":              "git://github.com/Arvius/node-toxcore.git"
+     "toxcore":              "git://github.com/mensinda/node-toxcore.git"
   }
 }

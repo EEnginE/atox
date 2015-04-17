@@ -1,10 +1,12 @@
 Chat = require './atox-chat'
-os          = require 'os'
-fs          = require 'fs'
+os   = require 'os'
+fs   = require 'fs'
 
 module.exports =
 class Friend
   constructor: (params) ->
+    params.status = 'offline' unless params.status?
+
     @name   = params.name
     @fID    = params.fID
     @aTox   = params.aTox
@@ -13,8 +15,18 @@ class Friend
     @status = params.status
     @img    = 'none'
     @color  = @randomColor()
+    if params.hidden? and params.hidden is true
+      @hidden = true
+    else
+      @hidden = false
 
-    @createChat()
+    @onFirstOnline = params.onFirstOnline
+    @currentStatus = params.status
+
+    @createChat() unless @hidden
+    @firstOnline = true
+
+  preeMSGhandler: (msg) -> true # return falue: true - display in chat, false ignore
 
   createChat: ->
     @chat = new Chat {
@@ -22,11 +34,16 @@ class Friend
       group: false
       parent: this
     }
+    @hidden = false
+
+  setPreeMSGhandler: (cb) -> @preeMSGhandler = cb
 
   needChat: -> @createChat() unless @chat? # Creates chat if needed
   sendMSG: (msg) -> @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
 
   # TOX events
+
+  # TODO add avatar support for the new Tox API
   avatarData: (params) ->
     if params.format() == 0
       @inf { msg: "#{@name} has no Avatar" }
@@ -49,31 +66,48 @@ class Friend
       @chat.update() if @chat?
 
   receivedMsg: (msg) ->
+    if @preeMSGhandler?
+      return unless @preeMSGhandler msg
+
     @needChat()
     @chat.processMsg {msg: msg, color: @color, name: @name }
     @aTox.gui.notify {name: @name, content: msg}
 
-  nameChange: (newName) ->
-    @inf {msg: "#{@name} is now #{newName}", notify: true}
+  friendName: (newName) ->
+    @inf {"msg": "#{@name} is now '#{newName}'", "notify": not @hidden}
     @name = newName
     @chat.update 'name' if @chat?
 
-  statusChange: (newStatus) ->
+  friendStatusMessage: (newStatus) ->
     @status = newStatus
-    @inf {msg: "Status of #{@name} is now #{@status}", notify: true}
+    @inf {"msg": "Status of #{@name} is now '#{@status}'", "notify": not @hidden}
     @chat.update 'status' if @chat?
 
-  userStatus: (newStatus) ->
+  friendStatus: (newStatus) ->
     status = 'offline'
 
     switch newStatus
-      when 0 then status = 'online'
-      when 1 then status = 'away'
-      when 2 then status = 'busy'
+      when @aTox.TOX.consts.TOX_USER_STATUS_NONE then status = 'online'
+      when @aTox.TOX.consts.TOX_USER_STATUS_AWAY then status = 'away'
+      when @aTox.TOX.consts.TOX_USER_STATUS_BUSY then status = 'busy'
+      when -1                                    then status = 'offline'
+      when -2                                    then status = @currentStatus
 
-    @inf {msg: "#{@name} is now #{status}", notify: true}
+    @inf {msg: "#{@name} is now #{status}", notify: not @hidden}
     @online = status
     @chat.update 'online' if @chat?
+
+    if @firstOnline and @onFirstOnline?
+      @onFirstOnline this # Call the first-time-online-callback
+
+    @firstOnline = false
+    @currentStatus = status
+
+  friendConnectionStatus: (newConnectionStatus) ->
+    if newConnectionStatus is @aTox.TOX.consts.TOX_CONNECTION_NONE
+      @friendStatus -1
+    else
+      @friendStatus -2 # Back online
 
   # Utils
   randomNumber: (min, max) ->

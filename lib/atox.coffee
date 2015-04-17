@@ -6,6 +6,7 @@ ToxWorker     = require './atox-toxWorker'
 Github        = require './atox-github'
 CollabManager = require './atox-collabManager'
 AuthManager   = require './atox-authManager'
+BotManager    = require './atox-botManager'
 
 module.exports =
   config:
@@ -60,6 +61,7 @@ module.exports =
     @github        = new Github
     @collab        = new CollabManager {aTox: this}
     @authManager   = new AuthManager   {aTox: this}
+    @botManager    = new BotManager    {aTox: this}
 
     @currCID = 0
     @hasOpenChat    = false
