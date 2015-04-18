@@ -45,7 +45,7 @@ class AuthManager
   login: (user, pw, otp) ->
     return unless @checkInput user, pw
 
-    @generateNewTempToken {user: user, password: pw, otp: otp}, (tt) => @loginContinueTT tt
+    @generateNewTempToken {user: user, password: pw, otp: otp}, @loginContinueTT
 
   loginContinueTT: (tempToken) ->
     @getRealToken tempToken, (realToken) => @loginContinueRT realToken, tempToken
@@ -53,7 +53,7 @@ class AuthManager
   loginContinueRT: (realToken, tempToken) ->
     @token = realToken
     atom.config.set 'aTox.githubToken', realToken
-    @removeOldToken tempToken, => @loginContinueRemovedTT()
+    @removeOldToken tempToken, @loginContinueRemovedTT
 
   loginContinueRemovedTT: ->
     @aToxAuth => @aTox.gui.GitHubLogin.success()

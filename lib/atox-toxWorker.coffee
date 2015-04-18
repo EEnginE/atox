@@ -147,6 +147,7 @@ class ToxWorker
 #                          |_|
 
   createGroupChat: (e) ->
+    return @stub 'createGroupChat' # TODO -- rework for new tox API
   #TODO: Find local repositories and open their chats on startup
   #atom.project.getRepositories().getConfigValue("remote.origin.url")
     try
@@ -163,6 +164,7 @@ class ToxWorker
     }
 
   groupInviteCB: (e) ->
+    return @stub 'groupInviteCB' # TODO -- rework for new tox API
     @inf "Received group invite from #{e.friend()}"
 
     try
@@ -179,6 +181,7 @@ class ToxWorker
     }
 
   getPeerInfo: (e) ->
+    return @stub 'getPeerInfo'  # TODO -- rework for new tox API
     return if @TOX.peernumberIsOurs e.gID, e.peer
     #try
     key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gID, e.peer
@@ -197,12 +200,14 @@ class ToxWorker
     #  return @err "Failed to get peer (#{e.peer}) info in group #{e.gID}"
 
   invite: (e) ->
+    return @stub 'invite' # TODO -- rework for new tox API
     try
       @TOX.inviteSync e.fID, e.gID
     catch err
       return @err "Failed to invite friend #{e.fID} to #{e.gID}"
 
   sendToGC: (e) ->
+    return @stub 'sendToGC' # TODO -- rework for new tox API
     try
       @TOX.sendGroupchatMessageSync e.gID, e.msg
     catch e
@@ -220,7 +225,7 @@ class ToxWorker
     @TOX.setNameSync "#{name}"
 
   setAvatar: (path) ->
-    return @stub "setAvatar"
+    return @stub "setAvatar"  # TODO -- rework for new tox API
     #if path != 'none'
     #  fs.readFile "#{path}", (err, data) =>
     #    if err
