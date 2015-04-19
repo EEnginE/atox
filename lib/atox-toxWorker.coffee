@@ -11,7 +11,7 @@ class ToxWorker
     @DLL        = params.dll
     @aTox       = params.aTox
     @fConnectCB = params.fConnectCB
-    @consts     = toxcore.new.Consts
+    @consts     = toxcore.Consts
 
   myInterval: (s, cb) ->
     setInterval cb, s
@@ -26,9 +26,9 @@ class ToxWorker
     @aToxNodes  = paresedJSON.aToxNodes
 
     if os.platform().indexOf('win') > -1
-      @TOX = new toxcore.new.Tox({av: false, path: "#{@DLL}"})
+      @TOX = new toxcore.Tox({"path": "#{@DLL}"})
     else
-      @TOX = new toxcore.new.Tox({av: false})
+      @TOX = new toxcore.Tox()
 
     @aTox.gui.setUserOnlineStatus 'disconnected'
 
