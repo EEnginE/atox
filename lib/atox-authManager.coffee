@@ -13,7 +13,7 @@ class AuthManager
 #                                    | |
 #                                    |_|
 
-  aToxAuth: (cb) ->
+  aToxAuth: ->
     unless @testToken @token
       @requestNewToken()
       return
@@ -21,9 +21,6 @@ class AuthManager
     # TODO do more stuff (sign user name, etc.)
     @aTox.github.setToken @token
     @aTox.term.inf {cID: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
-
-    # use @aTox.gui.GitHubLogin.error for errors
-    cb() if cb?
 
   requestNewToken: -> @aTox.gui.GitHubLogin.show()
 
@@ -42,21 +39,20 @@ class AuthManager
 #                  __/ |                 | |
 #                 |___/                  |_|
 
-  login: (user, pw, otp) ->
-    return unless @checkInput user, pw
+  login: (data, cbs) ->
+    if data.user is "" or data.pw is ""
+      return cbs.error "Empty", "Please enter your username and password"
 
-    @generateNewTempToken {user: user, password: pw, otp: otp}, @loginContinueTT
-
-  loginContinueTT: (tempToken) ->
-    @getRealToken tempToken, (realToken) => @loginContinueRT realToken, tempToken
-
-  loginContinueRT: (realToken, tempToken) ->
-    @token = realToken
-    atom.config.set 'aTox.githubToken', realToken
-    @removeOldToken tempToken, @loginContinueRemovedTT
-
-  loginContinueRemovedTT: ->
-    @aToxAuth => @aTox.gui.GitHubLogin.success()
+    @aTox.github.createUserToken data, (params) =>
+      if params.token?
+        @token = params.token
+        atom.config.set 'aTox.githubToken', params.token
+        if @testToken @token
+          cbs.success @token
+        else
+          cbs.error "Invalid Token", "Generated token #{@token} invalid"
+      else
+        cbs.error "Failed", "#{params.data.message}"
 
 #     _                 _         _   _      _
 #    | |               (_)       | | | |    | |
@@ -67,18 +63,6 @@ class AuthManager
 #                  __/ |                      | |
 #                 |___/                       |_|
 
-  generateNewTempToken: (data, cb) ->
-    @aTox.github.createUserToken data, (params) =>
-      if params.token?
-        cb params.token
-      else
-        @aTox.gui.GitHubLogin.error "Failed", "#{params.data.message}"
-
-  getRealToken:   (tempToken, cb) -> cb tempToken # TODO implement this
-  removeOldToken: (tempToken, cb) -> cb() # TODO implement this
-
-  testToken:      (token) ->
+  testToken: (token) ->
     return false if @token is 'none'
-    return true
-    # TODO add some 'real' tests
-    @aTox.gui.GitHubLogin.error "Bad Token", "Your current GitHub token is invalid"
+    return true # TODO add some 'real' tests

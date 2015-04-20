@@ -58,9 +58,7 @@ class Github
       opts.headers['X-GitHub-OTP'] = params.otp
     data = {
       #"client_secret": @client_secret,
-      "scopes": [
-        "public_repo" #To fill up
-      ],
+      "scopes": [], # No scopes: read-only access to public information
       "note": "aTox github binding"
     }
     @sendRequest {opts: opts, data: data}, (data) =>

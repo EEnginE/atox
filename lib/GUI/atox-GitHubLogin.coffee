@@ -40,7 +40,14 @@ class GitHubLogin extends View
     @working.show()
     i.addClass 'working' for i in [@h1, @h2, @working]
 
-    @doTimeout 500, => @authManager.login @uname.getText(), @pw.getText(), @otp.getText()
+    @doTimeout 500, => @authManager.login {
+      'user':     @uname.getText()
+      'password': @pw.getText()
+      'otp':      @otp.getText()
+    }, {
+      'success': (token)     => @success token
+      'error':   (err, desc) => @error   err, desc
+    }
 
 
   error: (name, desc) ->
@@ -56,10 +63,11 @@ class GitHubLogin extends View
     @doTimeout 2500, =>
       i.removeClass 'error' for i in [@h1, @h2]
 
-  success: ->
+  success: (token) ->
     @panel.show() unless @panel.isVisible() is true
     i.removeClass 'working' for i in [@h1, @h2, @working]
     i.addClass    'success' for i in [@h1, @h2]
+    @aTox.term.inf {msg: "New token is: #{token}"}
     @doTimeout 2500, =>
       @isOpen = false
       @hide()
