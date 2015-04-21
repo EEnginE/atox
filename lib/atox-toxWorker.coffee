@@ -3,15 +3,15 @@ fs = require 'fs'
 os = require 'os'
 
 Friend = require './atox-friend'
+Bot    = require './atox-bot'
 Group  = require './atox-group'
 
 module.exports =
 class ToxWorker
   constructor: (params) ->
-    @DLL        = params.dll
-    @aTox       = params.aTox
-    @fConnectCB = params.fConnectCB
-    @consts     = toxcore.Consts
+    @DLL    = params.dll
+    @aTox   = params.aTox
+    @consts = toxcore.Consts
 
   myInterval: (s, cb) ->
     setInterval cb, s
@@ -66,22 +66,18 @@ class ToxWorker
     @firstConnect = true
 
   firstConnectCB: ->
-    return @stub 'firstConnectCB'
     for n in @aToxNodes
-      continue unless n.maintainer is 'Mense'
-      @addAToxBot {"maintainer": "#{n.maintainer}", "addr": "#{n.key}"}
-      break
+      @sendFriendRequest {
+        'addr': "#{n.key}",
+        'msg':  "aTox - client",
+        'bot':  true,
+      }
+      @inf "Added aTox bot: Maintainer: #{n.maintainer}; Key: #{n.key}"
 
-    @fConnectCB()
+    @aTox.manager.aToxAuth()
 
   addAToxBot: (params) ->
-    @sendFriendRequest {
-      addr: "#{params.addr}",
-      msg: "aTox - client",
-      hidden: true,
-      onFirstOnline: (friend) => @aTox.botManager.addBot friend
-    }
-    @inf "Added aTox bot: Maintainer: #{params.maintainer}; Key: #{params.addr}"
+
 
   friendMsgCB:              (e) -> @friends[e.friend()].receivedMsg            e.message()
   friendNameCB:             (e) -> @friends[e.friend()].friendName             e.name()
@@ -238,6 +234,7 @@ class ToxWorker
 
   sendFriendRequest: (e) ->
     @inf "Sent friend request: #{e.addr}"
+    fID = 0
 
     try
       fID = @TOX.addFriendSync "#{e.addr}", "#{e.msg}"
@@ -245,19 +242,28 @@ class ToxWorker
       @err "Failed to send friend request"
       return
 
-    @friends[fID] = new Friend {
-      name:   e.addr
-      fID:    fID
-      online: 'offline'
-      status: "Working, please wait..."
-      aTox:   @aTox
-      pubKey: e.addr
-      hidden: e.hidden
+    if e.bot? and e.bot is true
+      @friends[fID] = new Bot {
+        name:   e.addr
+        fID:    fID
+        online: 'offline'
+        status: "Working, please wait..."
+        aTox:   @aTox
+        pubKey: e.addr
+      }
+      @inf "Added Bot #{fID}"
+    else
+      @friends[fID] = new Friend {
+        name:   e.addr
+        fID:    fID
+        online: 'offline'
+        status: "Working, please wait..."
+        aTox:   @aTox
+        pubKey: e.addr
+      }
 
-      onFirstOnline: e.onFirstOnline
-    }
+      @inf "Added Friend #{fID}"
 
-    @inf "Added Friend #{fID}"
     return @friends[fID]
 
   sendToFriend: (e) ->

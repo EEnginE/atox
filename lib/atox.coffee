@@ -5,8 +5,7 @@ Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
 Github        = require './atox-github'
 CollabManager = require './atox-collabManager'
-AuthManager   = require './atox-authManager'
-BotManager    = require './atox-botManager'
+aToxManager   = require './atox-aToxManager'
 
 module.exports =
   config:
@@ -56,12 +55,11 @@ module.exports =
     atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.openQuickChat()
     atom.commands.add 'atom-workspace', 'aTox:terminal',  => @gui.termSelect.show()
 
-    @term          = new Terminal      {aTox: this}
-    @TOX           = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll", fConnectCB: => @onFirstConnect()}
-    @github        = new Github
-    @collab        = new CollabManager {aTox: this}
-    @authManager   = new AuthManager   {aTox: this}
-    @botManager    = new BotManager    {aTox: this}
+    @term    = new Terminal      {aTox: this}
+    @TOX     = new ToxWorker     {aTox: this, dll: "#{__dirname}\\..\\bin\\libtox.dll"}
+    @github  = new Github
+    @collab  = new CollabManager {aTox: this}
+    @manager = new aToxManager   {aTox: this}
 
     @currCID = 0
     @hasOpenChat    = false
@@ -71,7 +69,5 @@ module.exports =
     $ =>
       @gui = new GUI {aTox: this}
       @TOX.startup()
-
-  onFirstConnect: -> @authManager.aToxAuth()
 
   getCID: -> return @currCID++
