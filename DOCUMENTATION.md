@@ -1,33 +1,149 @@
-# Events
+# aTox - bot protocol
 
-## aTox.add-message
+Options:
 
-Adds a message
+| Option | Meaning   |
+| :----: | --------- |
+|  *R*   | required  |
+|  *O*   | optional  |
+|  *D*   | default   |
 
-| Tag   | content                                  | required |
-| :---: | :--------------------------------------- | :------: |
-| cID   | The **CHAT** ID                          | yes      |
-| tid   | The **TOX** ID (currently cID or -1)     | yes      |
-| color | A valid CSS color string                 | yes      |
-| name  | The name of the user sending the message | yes      |
-| img   | Avatar                                   | no       |
-| msg   | The message string                       | yes      |
+## authenticate
+
+###### Client sends:
+
+```json
+{
+  "cmd":   "auth <[R]>",
+  "prot":  "<protocol / service [O, D='GitHub']>",
+  "name":  "<username [R]>",
+  "token": "<access token [R]>"
+}
+```
+
+###### Bot responds:
+
+```json
+{
+  "cmd":     "auth <[R]>",
+  "success": "<bool>",
+  "name":    "<username [R]>",
+  "token":   "<token [R]>"
+}
+```
+
+## joining chats / creating chats
+
+###### Client sends:
+
+```json
+{
+  "cmd":  "chat <[R]>",
+  "name": "<chat name [R]>"
+}
+```
+
+###### Bot responds:
+
+```json
+{
+  "cmd": "chat <[R]>",
+  "err": "create / list / redirect",
+  "list": [
+    "<member list>"
+  ],
+  "redirect": "bot ID",
+  "name":     "<chat name [R]>"
+}
+```
+
+## chat list request
+
+###### Bot sends:
+
+```json
+{
+  "cmd":  "list <[R]>",
+  "id":   "<request ID (number) [R]>"
+}
+```
+
+###### Client responds:
+
+```json
+{
+  "cmd":  "list <[R]>",
+  "id":   "<request ID (number) [R]>",
+  "list": [
+    "<chat names>"
+  ]
+}
+```
+
+## ping
+
+Should only be sent *once* after connecting / reconnecting to a bot
+
+###### Client sends:
+
+```json
+{
+  "cmd": "ping <[R]>",
+  "Pv":  "<client protocol version [R]>"
+}
+```
+
+###### Bot responds:
+
+```json
+{
+  "cmd": "ping <[R]>",
+  "Pv":  "<bot protocol version [R]>"
+}
+```
 
 
-## chat-visibility
+# aTox - aTox protocol
 
-| Tag   | content                                  | required |
-| :---: | :--------------------------------------- | :------: |
-| cID   | The **CHAT** ID                          | yes      |
-| what  | What to do. *MUST* be 'hide' or 'show'   | yes      |
+## ping
 
-## notify
+Should only be sent *once* after connecting / reconnecting to a client.
 
-Sends a notification
+###### Client sends:
 
-| Tag     | content                         | required |
-| :-----: | :------------------------------ | :------: |
-| type    | The type (inf, warn, error)     | yes      |
-| name    |                                 | yes      |
-| content |                                 | yes      |
-| img     | full path to an image           | no       |
+```json
+{
+  "cmd": "ping <[R]>",
+  "Pv":  "<client protocol version [R]>"
+}
+```
+
+###### Other client responds:
+
+```json
+{
+  "cmd": "ping <[R]>",
+  "Pv":  "<client protocol version [R]>"
+}
+```
+
+## invite request
+
+###### Client sends:
+
+```json
+{
+  "cmd":  "invite <[R]>",
+  "name": "<chat name [R]>"
+}
+```
+
+###### Other client responds:
+
+```json
+{
+  "cmd":  "invite <[R]>",
+  "name": "<chat name [R]>",
+  "err":  "sent / unknown chat"
+}
+```
