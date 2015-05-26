@@ -20,7 +20,7 @@ class MainWindow extends View
       .appendChild @element
 
     jQuery(@element).draggable {handle: @header}
-    @contacts.mousewheel (event) => @scrollHandler event #Remove that!
+    @contacts.mousewheel (event) => @scrollHandler event # TODO Remove that!
 
     @statusSelector = new StatusSelector {aTox: @aTox, win: "main-window"}
     @statusSelector.appendTo @header
@@ -28,7 +28,14 @@ class MainWindow extends View
     @contactsArray = []
     @deltaScroll   = 0
     @maxScroll     = 0
-    @hide()
+
+    params.state = {'top': '60%', 'left': '80%', 'rendered': true} unless params.state?
+
+    @css 'top',  params.state.top
+    @css 'left', params.state.left
+
+    @rendered = !params.state.rendered
+    @toggle()
 
     @firstContactView = true
 
@@ -47,15 +54,15 @@ class MainWindow extends View
       e.animate { "top": "#{@deltaScroll}px" }, 100
 
   show: ->
-    @isOn = true
+    @rendered = true
     super() # Calls jQuery's show
 
   hide: ->
-    @isOn = false
+    @rendered = false
     super() # Calls jQuery's hide
 
   toggle: ->
-    if @isOn
+    if @rendered
       @hide()
     else
       @show()
@@ -66,3 +73,10 @@ class MainWindow extends View
     @maxScroll += ( parseInt contact.css( "margin" ) ) if @firstContactView
     @contactsArray.push contact
     @firstContactView = false
+
+  serialize: ->
+    state = {
+      'top':      @css 'top'
+      'left':     @css 'left'
+      'rendered': @rendered
+    }

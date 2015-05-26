@@ -49,30 +49,20 @@ module.exports =
 class GUI
   constructor: (params) ->
     @aTox   = params.aTox
+    params.state = {} unless params.state? # Prevents 'read from undefined' error
 
-    @chatpanel     = new Chatpanel     {aTox: @aTox}
+    @chatpanel     = new Chatpanel     {'aTox': @aTox, 'state': params.state.chatpanel}
     @chatpanel.addChat {cID: -1, img: 'none', group: false, parent: new TempChatHelper @aTox} # Terminal chat
 
-    @mainWin       = new MainWindow    {aTox: @aTox}
-    @GitHubLogin   = new GitHubLogin   {aTox: @aTox}
-    @quickChat     = new QuickChat     {aTox: @aTox}
-    @collabSelect  = new CollabSelect  {aTox: @aTox}
-    @termSelect    = new TermSelect    {aTox: @aTox}
+    @mainWin       = new MainWindow    {'aTox': @aTox, 'state': params.state.mainWin}
+    @GitHubLogin   = new GitHubLogin   {'aTox': @aTox}
+    @quickChat     = new QuickChat     {'aTox': @aTox}
+    @collabSelect  = new CollabSelect  {'aTox': @aTox}
+    @termSelect    = new TermSelect    {'aTox': @aTox}
 
     @chats = [] # Contains EVERY chat
 
-    @mainWin.css 'top',  atom.config.get 'aTox.mainWinTop'
-    @mainWin.css 'left', atom.config.get 'aTox.mainWinLeft'
-
-    @mainWin.mouseup =>
-      atom.config.set 'aTox.mainWinTop',  @mainWin.css 'top'
-      atom.config.set 'aTox.mainWinLeft', @mainWin.css 'left'
-
-    atom.config.observe 'aTox.mainWinTop',  (newValue) => @mainWin.css 'top',  newValue
-    atom.config.observe 'aTox.mainWinLeft', (newValue) => @mainWin.css 'left', newValue
     atom.config.observe 'aTox.userAvatar',  (newValue) => @correctPath         newValue
-
-    @mainWin.show() if atom.config.get 'aTox.showDefault'
 
     #@question      = new Question {name: "Test", question: "You there?", accept: "Ja", decline: "Nein", cb: this.callback}
     #@question.ask()
@@ -87,3 +77,10 @@ class GUI
     @chatpanel.statusSelector.setStatus params
 
   openQuickChat: -> @quickChat.show @chatpanel.getSelectedChatCID()
+
+  serialize: ->
+    state = {}
+    state.mainWin   = @mainWin.serialize()
+    state.chatpanel = @chatpanel.serialize()
+
+    return state
