@@ -25,7 +25,7 @@ Options:
 
 ```json
 {
-  "cmd":     "auth <[R]>",
+  "rsp":     "auth <[R]>",
   "success": "<bool>",
   "name":    "<username [R]>",
   "token":   "<token [R]>"
@@ -47,8 +47,8 @@ Options:
 
 ```json
 {
-  "cmd": "chat <[R]>",
-  "err": "create / list / redirect",
+  "rsp":  "chat <[R]>",
+  "type": "create / list / redirect <[R]>",
   "list": [
     "<member list>"
   ],
@@ -72,7 +72,7 @@ Options:
 
 ```json
 {
-  "cmd":  "list <[R]>",
+  "rsp":  "list <[R]>",
   "id":   "<request ID (number) [R]>",
   "list": [
     "<chat names>"
@@ -80,7 +80,7 @@ Options:
 }
 ```
 
-## ping
+## hello
 
 Should only be sent *once* after connecting / reconnecting to a bot
 
@@ -88,7 +88,7 @@ Should only be sent *once* after connecting / reconnecting to a bot
 
 ```json
 {
-  "cmd": "ping <[R]>",
+  "cmd": "hello <[R]>",
   "Pv":  "<client protocol version [R]>"
 }
 ```
@@ -97,7 +97,7 @@ Should only be sent *once* after connecting / reconnecting to a bot
 
 ```json
 {
-  "cmd": "ping <[R]>",
+  "rsp": "hello <[R]>",
   "Pv":  "<bot protocol version [R]>"
 }
 ```
@@ -142,7 +142,7 @@ Should only be sent *once* after connecting / reconnecting to a client.
 
 ```json
 {
-  "cmd":  "invite <[R]>",
+  "rsp":  "invite <[R]>",
   "name": "<chat name [R]>",
   "err":  "sent / unknown chat"
 }

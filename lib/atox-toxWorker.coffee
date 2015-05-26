@@ -25,10 +25,15 @@ class ToxWorker
     @nodes      = paresedJSON.bootstrapNodes
     @aToxNodes  = paresedJSON.aToxNodes
 
-    if os.platform().indexOf('win') > -1
-      @TOX = new toxcore.Tox({"path": "#{@DLL}"})
-    else
-      @TOX = new toxcore.Tox()
+    try
+      if os.platform().indexOf('win') > -1
+        @TOX = new toxcore.Tox({"path": "#{@DLL}"})
+      else
+        @TOX = new toxcore.Tox()
+    catch e
+      @err "Failed to init tox", e
+      console.log e
+      return
 
     @aTox.gui.setUserOnlineStatus 'disconnected'
 
@@ -300,7 +305,32 @@ class ToxWorker
     else if status is "away"
       return "rgba(255, 255, 50, 1)"
 
-  inf:  (msg) -> @aTox.term.inf  {msg: "TOX: #{msg}"}
-  err:  (msg) -> @aTox.term.err  {msg: "TOX: #{msg}"}
-  warn: (msg) -> @aTox.term.warn {msg: "TOX: #{msg}"}
-  stub: (msg) -> @aTox.term.stub {msg: "TOX::#{msg}"}
+  inf:  (msg, stack) -> @aTox.term.inf  {
+    'title': 'TOX Worker'
+    'msg':   "TOX: #{msg}"
+    'stack': stack
+  }
+
+  err:  (msg, stack) -> @aTox.term.err  {
+    'title': 'TOX Worker'
+    'msg':   "TOX: #{msg}"
+    'stack': stack#
+    'buttons': [
+      {
+        'text':       'Restart TOX'
+        'onDidClick': => @startup()
+      }
+    ]
+  }
+
+  warn: (msg, stack) -> @aTox.term.warn {
+    'title': 'TOX Worker'
+    'msg':   "TOX: #{msg}"
+    'stack': stack
+  }
+
+  stub: (msg, stack) -> @aTox.term.stub {
+    'title': 'TOX Worker'
+    'msg':   "TOX::#{msg}"
+    'stack': stack
+  }

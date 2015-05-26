@@ -60,14 +60,12 @@ module.exports =
     @github  = new Github
     @collab  = new CollabManager {aTox: this}
     @manager = new aToxManager   {aTox: this}
+    @gui     = new GUI           {aTox: this}
 
-    @currCID = 0
-    @hasOpenChat    = false
+    @currCID     = 0
+    @hasOpenChat = false
 
     atom.config.observe 'aTox.githubToken', (newValue)  => @github.setToken newValue
-
-    $ =>
-      @gui = new GUI {aTox: this}
-      @TOX.startup()
+    @TOX.startup()
 
   getCID: -> return @currCID++

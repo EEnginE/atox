@@ -1,11 +1,12 @@
 MainWindow    = require './atox-mainWin'
-Notifications = require './atox-notifications'
 Question      = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 GitHubLogin   = require './atox-GitHubLogin'
 QuickChat     = require './atox-quickChat'
 CollabSelect  = require './atox-collabSelect'
 TermSelect    = require './atox-termSelect'
+
+path          = require 'path'
 
 {View, $, $$} = require 'atom-space-pen-views'
 
@@ -53,7 +54,6 @@ class GUI
     @chatpanel.addChat {cID: -1, img: 'none', group: false, parent: new TempChatHelper @aTox} # Terminal chat
 
     @mainWin       = new MainWindow    {aTox: @aTox}
-    @notifications = new Notifications {aTox: @aTox}
     @GitHubLogin   = new GitHubLogin   {aTox: @aTox}
     @quickChat     = new QuickChat     {aTox: @aTox}
     @collabSelect  = new CollabSelect  {aTox: @aTox}
@@ -81,11 +81,6 @@ class GUI
     pathArg = path.normalize(pathArg)
     pathArg = pathArg.replace(/\\/g, '/')
     atom.config.set 'aTox.userAvatar', pathArg
-
-  notify: (params) ->
-    params.type = 'inf' unless params.type?
-
-    @notifications.add params
 
   setUserOnlineStatus: (params) ->
     @mainWin.statusSelector.setStatus   params

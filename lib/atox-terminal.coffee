@@ -111,7 +111,14 @@ class Terminal
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'inf', name: data.title, content: data.msg } if atom.config.get 'aTox.debugNotifications'
+    return if data.notify is false
+    atom.notifications.addInfo data.title, {
+      'detail':      data.msg.replace /<[^<]*>/g, ''
+      'description': data.description
+      'dismissable': false
+      'stack':       data.stack
+      'buttons':     data.buttons
+    }
 
   warn: (data) ->
     msg = "<span style='font-style:italic;color:#c19a00'><b>Warning:</b> #{data.msg}</span>"
@@ -124,7 +131,14 @@ class Terminal
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'warn', name: data.title, content: data.msg } unless data.notify? and data.notify is false
+    return if data.notify is false
+    atom.notifications.addWarning data.title, {
+      'detail':      data.msg.replace /<[^<]*>/g, ''
+      'description': data.description
+      'dismissable': true
+      'stack':       data.stack
+      'buttons':     data.buttons
+    }
 
   err: (data) ->
     msg = "<span style='font-style:italic;color:#bc0000'><b>ERROR:</b> #{data.msg}</span>"
@@ -137,8 +151,16 @@ class Terminal
     else
       @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    @aTox.gui.notify { type: 'err', name: data.title, content: data.msg } unless data.notify? and data.notify is false
+    return if data.notify is false
+    atom.notifications.addError data.title, {
+      'detail':      data.msg.replace /<[^<]*>/g, ''
+      'description': data.description
+      'dismissable': true
+      'stack':       data.stack
+      'buttons':     data.buttons
+    }
 
   stub: (data) ->
-    data.msg = "#{data.msg} is a stub!"
+    data.msg   = "#{data.msg} is a stub!"
+    data.title = "aTox STUB"
     @warn data
