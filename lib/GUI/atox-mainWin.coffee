@@ -39,6 +39,8 @@ class MainWindow extends View
 
     @firstContactView = true
 
+  deactivate: -> @remove()
+
   scrollHandler: (event) -> #TODO: Fix this!
     return if @maxScroll <= @contacts.height()
 

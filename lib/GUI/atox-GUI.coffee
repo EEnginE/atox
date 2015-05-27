@@ -78,6 +78,14 @@ class GUI
 
   openQuickChat: -> @quickChat.show @chatpanel.getSelectedChatCID()
 
+  deactivate: ->
+    @chatpanel.deactivate()
+    @mainWin.deactivate()
+    @GitHubLogin.deactivate()
+    @quickChat.deactivate()
+    @collabSelect.deactivate()
+    @termSelect.deactivate()
+
   serialize: ->
     state = {}
     state.mainWin   = @mainWin.serialize()

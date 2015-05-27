@@ -24,6 +24,8 @@ class GetArgs extends View
 
     @editors = []
 
+  deactivate: -> @panel.destroy()
+
   hide: ->
     @panel.hide()
 

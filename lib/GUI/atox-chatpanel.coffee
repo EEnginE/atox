@@ -26,7 +26,7 @@ class Chatpanel extends View
 
     @aTox  = params.aTox
 
-    atom.workspace.addBottomPanel {item: @element}
+    @panel = atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
       @showHistory() unless @historyRendered or event.which is 27
 
@@ -59,6 +59,8 @@ class Chatpanel extends View
     @hbox.css 'height', params.state.height
     @historyRendered = !params.state.showHistory
     @toggleHistory()
+
+  deactivate: -> @panel.destroy()
 
   getSelectedChatCID: ->
     return parseInt @coverview.find('.selected').attr('cID')

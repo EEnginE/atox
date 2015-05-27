@@ -70,6 +70,9 @@ class ToxWorker
     @isConnected  = false
     @firstConnect = true
 
+  deactivate: ->
+    @TOX.stop()
+
   firstConnectCB: ->
     for n in @aToxNodes
       @sendFriendRequest {

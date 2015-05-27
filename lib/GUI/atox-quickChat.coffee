@@ -25,6 +25,8 @@ class QuickChat extends View
     @btns.css     {'padding-left': '50px', 'padding-right': '50px'}
     @btn2.css     {'float':        'right'}
 
+  deactivate: -> @panel.destroy()
+
   show: (cID) ->
     return unless @aTox.gui.chats[cID]?
     @currentCID = cID

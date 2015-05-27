@@ -28,6 +28,8 @@ class GitHubLogin extends View
     @btn1.click => @hide()
     @btn2.click => @login()
 
+  deactivate: -> @panel.destroy()
+
   show:  ->
     @panel.show()
     @uname.focus()

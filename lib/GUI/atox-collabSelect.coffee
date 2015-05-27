@@ -35,6 +35,8 @@ class CollabSelect extends SelectListView
     super
     @panel = atom.workspace.addModalPanel {item: this, visible: false}
 
+  deactivate: -> @panel.destroy()
+
   viewForItem: (item) -> new Item item
   confirmed: (item)   ->
     @cancel()

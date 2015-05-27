@@ -7,6 +7,8 @@ Github        = require './atox-github'
 CollabManager = require './atox-collabManager'
 aToxManager   = require './atox-aToxManager'
 
+{CompositeDisposable} = require 'atom'
+
 module.exports =
   config:
     userAvatar:
@@ -36,11 +38,13 @@ module.exports =
 
 
   activate: (state) ->
-    atom.commands.add 'atom-workspace', 'aTox:toggle',    => @gui.mainWin.toggle()
-    atom.commands.add 'atom-workspace', 'aTox:history',   => @gui.chatpanel.toggleHistory()
-    atom.commands.add 'atom-workspace', 'aTox:collab',    => @gui.collabSelect.show()
-    atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.openQuickChat()
-    atom.commands.add 'atom-workspace', 'aTox:terminal',  => @gui.termSelect.show()
+    @subscriptions = new CompositeDisposable
+
+    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:toggle',    => @gui.mainWin.toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:history',   => @gui.chatpanel.toggleHistory()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:collab',    => @gui.collabSelect.show()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.openQuickChat()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:terminal',  => @gui.termSelect.show()
 
     @term    = new Terminal      {'aTox': this}
     @TOX     = new ToxWorker     {'aTox': this, 'dll': "#{__dirname}\\..\\bin\\libtox.dll"}
@@ -54,6 +58,12 @@ module.exports =
 
     atom.config.observe 'aTox.githubToken', (newValue)  => @github.setToken newValue
     @TOX.startup()
+
+  deactivate: ->
+    @subscriptions.dispose()
+
+    @TOX.deactivate()
+    @gui.deactivate()
 
   getCID: -> return @currCID++
 
