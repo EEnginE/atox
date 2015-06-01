@@ -41,6 +41,7 @@
     align-items:   center;
     height:       @aTox-chatbox-height * 0.1;
     cursor:        move;
+    flex-shrink:   0;
     h1 {
       margin-left: 15px;
       cursor: move;
@@ -108,7 +109,6 @@
   .aTox-chatbox-chathistory {
     background-color: @tool-panel-background-color;
     border-radius:    5px;
-    display:          flex;
     margin-left:      @aTox-chatbox-space;
     margin-right:     @aTox-chatbox-space;
     overflow-y:       scroll;
@@ -133,6 +133,7 @@
     margin-left:  @aTox-chatbox-space;
     margin-right: @aTox-chatbox-space;
     height: 28px;
+    flex-shrink: 0;
   }
 
   .aTox-chatbox-resizeHandler {
@@ -141,6 +142,7 @@
     cursor:      se-resize;
     margin-left: auto;
     margin-top:-@aTox-chatbox-space;
+    flex-shrink: 0;
   }
 
   .aTox-PeerList {

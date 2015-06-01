@@ -103,8 +103,8 @@ class Chat
     @currentHistoryPos = @userHistory.length
 
     if msg[0] is '/' and msg[1] is '/'
-      @parent.sendMSG msg.slice(1, msg.length);
+      @parent.sendMSG msg.slice(1, msg.length), (id) =>
     else if msg[0] is '/'
       @aTox.term.process {cmd: msg, cID: @cID}
     else
-      @parent.sendMSG msg
+      @parent.sendMSG msg, (id) =>
