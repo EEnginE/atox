@@ -14,6 +14,8 @@ class Bot
     @currentStatus  = params.status
     @isFirstConnect = true
 
+  setPreeMSGhandler: -> @aTox.term.stub {'msg': 'setPreeMSGhandler'}
+
   receivedMsg: (msg) ->
   friendName: (@name) ->
   friendStatusMessage: (@status) ->
@@ -28,7 +30,6 @@ class Bot
       when -2                                    then status = @currentStatus
 
     @online = status
-    @chat.update 'online'
 
     @currentStatus = status
 

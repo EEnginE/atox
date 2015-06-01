@@ -46,18 +46,20 @@ module.exports =
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.openQuickChat()
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:terminal',  => @gui.termSelect.show()
 
+    @currCID     = 0
+    @hasOpenChat = false
+
     @term    = new Terminal      {'aTox': this}
     @TOX     = new ToxWorker     {'aTox': this, 'dll': "#{__dirname}\\..\\bin\\libtox.dll"}
     @github  = new Github
     @collab  = new CollabManager {'aTox': this}
     @manager = new aToxManager   {'aTox': this}
-    @gui     = new GUI           {'aTox': this, 'state': state.gui}
-
-    @currCID     = 0
-    @hasOpenChat = false
 
     atom.config.observe 'aTox.githubToken', (newValue)  => @github.setToken newValue
-    @TOX.startup()
+
+    $ =>
+      @gui     = new GUI           {'aTox': this, 'state': state.gui}
+      @TOX.startup()
 
   deactivate: ->
     @subscriptions.dispose()

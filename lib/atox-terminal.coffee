@@ -1,3 +1,5 @@
+shell = require 'shell'
+
 module.exports =
 class Terminal
   constructor: (params) ->
@@ -100,64 +102,59 @@ class Terminal
 
     return args;
 
-  inf: (data) ->
-    msg = "<span style='font-style:italic;color:#979797'><b>Info:</b> #{data.msg}</span>"
+  generateNotificationEntry: (data, opts) ->
+    data.cID   = -1       unless data.cID?
+    data.title = 'aTox'   unless data.title?
+    opts.style = 'italic' unless opts.style?
 
-    data.cID   = -1     unless data.cID?
-    data.title = 'aTox' unless data.title?
+    msg = if data.msg? then "#{data.title}: #{data.msg}" else data.title
+    msg = "<span style='font-style:#{opts.style}', class='#{opts.color}'><b>#{opts.type}:</b> #{msg}</span>"
 
-    if data.cID < 0
-      @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
-    else
-      @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
+    unless data.noChat
+      if data.cID < 0
+        @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
+      else
+        @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
 
-    return if data.notify is false
-    atom.notifications.addInfo data.title, {
-      'detail':      data.msg.replace /<[^<]*>/g, ''
-      'description': data.description
-      'dismissable': false
+    return if data.notify if data.msg? is false
+    opts.func data.title.replace( /<[^<]*>/g, '' ), {
+      'detail':      data.msg.replace /<[^<]*>/g, '' if data.msg?
+      'description': data.description.replace /<[^<]*>/g, '' if data.description?
+      'dismissable': opts.dismissable
       'stack':       data.stack
       'buttons':     data.buttons
+    }
+
+  success: (data) ->
+    @generateNotificationEntry data, {
+      'type':       'Success'
+      'color':      'text-success'
+      'dismissable': false
+      'func': (t, o) -> atom.notifications.addSuccess t, o
+    }
+
+  inf: (data) ->
+    @generateNotificationEntry data, {
+      'type':       'Info'
+      'color':      'text-info'
+      'dismissable': false
+      'func': (t, o) -> atom.notifications.addInfo t, o
     }
 
   warn: (data) ->
-    msg = "<span style='font-style:italic;color:#c19a00'><b>Warning:</b> #{data.msg}</span>"
-
-    data.cID   = -1     unless data.cID?
-    data.title = 'aTox' unless data.title?
-
-    if data.cID < 0
-      @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
-    else
-      @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
-
-    return if data.notify is false
-    atom.notifications.addWarning data.title, {
-      'detail':      data.msg.replace /<[^<]*>/g, ''
-      'description': data.description
+    @generateNotificationEntry data, {
+      'type':       'Warning'
+      'color':      'text-warning'
       'dismissable': true
-      'stack':       data.stack
-      'buttons':     data.buttons
+      'func': (t, o) -> atom.notifications.addWarning t, o
     }
 
   err: (data) ->
-    msg = "<span style='font-style:italic;color:#bc0000'><b>ERROR:</b> #{data.msg}</span>"
-
-    data.cID   = -1     unless data.cID?
-    data.title = 'aTox' unless data.title?
-
-    if data.cID < 0
-      @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
-    else
-      @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
-
-    return if data.notify is false
-    atom.notifications.addError data.title, {
-      'detail':      data.msg.replace /<[^<]*>/g, ''
-      'description': data.description
+    @generateNotificationEntry data, {
+      'type':       'ERROR'
+      'color':      'text-error'
       'dismissable': true
-      'stack':       data.stack
-      'buttons':     data.buttons
+      'func': (t, o) -> atom.notifications.addError t, o
     }
 
   stub: (data) ->

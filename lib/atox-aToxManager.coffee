@@ -21,7 +21,7 @@ class aToxManager
 
     # TODO do more stuff (sign user name, etc.)
     @aTox.github.setToken @token
-    @aTox.term.inf {cID: -2, msg: "Loaded token from settings #{atom.config.get('aTox.githubToken')}"}
+    @aTox.term.inf {"cID": -2, "title": "Loaded Github token from settings", "msg": "#{atom.config.get('aTox.githubToken')}"}
 
   requestNewToken: -> @aTox.gui.GitHubLogin.show()
 
@@ -56,7 +56,7 @@ class aToxManager
   addBot: (friend) ->
     @bots.push friend
     friend.setPreeMSGhandler (msg) => @processMSG msg
-    @aTox.term.inf {"msg": "Added new aTox bot: #{friend.pubKey}"}
+    @aTox.term.inf {"title": "Added new aTox bot", "msg": "#{friend.pubKey}"}
 
   selectBot: (params) ->
     if @bots.length is 0

@@ -3,7 +3,7 @@
   "main": "./lib/atox",
   "version": "0.0.1",
   "description": "Tox plugin for atom",
-  "repository": "https://github.com/mensinda/atox",
+  "repository": "https://github.com/EEnginE/atox",
   "license": "MIT",
   "engines": {
     "atom": ">=0.174.0 <2.0.0"

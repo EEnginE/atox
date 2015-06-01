@@ -24,7 +24,9 @@ class Friend
       parent: this
     }
 
-  sendMSG: (msg) -> @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
+  sendMSG: (msg, cb) ->
+    id = @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
+    cb id
 
   # TOX events
 
@@ -52,7 +54,10 @@ class Friend
 
   receivedMsg: (msg) ->
     @chat.processMsg {msg: msg, color: @color, name: @name }
-    @aTox.gui.notify {name: @name, content: msg}
+    @inf {"msg": msg, "noChat": true}
+
+  firendRead: (id) ->
+    @inf {"msg": "Read #{id}", "noChat": true}
 
   friendName: (newName) ->
     @inf {"msg": "#{@name} is now '#{newName}'", "notify": not @hidden}
@@ -103,6 +108,10 @@ class Friend
     "rgba( #{@randomNumber( red, 255 )}, #{@randomNumber( green, 255 )}, #{@randomNumber( blue, 255 )}, 1 )"
 
   inf: (params) ->
-    @aTox.term.inf {msg: "Friend '#{@name}': #{params.msg}", cID: @chat.cID}
-    return unless params.notify? and params.notify is true
-    @aTox.gui.notify {name: @name, content: params.msg}
+    @aTox.term.inf {
+      "title": "#{@name}"
+      "msg": "#{params.msg}"
+      "cID": @chat.cID
+      "notify": params.notify
+      "noChat": params.noChat if params.noChat?
+    }
