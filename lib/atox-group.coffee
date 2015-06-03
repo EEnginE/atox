@@ -31,8 +31,7 @@ class Group
       gID:  @gID
       peer: data.p
       cb: (params) =>
-        @chat.processMsg {msg: data.d, color: params.color, name: params.name }
-        @aTox.gui.notify {name: @name, content: "#{params.name}: #{data.d}"}
+        @chat.genAndAddMSG {"msg": data.d, "color": params.color, "name": params.name }
     }
 
   groupTitle: (params) ->

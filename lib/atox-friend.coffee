@@ -25,8 +25,7 @@ class Friend
     }
 
   sendMSG: (msg, cb) ->
-    id = @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
-    cb id
+    cb @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
 
   # TOX events
 
@@ -53,11 +52,10 @@ class Friend
       @chat.update()
 
   receivedMsg: (msg) ->
-    @chat.processMsg {msg: msg, color: @color, name: @name }
+    @chat.genAndAddMSG {"msg": msg, "color": @color, "name": @name }
     @inf {"msg": msg, "noChat": true}
 
-  firendRead: (id) ->
-    @inf {"msg": "Read #{id}", "noChat": true}
+  firendRead: (id) -> @chat.markAsRead id
 
   friendName: (newName) ->
     @inf {"msg": "#{@name} is now '#{newName}'", "notify": not @hidden}

@@ -5,6 +5,7 @@ GitHubLogin   = require './atox-GitHubLogin'
 QuickChat     = require './atox-quickChat'
 CollabSelect  = require './atox-collabSelect'
 TermSelect    = require './atox-termSelect'
+Message       = require './atox-message'
 
 path          = require 'path'
 
@@ -16,14 +17,14 @@ class TempChatHelper
     @userHistory       = []
     @currentHistoryPos = 0
 
-  processMsg: (params) ->
+  genAndAddMSG: (params) ->
     return if params.msg is ''
     msg = "<p><span style='font-weight:bold;color:#{params.color};margin-left:5px;margin-top:5px'>#{params.name}: </span><span style='cursor:text;-webkit-user-select:text;'>#{params.msg}</span></p>"
 
     @aTox.gui.chatpanel.addMessage {msg: msg, cID: -1}
 
   sendMSG: (msg) ->
-    @processMsg {
+    @genAndAddMSG {
       msg:   msg
       name:  (atom.config.get 'aTox.userName') # TODO Use GitHub name
       color: "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
@@ -35,12 +36,13 @@ class TempChatHelper
     @aTox.term.process {cmd: msg, cID: @cID} if msg[0] is '/'
 
   getPreviousEntry: ->
+    return '' if @userHistory.length is 0
     return @userHistory[@currentHistoryPos] if @currentHistoryPos is 0
     @currentHistoryPos--
     return @userHistory[@currentHistoryPos]
 
   getNextEntry: ->
-    return '' if @currentHistoryPos is (@userHistory.length - 1)
+    return '' if @currentHistoryPos is (@userHistory.length - 1) or @userHistory.length is 0
     @currentHistoryPos++
     return @userHistory[@currentHistoryPos]
 

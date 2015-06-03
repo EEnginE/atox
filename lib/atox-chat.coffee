@@ -1,5 +1,6 @@
 ChatBox     = require './GUI/atox-chatbox'
 ContactView = require './GUI/atox-contactView'
+Message     = require './GUI/atox-message'
 
 module.exports =
 class Chat
@@ -39,25 +40,15 @@ class Chat
     @update 'img'
     @update 'name'
 
+    @msgViews          = []
     @userHistory       = []
     @currentHistoryPos = 0
 
-  processMsg: (params) ->
-    return if params.msg is ''
+  genAndAddMSG: (params) -> @addMSG new Message params unless params.msg is ''
 
-    # Handle URL's
-    nstr = ['http://', 'https://', 'ftp://']
-    tmsg = params.msg.split(' ')
-    for i in [0..(tmsg.length - 1)]
-      for n in nstr
-        if tmsg[i].indexOf(n) > -1
-          tmsg[i] = '<a href="' + tmsg[i] + '">' + tmsg[i] + '</a>'
-    params.msg = tmsg.join(' ')
-
-    msg = "<p><span style='color:#{params.color};' class='historyName'>#{params.name}: </span><span>#{params.msg}</span></p>"
-
+  addMSG: (msg) ->
     @chatBox.addMessage msg
-    @aTox.gui.chatpanel.addMessage {msg: msg, cID: @cID}
+    @aTox.gui.chatpanel.addMessage {'msg': msg, 'cID': @cID}
 
   name:     -> return @parent.name
   online:   -> return @parent.online
@@ -76,12 +67,13 @@ class Chat
     @update 'select'
 
   getPreviousEntry: ->
+    return '' if @userHistory.length is 0
     return @userHistory[@currentHistoryPos] if @currentHistoryPos is 0
     @currentHistoryPos--
     return @userHistory[@currentHistoryPos]
 
   getNextEntry: ->
-    return '' if @currentHistoryPos is (@userHistory.length - 1)
+    return '' if @currentHistoryPos is (@userHistory.length - 1) or @userHistory.length is 0
     @currentHistoryPos++
     return @userHistory[@currentHistoryPos]
 
@@ -91,20 +83,34 @@ class Chat
 
     @aTox.gui.chatpanel.update @cID
 
+  markAsRead: (id) -> @msgViews[id].markAsRead() if @msgViews[id]?
+
+  sendMSGcallback: (msgId, view) ->
+    if msgId < 0 or not msgId?
+      view.markAsError()
+      @aTox.term.warn {"title": "Failed to send message"}
+
+    @msgViews[msgId] = view
+
   sendMSG: (msg) ->
     return if msg is ''
-    @processMsg {
-      msg:   msg
-      name:  (atom.config.get 'aTox.userName') # TODO Use GitHub name
-      color: "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
-    }
 
     @userHistory.push msg
     @currentHistoryPos = @userHistory.length
 
+    msgView = new Message {
+      "msg":   msg
+      "name":  atom.config.get 'aTox.userName'
+      "color": "rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )"
+    }
+
+    @addMSG msgView
+
     if msg[0] is '/' and msg[1] is '/'
-      @parent.sendMSG msg.slice(1, msg.length), (id) =>
+      msgView.markAsWaiting()
+      @parent.sendMSG msg.slice(1, msg.length), (id) => @sendMSGcallback id, msgView
     else if msg[0] is '/'
       @aTox.term.process {cmd: msg, cID: @cID}
     else
-      @parent.sendMSG msg, (id) =>
+      msgView.markAsWaiting()
+      @parent.sendMSG msg, (id) => @sendMSGcallback id, msgView

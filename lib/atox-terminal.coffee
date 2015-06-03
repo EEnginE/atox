@@ -1,4 +1,5 @@
-shell = require 'shell'
+shell   = require 'shell'
+Message = require './GUI/atox-message'
 
 module.exports =
 class Terminal
@@ -107,14 +108,21 @@ class Terminal
     data.title = 'aTox'   unless data.title?
     opts.style = 'italic' unless opts.style?
 
-    msg = if data.msg? then "#{data.title}: #{data.msg}" else data.title
-    msg = "<span style='font-style:#{opts.style}', class='#{opts.color}'><b>#{opts.type}:</b> #{msg}</span>"
+    msg = new Message {
+      "type":       "term"
+      "title":       data.title
+      "msg":         data.msg   if data.msg?
+      "colorClass":  opts.color
+      "style":       opts.style
+      "typeName":    opts.type
+      "defaultChat": if data.cID < 0 then true else false
+    }
 
     unless data.noChat
       if data.cID < 0
-        @aTox.gui.chatpanel.addMessage {cID: -1, msg: "<p>#{msg}</p>"}
+        @aTox.gui.chatpanel.addMessage {'cID': -1, 'msg': msg}
       else
-        @aTox.gui.chats[data.cID].processMsg {msg: msg, color: "#ffffff", name: "aTox"}
+        @aTox.gui.chats[data.cID].addMSG msg
 
     return if data.notify if data.msg? is false
     opts.func data.title.replace( /<[^<]*>/g, '' ), {
