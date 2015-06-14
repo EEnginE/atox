@@ -15,8 +15,8 @@ class GitHubLogin extends View
       @div outlet: 'btn2', class: 'btn2 btn btn-lg btn-info',  'Login'
 
   initialize: (params) ->
-    @aTox        = params.aTox
-    @authManager = @aTox.authManager
+    @aTox    = params.aTox
+    @manager = @aTox.manager
 
     @panel = atom.workspace.addModalPanel {item: this, visible: false}
 
@@ -42,7 +42,7 @@ class GitHubLogin extends View
     @working.show()
     i.addClass 'working' for i in [@h1, @h2, @working]
 
-    @doTimeout 500, => @authManager.login {
+    @doTimeout 500, => @manager.login {
       'user':     @uname.getText()
       'password': @pw.getText()
       'otp':      @otp.getText()
@@ -56,12 +56,7 @@ class GitHubLogin extends View
     @panel.show() unless @panel.isVisible() is true
     i.removeClass 'working' for i in [@h1, @h2, @working]
     i.addClass    'error'   for i in [@h1, @h2]
-    @aTox.gui.notify {
-      type:     'err'
-      name:     name
-      content:  desc
-    }
-    @aTox.term.err {msg: desc, notify: false}
+    @aTox.term.err {"tile": "Failed to create token", "msg": desc}
     @doTimeout 2500, =>
       i.removeClass 'error' for i in [@h1, @h2]
 
@@ -69,7 +64,7 @@ class GitHubLogin extends View
     @panel.show() unless @panel.isVisible() is true
     i.removeClass 'working' for i in [@h1, @h2, @working]
     i.addClass    'success' for i in [@h1, @h2]
-    @aTox.term.inf {msg: "New token is: #{token}"}
+    @aTox.term.inf {"title": "Generated new token", "msg": "#{token}"}
     @doTimeout 2500, =>
       @isOpen = false
       @hide()
