@@ -17,8 +17,9 @@ class Chatpanel extends View
         @div    class: 'aTox-chatpanel-chats native-key-bindings', tabindex: '-1',                 outlet: 'chats'
       @div      class: 'aTox-chatpanel-input',                                                     outlet: 'input', =>
         @div    class: 'aTox-chatpanel-input-status-con',                                          outlet: 'status'
-        @button class: 'btn aTox-chatpanel-btn',                                                   outlet: 'btn', "Send"
         @subview 'inputField', new TextEditorView(mini: true, placeholderText: 'Type to write something.')
+        @button class: 'btn aTox-chatpanel-btn',                                                   outlet: 'btn', "Send"
+
 
   initialize: (params) ->
     @scrollPos   = []

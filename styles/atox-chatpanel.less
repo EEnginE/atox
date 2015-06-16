@@ -30,6 +30,7 @@
     height: 70px;
     white-space: pre;
     overflow-y: hidden;
+    //border-left: 1px solid @tool-panel-border-color;
     .aTox-chatpanel-settings {
       display: block;
       position: absolute;
@@ -41,8 +42,9 @@
     }
     .aTox-chatpanel-border {
       height: 2px;
-      // background-color: @tool-panel-border-color;
       cursor: ns-resize;
+      position: absolute;
+      width: 100%;
     }
     .aTox-chatpanel-chat-overview {
       display: block;
@@ -62,9 +64,9 @@
         padding: 6px 5px 5px 6px;
       }
       .selected {
-        border: 2px solid #1d1f21;
-        border-bottom: 3px solid #1d1f21;
-        background-color: #1d1f21;
+        border: 2px solid @tool-panel-background-color;
+        border-bottom: 3px solid @tool-panel-background-color;
+        background-color: @tool-panel-background-color;
         padding: 4px 4px 4px 4px;
       }
     }
@@ -76,7 +78,7 @@
       padding-top: 4px;
       height: inherit;
       overflow-y: scroll;
-      background-color: #1d1f21;
+      background-color: @tool-panel-background-color;
       .aTox-chatpanel-chat {
         //height: inherit;
         display: none;
@@ -140,9 +142,13 @@
     transition: opacity 0.1s;
   }
   .aTox-chatpanel-input {
-    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 1px 1px 0px;
     border-top: 1px solid rgba(0, 0, 0, 0.5);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid rgba(0, 0, 0, 0);
     .aTox-chatpanel-input-status-con {
       display: block;
       float: left;
@@ -163,12 +169,14 @@
       }
     }
     atom-text-editor {
-      margin-left: 28px;
-      margin-right: 0;
-      display: block;
+      flex-grow: 1;
+      //margin-left: 28px;
+      //margin-right: 0;
+      //display: block;
     }
     .aTox-chatpanel-btn {
-      float: right;
+      //float: right;
+      margin: 1px;
     }
   }
 }
