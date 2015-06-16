@@ -118,8 +118,7 @@ class Chatpanel extends View
     else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @coverview.find("[cID='#{cID}']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
-    for peer in params.peerlist
-      @addUser(peer.content)
+    @addUser peer.content for peer in params.peerlist if params.peerlist?
 
   selectChat: (cID) ->
     cID = "#{cID}"
