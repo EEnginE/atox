@@ -283,7 +283,7 @@ class ToxWorker
     try
       return @TOX.sendFriendMessageSync e.fID, e.msg
     catch e
-      @err "Failed to send MSG to #{e.fID}"
+      @warn "Failed to send MSG to #{e.fID}"
       return -1
 
   onlineStatus: (newS) ->
