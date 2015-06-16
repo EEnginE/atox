@@ -95,7 +95,7 @@ class ToxWorker
 
   friendMsgCB:              (e) -> @friends[e.friend()].receivedMsg            e.message()
   friendNameCB:             (e) -> @friends[e.friend()].friendName             e.name()
-  friendReadReceiptCB:      (e) -> @friends[e.friend()].firendRead             e.receipt()
+  friendReadReceiptCB:      (e) -> @friends[e.friend()].friendRead             e.receipt()
   friendStatusMessageCB:    (e) -> @friends[e.friend()].friendStatusMessage    e.statusMessage()
   friendStatusCB:           (e) -> @friends[e.friend()].friendStatus           e.status()
   friendConnectionStatusCB: (e) -> @friends[e.friend()].friendConnectionStatus e.connectionStatus()

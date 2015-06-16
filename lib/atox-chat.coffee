@@ -81,7 +81,7 @@ class Chat
     @chatBox.update     what
     @contactView.update what
 
-    @aTox.gui.chatpanel.update @cID
+    @aTox.gui.chatpanel.update {cID: @cID}
 
   markAsRead: (id) -> @msgViews[id].markAsRead() if @msgViews[id]?
 

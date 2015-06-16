@@ -47,7 +47,7 @@ class Friend extends ToxFriendBase
     @chat.genAndAddMSG {"msg": msg, "color": @color, "name": @name }
     @inf {"msg": msg, "noChat": true}
 
-  firendRead: (id) -> @chat.markAsRead id
+  friendRead: (id) -> @chat.markAsRead id
 
   friendName: (newName) ->
     super newName

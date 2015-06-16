@@ -35,6 +35,7 @@ class Chatpanel extends View
         when 13
           @chatClasses[id].sendMSG @inputField.getText()
           @inputField.setText ''
+          @scrollBot @coverview.find('.selected').attr('cID')
         when 38 then @inputField.setText @chatClasses[id].getPreviousEntry()
         when 40 then @inputField.setText @chatClasses[id].getNextEntry()
         when 27 then @toggleHistory()
@@ -46,9 +47,10 @@ class Chatpanel extends View
 
     jQuery(@hbox).resizable
       handles: {n: @rborder}
+      start: (event, ui) =>
+        @resizePos = @chats.scrollTop()
       resize: (event, ui) =>
-        id = @coverview.find('.selected').attr('cID') #get cID of selected chat
-        @scrollBot(id)
+        @chats.scrollTop(@resizePos)
     jQuery(@ulist).resizable {handles: {w: @lborder}}
 
     @statusSelector = new StatusSelector {aTox: @aTox, win: 'panel'}
@@ -67,6 +69,7 @@ class Chatpanel extends View
 
   addMessage: (params) ->
     return if params.msg is ''
+    cID = "#{params.cID}"
 
     isBot = false
     if @chats.prop("scrollHeight") - @chats.prop("offsetHeight") is @chats.scrollTop()
@@ -74,11 +77,11 @@ class Chatpanel extends View
 
     @chats.find("[cID='#{params.cID}']").append params.msg
 
-    if parseInt(@coverview.find('.selected').attr('cID')) is params.cID
+    if "#{@getSelectedChatCID()}" is cID
       if isBot or params.tid is -1
-        @scrollBot(params.cID)
+        @scrollBot(cID)
     else
-      @coverview.find("[cID='#{params.cID}']").addClass 'status-modified'
+      @coverview.find("[cID='#{cID}']").addClass 'status-modified'
 
   addChat: (params) ->
     return unless params.cID?
@@ -107,21 +110,24 @@ class Chatpanel extends View
       @ulist.find("[cID='#{params.cID}']").remove()
     @chats.find("[cID='#{params.cID}']").remove()
 
-  update: (cID) ->
+  update: (params) ->
+    cID = "#{params.cID}"
     if @chatClasses[cID].img() != 'none'
       @coverview.find("[cID='#{cID}']").css({'background-image': "url(#{@chatClasses[cID].img()})"})
     else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @coverview.find("[cID='#{cID}']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
-
-    # TODO update GC peer list (params.peerlist)
+    for peer in params.peerlist
+      @addUser(peer.content)
 
   selectChat: (cID) ->
+    cID = "#{cID}"
     id = @coverview.find('.selected').attr('cID') #get cID of selected chat
-    if id? and @chats.children().length > 0
-      @scrollPos[id] = @chats.prop("scrollHeight")
-    if @chats.prop("scrollHeight") - @chats.prop("offsetHeight") is @chats.scrollTop() #isBot?
-      @scrollPos[id] = -1
+    if id?
+      if @chats.children().length > 0
+        @scrollPos[id] = @chats.scrollTop() #@chats.prop("scrollHeight")
+      if @chats.prop("scrollHeight") - @chats.prop("offsetHeight") is @chats.scrollTop() #isBot?
+        @scrollPos[id] = -1
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cID='#{cID}']").addClass('selected')
     @ulist.find(".aTox-chatpanel-groupchat-ulist-con").css({display: 'none'})
@@ -135,14 +141,14 @@ class Chatpanel extends View
     if @scrollPos[cID] is -1
       @scrollBot(cID)
     else if @scrollPos[cID]?
-      @chats.scrollTop(@scrollPos[cID])
+      @chats.scrollTop(parseInt @scrollPos[cID])
     @coverview.find("[cID='#{cID}']").removeClass 'status-modified'
 
-  addUser: (params) ->
+  addUser: (view) ->
     #Call only if groupchat
     if @chats.find("[cID='#{params.cID}']").hasClass('groupchat') is false
       return
-    @ulist.find("[cID='#{params.cID}']").append "<p style='font-weight:bold;color:#{params.color}'>#{params.name}</p>"
+    @ulist.find("[cID='#{params.cID}']").append view
 
 
   scrollBot: (cID) -> #Must be fixed
