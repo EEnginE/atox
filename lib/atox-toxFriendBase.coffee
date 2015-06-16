@@ -1,5 +1,7 @@
+ToxFriendProtBase = require './botProtocol/prot-toxFriendProtBase'
+
 module.exports =
-class ToxFriendBase
+class ToxFriendBase extends ToxFriendProtBase
   constructor: (params) ->
     params.status = 'offline' unless params.status?
 
@@ -12,6 +14,12 @@ class ToxFriendBase
     @img    = 'none'
 
     @currentStatus = params.status
+
+    super {
+      "id":      @fID
+      "manager": @aTox.manager
+      "sendCB":  (msg) => @aTox.ToxWorker.sendToFriendCMD {"fID": @fID, "msg": msg}
+    }
 
   friendName: (@name) ->
   friendStatusMessage: (@status) ->

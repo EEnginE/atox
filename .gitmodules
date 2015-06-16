@@ -1,0 +1,3 @@
+[submodule "lib/botProtocol"]
+	path = lib/botProtocol
+	url = git@github.com:EEnginE/atox-botProtocol.git

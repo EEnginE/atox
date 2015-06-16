@@ -1,6 +1,9 @@
+BotManager = require './botProtocol/prot-botManager'
+
 module.exports =
-class aToxManager
+class aToxManager extends BotManager
   constructor: (params) ->
+    super params
     @aTox  = params.aTox
     @token = atom.config.get 'aTox.githubToken'
     @bots  = []
@@ -53,12 +56,12 @@ class aToxManager
 #    \____/ \___/ \__|___/
 #
 
-  addBot: (friend) ->
+  addBot: (friend) -> # TODO move to base
     @bots.push friend
     friend.setPreeMSGhandler (msg) => @processMSG msg
     @aTox.term.inf {"title": "Added new aTox bot", "msg": "#{friend.pubKey}"}
 
-  selectBot: (params) ->
+  selectBot: (params) -> # TODO move to base
     if @bots.length is 0
       @aTox.term.warn { "title": "No connection", "msg": "Connecting to the aTox network. Please wait" }
       return null
