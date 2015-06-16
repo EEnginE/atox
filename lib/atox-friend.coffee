@@ -2,22 +2,14 @@ Chat = require './atox-chat'
 os   = require 'os'
 fs   = require 'fs'
 
+ToxFriendBase = require './atox-toxFriendBase'
+
 module.exports =
-class Friend
+class Friend extends ToxFriendBase
   constructor: (params) ->
-    params.status = 'offline' unless params.status?
+    super params
 
-    @name   = params.name
-    @fID    = params.fID
-    @aTox   = params.aTox
-    @pubKey = params.pubKey.slice 0, 64
-    @online = params.online
-    @status = params.status
-    @img    = 'none'
-    @color  = @randomColor()
-
-    @currentStatus = params.status
-
+    @color = @randomColor()
     @chat = new Chat {
       aTox: @aTox
       group: false
@@ -58,36 +50,19 @@ class Friend
   firendRead: (id) -> @chat.markAsRead id
 
   friendName: (newName) ->
+    super newName
     @inf {"msg": "#{@name} is now '#{newName}'", "notify": not @hidden}
-    @name = newName
     @chat.update 'name'
 
   friendStatusMessage: (newStatus) ->
-    @status = newStatus
+    super newStatus
     @inf {"msg": "Status of #{@name} is now '#{@status}'", "notify": not @hidden}
     @chat.update 'status'
 
   friendStatus: (newStatus) ->
-    status = 'offline'
-
-    switch newStatus
-      when @aTox.TOX.consts.TOX_USER_STATUS_NONE then status = 'online'
-      when @aTox.TOX.consts.TOX_USER_STATUS_AWAY then status = 'away'
-      when @aTox.TOX.consts.TOX_USER_STATUS_BUSY then status = 'busy'
-      when -1                                    then status = 'offline'
-      when -2                                    then status = @currentStatus
-
-    @inf {msg: "#{@name} is now #{status}", notify: not @hidden}
-    @online = status
+    super newStatus
+    @inf {msg: "#{@name} is now #{@online}", notify: not @hidden}
     @chat.update 'online'
-
-    @currentStatus = status
-
-  friendConnectionStatus: (newConnectionStatus) ->
-    if newConnectionStatus is @aTox.TOX.consts.TOX_CONNECTION_NONE
-      @friendStatus -1
-    else
-      @friendStatus -2 # Back online
 
   # Utils
   randomNumber: (min, max) ->
