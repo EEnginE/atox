@@ -47,32 +47,3 @@ class aToxManager extends BotManager
           cbs.error "Invalid Token", "Generated token #{@token} invalid"
       else
         cbs.error "Failed", "#{params.data.message}"
-
-#    ______       _
-#    | ___ \     | |
-#    | |_/ / ___ | |_ ___
-#    | ___ \/ _ \| __/ __|
-#    | |_/ / (_) | |_\__ \
-#    \____/ \___/ \__|___/
-#
-
-  addBot: (friend) -> # TODO move to base
-    @bots.push friend
-    friend.setPreeMSGhandler (msg) => @processMSG msg
-    @aTox.term.inf {"title": "Added new aTox bot", "msg": "#{friend.pubKey}"}
-
-  selectBot: (params) -> # TODO move to base
-    if @bots.length is 0
-      @aTox.term.warn { "title": "No connection", "msg": "Connecting to the aTox network. Please wait" }
-      return null
-
-    unless params.key?
-      return @bots[0] # No specific bot.
-
-    params.key = params.key.slice 0, 64
-
-    for i, index in @bots
-      return @bots[index] if @bots[index].pubKey is params.key
-
-    @aTox.term.err { "title": "NIY", "msg": "Implement missing bot" }
-    return ""

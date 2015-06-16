@@ -15,11 +15,7 @@ class ToxFriendBase extends ToxFriendProtBase
 
     @currentStatus = params.status
 
-    super {
-      "id":      @fID
-      "manager": @aTox.manager
-      "sendCB":  (msg) => @aTox.ToxWorker.sendToFriendCMD {"fID": @fID, "msg": msg}
-    }
+    @isFirstConnect = true
 
   friendName: (@name) ->
   friendStatusMessage: (@status) ->
@@ -35,6 +31,17 @@ class ToxFriendBase extends ToxFriendProtBase
 
     @online        = status
     @currentStatus = status
+
+    if @isFirstConnect and @online is not 'offline'
+      @firstConnect()
+      @isFirstConnect = false
+
+  firstConnect: ->
+    @pInitBotProtocol {
+      "id":      @fID
+      "manager": @aTox.manager
+      "sendCB":  (msg) => @aTox.ToxWorker.sendToFriendCMD {"fID": @fID, "msg": msg}
+    }
 
   friendConnectionStatus: (newConnectionStatus) ->
     if newConnectionStatus is @aTox.TOX.consts.TOX_CONNECTION_NONE
