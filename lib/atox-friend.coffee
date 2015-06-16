@@ -55,7 +55,7 @@ class Friend
     @chat.genAndAddMSG {"msg": msg, "color": @color, "name": @name }
     @inf {"msg": msg, "noChat": true}
 
-  firendRead: (id) -> @chat.markAsRead id
+  friendRead: (id) -> @chat.markAsRead id
 
   friendName: (newName) ->
     @inf {"msg": "#{@name} is now '#{newName}'", "notify": not @hidden}
