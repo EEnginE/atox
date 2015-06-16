@@ -60,9 +60,11 @@ class Friend extends ToxFriendBase
     @chat.update 'status'
 
   friendStatus: (newStatus) ->
+    oldOnline = @online
     super newStatus
-    @inf {msg: "#{@name} is now #{@online}", notify: not @hidden}
-    @chat.update 'online'
+    unless @online is oldOnline
+      @inf {msg: "#{@name} is now #{@online}", notify: not @hidden}
+      @chat.update 'online'
 
   # Utils
   randomNumber: (min, max) ->
