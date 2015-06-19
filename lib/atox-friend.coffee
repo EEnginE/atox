@@ -9,6 +9,8 @@ class Friend extends ToxFriendBase
   constructor: (params) ->
     super params
 
+    @aTox = params.aTox
+
     @color = @randomColor()
     @chat = new Chat {
       aTox: @aTox

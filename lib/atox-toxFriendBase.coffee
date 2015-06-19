@@ -26,8 +26,8 @@ class ToxFriendBase extends ToxFriendProtBase
       when @aTox.TOX.consts.TOX_USER_STATUS_NONE then status = 'online'
       when @aTox.TOX.consts.TOX_USER_STATUS_AWAY then status = 'away'
       when @aTox.TOX.consts.TOX_USER_STATUS_BUSY then status = 'busy'
-      when -1                                    then status = 'offline'
-      when -2                                    then status = @currentStatus
+      when -1                                              then status = 'offline'
+      when -2                                              then status = @currentStatus
 
     @online        = status
     @currentStatus = status
@@ -40,7 +40,7 @@ class ToxFriendBase extends ToxFriendProtBase
     @pInitBotProtocol {
       "id":      @fID
       "manager": @aTox.manager
-      "sendCB":  (msg) => @aTox.ToxWorker.sendToFriendCMD {"fID": @fID, "msg": msg}
+      "sendCB":  (msg) => @aTox.TOX.sendToFriendCMD {"fID": @fID, "msg": msg}
     }
 
   friendConnectionStatus: (newConnectionStatus) ->

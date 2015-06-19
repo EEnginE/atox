@@ -63,8 +63,9 @@ class ToxWorker
     @TOX.on 'groupTitle',             (e) => try @groupTitleCB e             catch a then @handleExept 'groupTitle',             a
     @TOX.on 'groupNamelistChange',    (e) => try @groupNamelistChangeCB e    catch a then @handleExept 'groupNamelistChange',    a
 
-    @friends = []
-    @groups  = []
+    @friends      = []
+    @groups       = []
+    @sentRequests = []
 
     @setName   atom.config.get 'aTox.userName'
     @setAvatar atom.config.get 'aTox.userAvatar'
@@ -256,12 +257,18 @@ class ToxWorker
     @TOX.setStatusMessageSync "#{s}"
 
   sendFriendRequest: (e) ->
-    fID = 0
+    for i in @sentRequests
+      return @warn "Friend Request already sent!", e.addr if i is e.addr
+
+    @sentRequests.push e.addr
+
+    fID   = 0
+    e.msg = "Hello" if e.msg is ""
 
     try
       fID = @TOX.addFriendSync "#{e.addr}", "#{e.msg}"
     catch err
-      @err "Failed to send friend request"
+      @err "Failed to send friend request\n#{err.message}", err.stack
       return
 
     if e.bot? and e.bot is true
