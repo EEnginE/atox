@@ -53,21 +53,24 @@
       background-color: @base-background-color;
       border-right: 1px solid @tool-panel-border-color;
       float: left;
+      overflow: visible;
       .aTox-chatpanel-chat-status {
         list-style: none;
         display: block;
-        height: 28px;
+        height: 29px;
         width: 28px;
         border-bottom: 1px solid @tool-panel-border-color;
-        border-right: 1px solid #282c34;
         background-size: 100% 100%;
         padding: 6px 5px 5px 6px;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: 26px 26px;
       }
       .selected {
-        border: 2px solid @tool-panel-background-color;
-        border-bottom: 3px solid @tool-panel-background-color;
+        width: 29px;
+        border-right: 1px solid @tool-panel-background-color;
         background-color: @tool-panel-background-color;
-        padding: 4px 4px 4px 4px;
+        background-size: 22px 22px;
       }
     }
     .aTox-chatpanel-chats {
