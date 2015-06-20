@@ -68,7 +68,7 @@ class ToxWorker
     @sentRequests = []
 
     @setName   atom.config.get 'aTox.userName'
-    @setAvatar atom.config.get 'aTox.userAvatar'
+    #@setAvatar atom.config.get 'aTox.userAvatar'
     @setStatus "I am a Bot :)"
 
     for n in @nodes
