@@ -32,10 +32,6 @@ class ToxFriendBase extends ToxFriendProtBase
     @online        = status
     @currentStatus = status
 
-    if @isFirstConnect and @online is not 'offline'
-      @firstConnect()
-      @isFirstConnect = false
-
   firstConnect: ->
     @pInitBotProtocol {
       "id":      @fID
@@ -48,6 +44,9 @@ class ToxFriendBase extends ToxFriendProtBase
       @friendStatus -1
     else
       @friendStatus -2 # Back online
+      if @isFirstConnect
+        @firstConnect()
+        @isFirstConnect = false
 
   receivedMsg: (msg) -> @stub "receivedMsg"
   sendMSG: (msg, cb) -> @stub "sendMSG"
