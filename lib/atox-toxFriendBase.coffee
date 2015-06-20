@@ -37,6 +37,7 @@ class ToxFriendBase extends ToxFriendProtBase
       "id":      @fID
       "manager": @aTox.manager
       "sendCB":  (msg) => @aTox.TOX.sendToFriendCMD {"fID": @fID, "msg": msg}
+      "pubKey":  @pubKey
     }
 
   friendConnectionStatus: (newConnectionStatus) ->
@@ -50,7 +51,7 @@ class ToxFriendBase extends ToxFriendProtBase
 
   receivedMsg: (msg) -> @stub "receivedMsg"
   sendMSG: (msg, cb) -> @stub "sendMSG"
-  firendRead: (id)   -> @stub "firendRead"
+  friendRead: (id)   -> @stub "firendRead"
 
   stub: (func) ->
     @aTox.term.stub {msg: "CLASS: ToxFriendBase -- Unimplemeted base function #{func}!", cID: -1}

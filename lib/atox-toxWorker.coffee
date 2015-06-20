@@ -7,8 +7,6 @@ Friend = require './atox-friend'
 Bot    = require './atox-bot'
 Group  = require './atox-group'
 
-SEND_MSG_CMD_TYPE = 42
-
 module.exports =
 class ToxWorker
   constructor: (params) ->
@@ -97,7 +95,7 @@ class ToxWorker
     @aTox.manager.aToxAuth()
 
   friendMsgCB: (e) ->
-    if e.type() is SEND_MSG_CMD_TYPE
+    if e.messageType() is @consts.TOX_MESSAGE_TYPE_ACTION
       @friends[e.friend()].pReceivedCommand e.message() # in Base class ToxFriendProtBase
     else
       @friends[e.friend()].receivedMsg      e.message()
@@ -303,7 +301,7 @@ class ToxWorker
 
   sendToFriendCMD: (e) ->
     try
-      return @TOX.sendFriendMessageSync e.fID, e.msg, SEND_MSG_CMD_TYPE
+      return @TOX.sendFriendMessageSync e.fID, e.msg, @consts.TOX_MESSAGE_TYPE_ACTION
     catch e
       return -1
 

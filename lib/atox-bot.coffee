@@ -7,3 +7,4 @@ class Bot extends ToxFriendBase
     @color  = "#a2a2a2F"
 
   receivedMsg: (msg) ->
+  friendRead: (id) ->
