@@ -22,7 +22,7 @@ mkdir bin
 
 cd .build
 
-for I in  https://github.com/irungentoo/toxcore http://git.chromium.org/webm/libvpx.git https://github.com/jedisct1/libsodium ; do
+for I in  https://github.com/irungentoo/toxcore https://github.com/webmproject/libvpx https://github.com/jedisct1/libsodium ; do
   CURRENT="$( basename "$I" | sed 's/\.git$//g' )"
   echo "Updating / cloning $CURRENT"
   if [ -d "$CURRENT" ]; then
