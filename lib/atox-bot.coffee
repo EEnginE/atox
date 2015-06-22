@@ -1,5 +1,7 @@
 ToxFriendBase = require './atox-toxFriendBase'
 
+# coffeelint: disable=max_line_length
+
 module.exports =
 class Bot extends ToxFriendBase
   constructor: (params) ->
@@ -8,3 +10,5 @@ class Bot extends ToxFriendBase
 
   receivedMsg: (msg) ->
   friendRead: (id) ->
+
+  RESP_ping: (e) -> @aTox.term.inf {"title": "Bot #{@name} is valid: #{e.valid}"}

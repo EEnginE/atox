@@ -7,6 +7,8 @@ Friend = require './atox-friend'
 Bot    = require './atox-bot'
 Group  = require './atox-group'
 
+# coffeelint: disable=max_line_length
+
 module.exports =
 class ToxWorker
   constructor: (params) ->
