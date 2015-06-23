@@ -8,6 +8,13 @@ class aToxManager extends BotManager
     @token = atom.config.get 'aTox.githubToken'
     @bots  = []
 
+  getCollabList: -> @aTox.collab.getCollabList()
+  getJoinableCollab: (cb) ->
+    ids = []
+    for f, index in @aTox.firends
+      continue unless f.isHuman
+      ids.push @aTox.firends[index].pSendCommand "collabList"
+
 #     _                 _
 #    | |               (_)
 #    | |     ___   __ _ _ _ __

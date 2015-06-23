@@ -7,6 +7,7 @@ ToxFriendBase = require './atox-toxFriendBase'
 module.exports =
 class Friend extends ToxFriendBase
   constructor: (params) ->
+    @isHuman = true
     super params
 
     @aTox = params.aTox
