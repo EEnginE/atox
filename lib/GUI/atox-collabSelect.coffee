@@ -50,6 +50,9 @@ class CollabSelect extends SelectListView
     @panel.hide()
     super()
 
+  requestOpen: ->
+    @aTox.collab.updateJoinList => @show()
+
   show: ->
     unless @aTox.collab.getIsGitRepository()
       @setError 'aTox CollabEdit needs a git repository!'

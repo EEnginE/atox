@@ -23,13 +23,35 @@ class CollabManager
     @aTox.term.inf  {msg: "Closed collab #{path}"}
     @aTox.term.warn {msg: "TODO: implement real collab closing"}
 
+  generateJoinableList: ->
+    list = []
+    for f in @aTox.TOX.friends
+      list.concat f.pCollabList
+
+    return list
+
+  getJoinableCollab: (cb) ->
+    ids = []
+    for f, index in @aTox.TOX.friends
+      continue unless f.isHuman
+      ids.push @aTox.TOX.friends[index].pSendCommand "collabList"
+
+    @aTox.manager.pWaitForResponses ids, 2000, (o) =>
+      o.list = @generateJoinableList()
+      cb o
+
+  updateJoinList: (cb) ->
+    @getJoinableCollab (o) =>
+      @joinableList = o.list
+      cb()
+
   getCollabList:   -> return @collabList
   getJoinableList: -> return @joinableList
 
-  getIsGitRepository: -> atom.project.getRepo()?
+  getIsGitRepository: -> atom.project.getRepositories()?
   getCurrentFile:     ->
     editor   = atom.workspace.getActiveTextEditor()
-    rootPath = atom.project.getRepo().getPath().replace ".git", ''
+    rootPath = atom.project.getRepositories()[0].getPath().replace ".git", ''
     return {error: true} unless editor?
 
     path = editor.getPath().replace rootPath, ''

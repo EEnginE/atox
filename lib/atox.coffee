@@ -9,6 +9,8 @@ aToxManager   = require './atox-aToxManager'
 
 {CompositeDisposable} = require 'atom'
 
+# coffeelint: disable=max_line_length
+
 module.exports =
   config:
     userAvatar:
@@ -42,7 +44,7 @@ module.exports =
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:toggle',    => @gui.mainWin.toggle()
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:history',   => @gui.chatpanel.toggleHistory()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:collab',    => @gui.collabSelect.show()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:collab',    => @gui.collabSelect.requestOpen()
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.openQuickChat()
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:terminal',  => @gui.termSelect.show()
 

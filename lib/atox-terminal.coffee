@@ -1,6 +1,8 @@
 shell   = require 'shell'
 Message = require './GUI/atox-message'
 
+# coffeelint: disable=max_line_length
+
 module.exports =
 class Terminal
   constructor: (params) ->

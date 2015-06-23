@@ -9,11 +9,6 @@ class aToxManager extends BotManager
     @bots  = []
 
   getCollabList: -> @aTox.collab.getCollabList()
-  getJoinableCollab: (cb) ->
-    ids = []
-    for f, index in @aTox.firends
-      continue unless f.isHuman
-      ids.push @aTox.firends[index].pSendCommand "collabList"
 
 #     _                 _
 #    | |               (_)
