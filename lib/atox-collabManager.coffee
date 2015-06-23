@@ -7,6 +7,10 @@ class CollabManager
 
     @collabList   = [ 'TODO', 'make', 'real content' ]
     @joinableList = [ 'Some', 'placeholder', 'files' ]
+    @editors = []
+
+    atom.workspace.observeTextEditors (editor) =>
+      @editors.push editor
 
   newCollab: (path) ->
     @aTox.term.warn {msg: "TODO: Implement new collab"}
