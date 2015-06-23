@@ -9,6 +9,8 @@ class Collab
     @disposables = []
     @internalchanges = []
     @externalchanges = []
+    @pmutex = true
+    @icb = []
 
     @disposables.push @editor.onDidInsertText (e) => @internalChange e
     @disposables.push @editor.onDidChangeSelectionRange (e) =>
@@ -22,8 +24,14 @@ class Collab
       d.dispose()
 
   internalChange: (e) ->
+    if @pmutex and @icb.length > 0
+      @internalchanges = @icb.concat(@internalchanges)
+      @icb = []
     for pos in @editor.getCursorBufferPositions()
-      @internalchanges.push {'pos': pos, 'text': text}
+      if @pmutex
+        @internalchanges.push {'pos': pos, 'text': text}
+      else
+        @icb.push {'pos': pos, 'text': text}
 
   externalChange: (e) ->
     lineStartIndex = 0
@@ -57,6 +65,7 @@ class Collab
     console.log e.selection.getText()
 
   process: ->
+    @pmutex = false
     #Fix pos of external changes
     rshift = 0
     for ec, i in @externalchanges #Shift
@@ -83,10 +92,21 @@ class Collab
           @sLines[ec.pos[0]].slice(ec.pos[1])
 
     @editor.getBuffer().lines = @sLines
+    @editor.getBuffer().lineEndings = @sLineEndings
     #Apply internal changes
     for ic in @internalchanges
       @editor.getBuffer().insert(ic.pos, ic.text)
 
+    changes = @internalchanges.slice(0)
+    @internalchanges = []
+    @externalchanges = []
+
     #Save state for next round
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
+    @pmutex = true
+
+    for c, i in changes
+      changes[i].pos = changes[i].pos.toArray()
+
+    return changes
