@@ -5,8 +5,8 @@ class CollabManager
   constructor: (params) ->
     @aTox = params.aTox
 
-    @collabList   = [ 'TODO', 'make', 'real content' ]
-    @joinableList = [ 'Some', 'placeholder', 'files' ]
+    @collabList   = []
+    @joinableList = []
 
   newCollab: (path) ->
     @aTox.term.warn {msg: "TODO: Implement new collab"}

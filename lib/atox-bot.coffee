@@ -6,7 +6,8 @@ module.exports =
 class Bot extends ToxFriendBase
   constructor: (params) ->
     super params
-    @color  = "#a2a2a2F"
+    @color   = "#a2a2a2F"
+    @isHuman = false
 
   receivedMsg: (msg) ->
   friendRead: (id) ->
