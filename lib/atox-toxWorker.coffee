@@ -49,20 +49,20 @@ class ToxWorker
 
     @aTox.gui.setUserOnlineStatus 'disconnected'
 
-    @TOX.on 'avatarData',             (e) => try @avatarDataCB e             catch a then @handleExept 'avatarData',             a
-    @TOX.on 'avatarInfo',             (e) => try @avatarInfCB e              catch a then @handleExept 'avatarInfo',             a
-    @TOX.on 'friendMessage',          (e) => try @friendMsgCB e              catch a then @handleExept 'friendMessage',          a
-    @TOX.on 'friendReadReceipt',      (e) => try @friendReadReceiptCB e      catch a then @handleExept 'friendReadReceipt',      a
-    @TOX.on 'friendRequest',          (e) => try @friendRequestCB e          catch a then @handleExept 'friendRequest',          a
-    @TOX.on 'friendName',             (e) => try @friendNameCB e             catch a then @handleExept 'friendName',             a
-    @TOX.on 'friendStatusMessage',    (e) => try @friendStatusMessageCB e    catch a then @handleExept 'friendStatusMessage',    a
-    @TOX.on 'friendStatus',           (e) => try @friendStatusCB e           catch a then @handleExept 'friendStatus',           a
-    @TOX.on 'friendConnectionStatus', (e) => try @friendConnectionStatusCB e catch a then @handleExept 'friendConnectionStatus', a
-    @TOX.on 'selfConnectionStatus',   (e) => try @selfConnectionStatusCB e   catch a then @handleExept 'selfConnectionStatus',   a
-    @TOX.on 'groupInvite',            (e) => try @groupInviteCB e            catch a then @handleExept 'groupInvite',            a
-    @TOX.on 'groupMessage',           (e) => try @groupMessageCB e           catch a then @handleExept 'groupMessage',           a
-    @TOX.on 'groupTitle',             (e) => try @groupTitleCB e             catch a then @handleExept 'groupTitle',             a
-    @TOX.on 'groupNamelistChange',    (e) => try @groupNamelistChangeCB e    catch a then @handleExept 'groupNamelistChange',    a
+    @TOX.on 'avatarData',                 (e) => try @avatarDataCB e             catch a then @handleExept 'avatarData',             a
+    @TOX.on 'avatarInfo',                 (e) => try @avatarInfCB e              catch a then @handleExept 'avatarInfo',             a
+    @TOX.on 'friendMessage',              (e) => try @friendMsgCB e              catch a then @handleExept 'friendMessage',          a
+    @TOX.on 'friendReadReceipt',          (e) => try @friendReadReceiptCB e      catch a then @handleExept 'friendReadReceipt',      a
+    @TOX.on 'friendRequest',              (e) => try @friendRequestCB e          catch a then @handleExept 'friendRequest',          a
+    @TOX.on 'friendName',                 (e) => try @friendNameCB e             catch a then @handleExept 'friendName',             a
+    @TOX.on 'friendStatusMessage',        (e) => try @friendStatusMessageCB e    catch a then @handleExept 'friendStatusMessage',    a
+    @TOX.on 'friendStatus',               (e) => try @friendStatusCB e           catch a then @handleExept 'friendStatus',           a
+    @TOX.on 'friendConnectionStatus',     (e) => try @friendConnectionStatusCB e catch a then @handleExept 'friendConnectionStatus', a
+    @TOX.on 'selfConnectionStatus',       (e) => try @selfConnectionStatusCB e   catch a then @handleExept 'selfConnectionStatus',   a
+    @TOX.old().on 'groupInvite',          (e) => try @groupInviteCB e            catch a then @handleExept 'groupInvite',            a
+    @TOX.old().on 'groupMessage',         (e) => try @groupMessageCB e           catch a then @handleExept 'groupMessage',           a
+    @TOX.old().on 'groupTitle',           (e) => try @groupTitleCB e             catch a then @handleExept 'groupTitle',             a
+    @TOX.old().on 'groupNamelistChange',  (e) => try @groupNamelistChangeCB e    catch a then @handleExept 'groupNamelistChange',    a
 
     @friends      = []
     @groups       = []
@@ -109,7 +109,7 @@ class ToxWorker
   friendStatusMessageCB:    (e) -> @friends[e.friend()].friendStatusMessage    e.statusMessage()
   friendStatusCB:           (e) -> @friends[e.friend()].friendStatus           e.status()
   friendConnectionStatusCB: (e) -> @friends[e.friend()].friendConnectionStatus e.connectionStatus()
-  groupMessageCB:           (e) -> @groups[e.group()].groupMessage            {d: e.message(), p: e.peer()} unless @TOX.peernumberIsOursSync e.group(), e.peer()
+  groupMessageCB:           (e) -> @groups[e.group()].groupMessage            {d: e.message(), p: e.peer()} unless @TOX.old().peernumberIsOursSync e.group(), e.peer()
   groupTitleCB:             (e) -> @groups[e.group()].groupTitle              {d: e.title(),   p: e.peer()}
   groupNamelistChangeCB:    (e) -> @groups[e.group()].gNLC                    {d: e.change(),  p: e.peer()} if @groups[e.group()]?
 
@@ -199,8 +199,8 @@ class ToxWorker
 
     try
       gID = @TOX.old().joinGroupchatSync e.friend(), e.data()
-    catch e
-      return @err "Failed to join group chat"
+    catch err
+      return @err "Failed to join group chat: #{err.stack}"
 
     @inf "Joined group chat #{gID}"
 
@@ -234,7 +234,7 @@ class ToxWorker
     try
       @TOX.old().inviteSync e.fID, e.gID
     catch err
-      return @err "Failed to invite friend #{e.fID} to #{e.gID}"
+      return @err "Failed to invite friend #{e.fID} to #{e.gID}: #{err.stack}"
 
   sendToGC: (e) ->
     #return @stub 'sendToGC' # TODO -- rework for new tox API
