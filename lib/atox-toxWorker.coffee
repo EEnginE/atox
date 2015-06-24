@@ -179,7 +179,7 @@ class ToxWorker
 
     @inf "Added group chat #{gID}"
 
-    if e.collab
+    unless e.collab
       @groups[gID] = new Group {
         name:   "Group Chat ##{gID}"
         gID:    gID
