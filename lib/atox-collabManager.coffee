@@ -1,4 +1,7 @@
 {GitRepository} = require 'atom'
+Collab          = require './GUI/atox-collab'
+
+# coffeelint: disable=max_line_length
 
 module.exports =
 class CollabManager
@@ -14,14 +17,45 @@ class CollabManager
 
 
   newCollab: (path) ->
-    @collabList.push path
-    @aTox.term.stub {"msg": "CollabManager::newCollab"}
+    @collabList.push {
+      "name":   path
+      "collab": new Collab {
+        "aTox":   @aTox
+        "editor": atom.workspace.getActiveTextEditor()
+      }
+    }
 
   joinCollab: (path) ->
-    @aTox.term.stub {"msg": "CollabManager::joinCollab"}
+    fIDs = []
+    for i in @joinableList
+      if i.name is path
+        fIDs = i.fIDs
+        break
+
+    return @aTox.term.err {"title": "Collab #{path} not found"} if fIDs.length is 0
+    @tryToJoinCollab path, fIDs, 0
+
+  tryToJoinCollab: (path, array, index) ->
+    if index is array.length
+      return @aTox.term.err {"title": "Failed to join collab", "msg": path}
+
+    id = @aTox.TOX.friends[array[index]].pSendCommand "joinCollab", {"name": path}
+    index++
+    @aTox.manager.pWaitForResponses [id], 1000, (t) =>
+      if t.timeout is true
+        return @tryToJoinCollab path, array, index
+
+      if @aTox.TOX.friends[array[index]].rInviteRequestToCollabSuccess
+        return @aTox.term.success {"title": "Joined collab #{path}"}
+      else
+        return @tryToJoinCollab path, array, index
 
   closeCollab: (path) ->
-    index = @collabList.indexOf path
+    index = -1
+    for i, ind in @collabList
+      if i.name is path
+        index = ind
+        break
 
     return @aTox.term.err {"title": "#{path} is not a collabedit"} if index < 0
 
@@ -62,7 +96,11 @@ class CollabManager
       @joinableList = o.list
       cb o
 
-  getCollabList:   -> return @collabList
+  getCollabList: ->
+    list = []
+    list.push i.name for i in @collabList
+    return list
+
   getJoinableList: -> return @joinableList
 
   getIsGitRepository: -> atom.project.getRepositories()?

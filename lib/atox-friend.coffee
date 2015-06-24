@@ -19,6 +19,21 @@ class Friend extends ToxFriendBase
       parent: this
     }
 
+  REQ_joinCollab: (d) ->
+    @aTox.term.stub {"msg": "Friend::REQ_joinCollab"}
+    @rCollabInviteReturn = "stub"
+
+  RESP_joinCollab: (d) ->
+    if d.inviteReturn is "success"
+      @inf "Invited to collab"
+      @rInviteRequestToCollabSuccess = true
+    else
+      @aTox.term.warn {
+        "title": "Invite to collab '#{d.name}' failed"
+        "msg":   "Return: #{d.inviteReturn}"
+      }
+      @rInviteRequestToCollabSuccess = false
+
   sendMSG: (msg, cb) ->
     cb @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
 
