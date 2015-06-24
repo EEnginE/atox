@@ -45,11 +45,11 @@ class CollabManager
       if t.timeout is true
         @aTox.term.warn {
           "title": "collab: timeout"
-          "msg":   "peer #{index-1} of #{array.length} timed out"
+          "msg":   "peer #{index} of #{array.length} timed out"
         }
         return @tryToJoinCollab path, array, index
 
-      if @aTox.TOX.friends[array[index]].rInviteRequestToCollabSuccess
+      if @aTox.TOX.friends[array[index - 1]].rInviteRequestToCollabSuccess
         return @aTox.term.success {"title": "Joined collab #{path}"}
       else
         return @tryToJoinCollab path, array, index
@@ -89,6 +89,7 @@ class CollabManager
     ids = []
     for f, index in @aTox.TOX.friends
       continue unless f.isHuman
+      continue unless f.pIsValidBot
       ids.push @aTox.TOX.friends[index].pSendCommand "collabList"
 
     @aTox.manager.pWaitForResponses ids, 2000, (o) =>
