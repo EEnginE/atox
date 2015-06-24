@@ -13,8 +13,6 @@ class Group
 
     @createChat()
 
-    console.log "DONE"
-
   sendMSG: (msg) -> @aTox.TOX.sendToGC {gID: @gID, msg: msg}
   needChat: -> @createChat() unless @chat? # Creates chat if needed
 
@@ -31,7 +29,8 @@ class Group
       gID:  @gID
       peer: data.p
       cb: (params) =>
-        @chat.genAndAddMSG {"msg": data.d, "color": params.color, "name": params.name }
+        @chat.genAndAddMSG {"msg": data.d, "color": params.color
+          "name": params.name }
     }
 
   groupTitle: (params) ->

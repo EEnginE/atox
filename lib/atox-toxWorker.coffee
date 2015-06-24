@@ -38,12 +38,12 @@ class ToxWorker
 
     try
       if os.platform().indexOf('win') > -1
-        @TOX = new toxcore.Tox({"path": "#{@DLL}"})
+        @TOX = new toxcore.Tox({"path": "#{@DLL}", "old": true})
       else
-        @TOX = new toxcore.Tox()
+        @TOX = new toxcore.Tox({"old": true})
     catch e
-      @err "Failed to init tox", e
-      console.log e
+      @err "Failed to init Tox", e
+      console.log e, e.stack
       return
 
     @aTox.gui.setUserOnlineStatus 'disconnected'
@@ -167,15 +167,15 @@ class ToxWorker
 #                          |_|
 
   createGroupChat: (e) ->
-    return @stub 'createGroupChat' # TODO -- rework for new tox API
+    #return @stub 'createGroupChat' # TODO -- rework for new tox API
   #TODO: Find local repositories and open their chats on startup
   #atom.project.getRepositories().getConfigValue("remote.origin.url")
     try
-      gID = @TOX.addGroupchatSync()
+      gID = @TOX.old().addGroupchatSync()
     catch e
-      return @err "Failed to add group chat"
+      return @err "Failed to add group chat: #{e.stack}"
 
-    @inf "Added group chat #{gID}" #TODO ret not set!
+    @inf "Added group chat #{gID}"
 
     @groups[gID] = new Group {
       name:   "Group Chat ##{gID}"
@@ -184,28 +184,28 @@ class ToxWorker
     }
 
   groupInviteCB: (e) ->
-    return @stub 'groupInviteCB' # TODO -- rework for new tox API
+    #return @stub 'groupInviteCB' # TODO -- rework for new tox API
     @inf "Received group invite from #{e.friend()}"
 
     try
-      gID = @TOX.joinGroupchatSync e.friend(), e.data()
+      gID = @TOX.old().joinGroupchatSync e.friend(), e.data()
     catch e
       return @err "Failed to join group chat"
 
     @inf "Joined group chat #{gID}"
 
     @groups[gID] = new Group {
-      name:   "Group Chat ##{ret}"
-      gID:    @TOX.getGroupchatTitle( ret )
+      name:   @TOX.old().getGroupchatTitle(gID)
+      gID:    gID
       aTox:   @aTox
     }
 
   getPeerInfo: (e) ->
-    return @stub 'getPeerInfo'  # TODO -- rework for new tox API
-    return if @TOX.peernumberIsOurs e.gID, e.peer
+    #return @stub 'getPeerInfo'  # TODO -- rework for new tox API
+    return if @TOX.old().peernumberIsOurs e.gID, e.peer
     #try
-    key  = @TOX.getGroupchatPeerPublicKeyHexSync e.gID, e.peer
-    name = @TOX.getGroupchatPeernameSync         e.gID, e.peer
+    key  = @TOX.old().getGroupchatPeerPublicKeyHexSync e.gID, e.peer
+    name = @TOX.old().getGroupchatPeernameSync         e.gID, e.peer
     fID  = @getFIDfromKEY                        key
     @inf "FID: #{fID}"
 
@@ -220,18 +220,19 @@ class ToxWorker
     #  return @err "Failed to get peer (#{e.peer}) info in group #{e.gID}"
 
   invite: (e) ->
-    return @stub 'invite' # TODO -- rework for new tox API
+    #return @stub 'invite' # TODO -- rework for new tox API
     try
-      @TOX.inviteSync e.fID, e.gID
+      @TOX.old().inviteSync e.fID, e.gID
     catch err
       return @err "Failed to invite friend #{e.fID} to #{e.gID}"
 
   sendToGC: (e) ->
-    return @stub 'sendToGC' # TODO -- rework for new tox API
+    #return @stub 'sendToGC' # TODO -- rework for new tox API
     try
-      @TOX.sendGroupchatMessageSync e.gID, e.msg
-    catch e
+      @TOX.old().sendGroupchatMessageSync e.gID, e.msg
+    catch err
       @err "Failed to send MSG to group chat #{e.gID}"
+      console.log err
 
 #     _____      _     _____ _______   __
 #    /  ___|    | |   |_   _|  _  \ \ / /

@@ -47,7 +47,7 @@ class Terminal
   addGC:                -> @aTox.TOX.createGroupChat()
   invite:    (f,g)      -> @aTox.TOX.invite            { fID: f, gID: g }
   login:                -> @aTox.authManager.requestNewToken()
-  makeGC:    (n)        -> @aTox.botManager.makeGCformName n
+  makeGC:    (n)        -> return @stub 'makeGCfromName'
 
   process: (data) ->
     cmd = data.cmd
