@@ -3,9 +3,10 @@ fs = require 'fs'
 os = require 'os'
 shell = require 'shell'
 
-Friend = require './atox-friend'
-Bot    = require './atox-bot'
-Group  = require './atox-group'
+Friend      = require './atox-friend'
+Bot         = require './atox-bot'
+Group       = require './atox-group'
+CollabGroup = require './atox-collabGroup'
 
 # coffeelint: disable=max_line_length
 
@@ -172,16 +173,25 @@ class ToxWorker
   #atom.project.getRepositories().getConfigValue("remote.origin.url")
     try
       gID = @TOX.old().addGroupchatSync()
-    catch e
+    catch error
       return @err "Failed to add group chat: #{e.stack}"
+      console.log error
 
     @inf "Added group chat #{gID}"
 
-    @groups[gID] = new Group {
-      name:   "Group Chat ##{gID}"
-      gID:    gID
-      aTox:   @aTox
-    }
+    if e.collab
+      @groups[gID] = new Group {
+        name:   "Group Chat ##{gID}"
+        gID:    gID
+        aTox:   @aTox
+      }
+    else
+      @groups[gID] = new CollabGroup {
+        "gID":  gID
+        "aTox": @aTox
+      }
+
+    return @groups[gID]
 
   groupInviteCB: (e) ->
     #return @stub 'groupInviteCB' # TODO -- rework for new tox API

@@ -19,6 +19,11 @@ class Collab
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
 
+    if params.group?
+      @group = params.group
+    else
+      @group = @aTox.TOX.createGroupChat {"collab": true}
+
   destructor: ->
     for d in @disposables
       d.dispose()
