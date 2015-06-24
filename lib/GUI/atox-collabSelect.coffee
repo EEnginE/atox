@@ -86,7 +86,7 @@ class CollabSelect extends SelectListView
         action:  'Join'
         primary: "#{i.name}"
         desc:    "Join active collab '#{i.name}'"
-        path: i
+        path:    i.name
       }
 
     for i in @aTox.collab.getCollabList()

@@ -29,9 +29,9 @@ class Collab
       @icb = []
     for pos in @editor.getCursorBufferPositions()
       if @pmutex
-        @internalchanges.push {'pos': pos, 'text': text}
+        @internalchanges.push {'pos': pos, 'text': e.text}
       else
-        @icb.push {'pos': pos, 'text': text}
+        @icb.push {'pos': pos, 'text': e.text}
 
   externalChange: (e) ->
     lineStartIndex = 0

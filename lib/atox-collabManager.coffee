@@ -74,7 +74,7 @@ class CollabManager
             listIndex = index
             break
 
-        if listIndex is not -1
+        if listIndex is -1
           list.push {"name": l, "fIDs": [f.fID]}
         else
           list[listIndex].fIDs.push f.fID
