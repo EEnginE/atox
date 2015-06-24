@@ -167,7 +167,7 @@ class ToxWorker
 #                          | |
 #                          |_|
 
-  createGroupChat: (e) ->
+  createGroupChat: (e={}) ->
     #return @stub 'createGroupChat' # TODO -- rework for new tox API
   #TODO: Find local repositories and open their chats on startup
   #atom.project.getRepositories().getConfigValue("remote.origin.url")
