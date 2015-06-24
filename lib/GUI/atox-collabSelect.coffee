@@ -1,5 +1,7 @@
 {SelectListView, View} = require 'atom-space-pen-views'
 
+# coffeelint: disable=max_line_length
+
 class Item extends View
   @content: (params) ->
     @li       outlet: 'root',    class: 'two-lines', =>
@@ -51,16 +53,15 @@ class CollabSelect extends SelectListView
     super()
 
   requestOpen: ->
-    @aTox.collab.updateJoinList => @show()
+    @aTox.collab.updateJoinList (isTimeout) => @show isTimeout.timeout
 
-  show: ->
+  show: (isTimeout) ->
     unless @aTox.collab.getIsGitRepository()
-      @setError 'aTox CollabEdit needs a git repository!'
       @setItems []
       @panel.show()
+      @setError 'aTox CollabEdit needs a git repository!'
       return
 
-    @setError ''
     items = []
 
     currentFile = @aTox.collab.getCurrentFile()
@@ -83,21 +84,28 @@ class CollabSelect extends SelectListView
     for i in @aTox.collab.getJoinableList()
       items.push {
         action:  'Join'
-        primary: "#{i}"
-        desc:    "Join active collab '#{i}'"
+        primary: "#{i.name}"
+        desc:    "Join active collab '#{i.name}'"
         path: i
       }
 
     for i in @aTox.collab.getCollabList()
       items.push {
         action:  'Close'
-        primary: "#{i}"
-        desc:    "Closes collab '#{i}'"
+        primary: "#{i.name}"
+        desc:    "Closes collab '#{i.name}'"
         path: i
       }
 
     @setItems items
     @panel.show()
+
+    if isTimeout
+      @setError 'One or more peers timed out'
+      console.log "Timeout"
+    else
+      @setError ''
+
     @storeFocusedElement()
     @focusFilterEditor()
 

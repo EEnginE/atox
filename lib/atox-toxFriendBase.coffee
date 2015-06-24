@@ -17,6 +17,8 @@ class ToxFriendBase extends ToxFriendProtBase
 
     @isFirstConnect = true
 
+    super()
+
   friendName: (@name) ->
   friendStatusMessage: (@status) ->
   friendStatus: (newStatus) ->
