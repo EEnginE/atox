@@ -41,8 +41,12 @@ class CollabManager
 
     id = @aTox.TOX.friends[array[index]].pSendCommand "joinCollab", {"name": path}
     index++
-    @aTox.manager.pWaitForResponses [id], 1000, (t) =>
+    @aTox.manager.pWaitForResponses [id], 2000, (t) =>
       if t.timeout is true
+        @aTox.term.warn {
+          "title": "collab: timeout"
+          "msg":   "peer #{index-1} of #{array.length} timed out"
+        }
         return @tryToJoinCollab path, array, index
 
       if @aTox.TOX.friends[array[index]].rInviteRequestToCollabSuccess
