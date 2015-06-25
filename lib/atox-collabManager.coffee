@@ -113,7 +113,7 @@ class CollabManager
             break
 
         if listIndex is -1
-          list.push {"name": l, "fIDs": [f.fID], "id": l.id}
+          list.push {"name": l.name, "fIDs": [f.fID], "id": l.id}
         else
           list[listIndex].fIDs.push f.fID
 
