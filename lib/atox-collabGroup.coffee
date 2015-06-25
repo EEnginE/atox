@@ -59,13 +59,11 @@ class CollabGroup
       cb: (params) =>
         switch data.d
           when 0
-            @inf {msg: "New peer in #{@name} - peer #{data.p}"}
-            @peerlist.push {fID: params.fID, peer: data.p, name: params.name, color: params.color}
+            @aTox.term.inf {"title": "New peer in collab #{@id}", "msg": "peer #{data.p}"}
+            @peerlist.push {fID: params.fID, peer: data.p, name: params.name}
           when 2
-            @inf {msg: "Peer #{data.p} changed name"}
+            @aTox.term.inf {msg: "Peer #{data.p} changed name"}
             index = @getPeerListIndex params.fID, data.p
             return @aTox.term.err {cID: @cID, msg: "INDEX ERRPR peer: #{data.p}"} if index < 0
-            @peerlist[index] = {fID: params.fID, peer: data.p, name: params.name, color: params.color}
-
-        @chat.update 'peers' if @chat?
+            @peerlist[index] = {fID: params.fID, peer: data.p, name: params.name}
     }

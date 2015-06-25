@@ -45,7 +45,7 @@ class CollabManager
     id = @aTox.TOX.friends[p.array[index]].pSendCommand "joinCollab", {"name": p.path, "cID": p.id}
     index++
 
-    timeout = @__setTimeout 5000, =>
+    timeout = @__setTimeout 10000, =>
       @aTox.term.err {
         "title": "collab: timeout"
         "msg":   "invite from peer #{index} of #{p.array.length} timed out!"
@@ -67,14 +67,14 @@ class CollabManager
         @collabList.push new Collab {
           "aTox":   @aTox
           "editor": atom.workspace.getActiveTextEditor() # TODO use real editor / file
-          "name":   path
+          "name":   p.path
           "group":  group
         }
 
         return group
     }
 
-    @aTox.manager.pWaitForResponses [id], 2000, (t) =>
+    @aTox.manager.pWaitForResponses [id], 5000, (t) =>
       return if @aTox.TOX.collabWaitCBs[p.id].done
       if t.timeout is true
         clearTimeout timeout
@@ -87,8 +87,6 @@ class CollabManager
       unless @aTox.TOX.friends[p.array[index - 1]].rInviteRequestToCollabSuccess
         clearTimeout timeout
         return @tryToJoinCollab p, index
-
-      console.log "  ---> RESPONSE VALID"
 
   closeCollab: (path) ->
     index = -1

@@ -102,7 +102,6 @@ class CollabSelect extends SelectListView
 
     if isTimeout
       @setError 'One or more peers timed out'
-      console.log "Timeout"
     else
       @setError ''
 

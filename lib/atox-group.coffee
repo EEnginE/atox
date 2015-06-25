@@ -1,5 +1,7 @@
 Chat = require './atox-chat'
 
+# coffeelint: disable=max_line_length
+
 module.exports =
 class Group
   constructor: (params) ->
@@ -36,7 +38,7 @@ class Group
           }
     }
 
-  groupTitle: (params) ->
+  groupTitle: (data) ->
     @aTox.TOX.getPeerInfo {
       gID:  @gID
       peer: data.p
@@ -87,6 +89,4 @@ class Group
     else
       cID = -1
 
-    @aTox.term.inf {msg: "Group '#{@name}': #{params.msg}", cID: cID}
-    return unless params.notify? and params.notify is true
-    @aTox.gui.notify {name: @name, content: params.msg}
+    @aTox.term.inf {"title": "Group '#{@name}'", "msg": "#{params.msg}", cID: cID}

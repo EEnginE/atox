@@ -112,7 +112,7 @@ class ToxWorker
   friendStatusCB:           (e) -> @friends[e.friend()].friendStatus           e.status()
   friendConnectionStatusCB: (e) -> @friends[e.friend()].friendConnectionStatus e.connectionStatus()
   groupMessageCB:           (e) -> @groups[e.group()].groupMessage            {d: e.message(), p: e.peer()} unless @TOX.old().peernumberIsOursSync e.group(), e.peer()
-  groupTitleCB:             (e) -> @groups[e.group()].groupTitle              {d: e.title(),   p: e.peer()}
+  groupTitleCB:             (e) -> @groups[e.group()].groupTitle              {d: e.title(),   p: e.peer()} if @groups[e.group()]?
   groupNamelistChangeCB:    (e) -> @groups[e.group()].gNLC                    {d: e.change(),  p: e.peer()} if @groups[e.group()]?
 
   selfConnectionStatusCB: (e) ->
@@ -197,29 +197,41 @@ class ToxWorker
 
   groupInviteCB: (e) ->
     #return @stub 'groupInviteCB' # TODO -- rework for new tox API
-    @inf "Received group invite from #{e.friend()}"
-
     try
       gID = @TOX.old().joinGroupchatSync e.friend(), e.data()
     catch err
       return @err "Failed to join group chat: #{err.stack}"
 
-    title = @TOX.old().getGroupchatTitle gID
-    data  = {}
+    addGroup = (counter) =>
+      try
+        title = @TOX.old().getGroupchatTitleSync gID
+      catch err
+        counter++
+        if counter is 20
+          @err "Can't get GC title of GC #{gID}"
+        else
+          @myTimeout 500, -> addGroup counter
+          return
 
-    try
-      data = JSON.parse title
-      throw {} unless data.id?
-      throw {} unless @collabCBs[data.id]?
-      @groups[gID] = @collabCBs[data.id].cb()
-    catch error
-      @inf "Joined group chat #{gID}"
+      data  = {}
 
-      @groups[gID] = new Group {
-        name:   title
-        gID:    gID
-        aTox:   @aTox
-      }
+      @inf "Received group invite from #{e.friend()}", title
+
+      try
+        data = JSON.parse title
+        throw {} unless data.id?
+        throw {} unless @collabWaitCBs[data.id]?
+        @groups[gID] = @collabWaitCBs[data.id].cb gID, title
+      catch error
+        @inf "Joined group chat #{gID}"
+
+        @groups[gID] = new Group {
+          name:   title
+          gID:    gID
+          aTox:   @aTox
+        }
+
+    addGroup()
 
   getPeerInfo: (e) ->
     #return @stub 'getPeerInfo'  # TODO -- rework for new tox API
@@ -227,8 +239,7 @@ class ToxWorker
     #try
     key  = @TOX.old().getGroupchatPeerPublicKeyHexSync e.gID, e.peer
     name = @TOX.old().getGroupchatPeernameSync         e.gID, e.peer
-    fID  = @getFIDfromKEY                        key
-    @inf "FID: #{fID}"
+    fID  = @getFIDfromKEY                              key
 
     if fID < 0
       e.cb {key: key, fID: -1, name: name, color: "#AAA"} if e.cb?
