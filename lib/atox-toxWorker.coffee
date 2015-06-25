@@ -68,6 +68,8 @@ class ToxWorker
     @groups       = []
     @sentRequests = []
 
+    @collabWaitCBs = {}
+
     @setName   atom.config.get 'aTox.userName'
     #@setAvatar atom.config.get 'aTox.userAvatar'
     @setStatus "I am a Bot :)"
@@ -202,13 +204,22 @@ class ToxWorker
     catch err
       return @err "Failed to join group chat: #{err.stack}"
 
-    @inf "Joined group chat #{gID}"
+    title = TOX.old().getGroupchatTitle gID
+    data  = {}
 
-    @groups[gID] = new Group {
-      name:   @TOX.old().getGroupchatTitle(gID)
-      gID:    gID
-      aTox:   @aTox
-    }
+    try
+      data = JSON.parse title
+      throw {} unless data.id?
+      throw {} unless @collabCBs[data.id]?
+      @groups[gID] = @collabCBs[data.id].cb()
+    catch error
+      @inf "Joined group chat #{gID}"
+
+      @groups[gID] = new Group {
+        name:   title
+        gID:    gID
+        aTox:   @aTox
+      }
 
   getPeerInfo: (e) ->
     #return @stub 'getPeerInfo'  # TODO -- rework for new tox API
@@ -243,6 +254,15 @@ class ToxWorker
     catch err
       @err "Failed to send MSG to group chat #{e.gID}"
       console.log err
+
+  setGCtitle: (params) ->
+    try
+      @TOX.old().setGroupchatTitleSync params.gID, params.title
+    catch error
+      @err "Failed to set group title to #{params.title}"
+      console.log error
+
+
 
 #     _____      _     _____ _______   __
 #    /  ___|    | |   |_   _|  _  \ \ / /

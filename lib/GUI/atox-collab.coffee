@@ -6,6 +6,7 @@ class Collab
   constructor: (params) ->
     @aTox   = params.aTox
     @editor = params.editor
+    @name   = params.name
     @disposables = []
     @internalchanges = []
     @externalchanges = []
@@ -23,6 +24,8 @@ class Collab
       @group = params.group
     else
       @group = @aTox.TOX.createGroupChat {"collab": true}
+
+    @id = @group.id
 
   destructor: ->
     for d in @disposables
