@@ -92,9 +92,9 @@ class CollabSelect extends SelectListView
     for i in @aTox.collab.getCollabList()
       items.push {
         action:  'Close'
-        primary: "#{i}"
-        desc:    "Closes collab '#{i}'"
-        path: i
+        primary: "#{i.name}"
+        desc:    "Closes collab '#{i.name}'"
+        path: i.name
       }
 
     @setItems items

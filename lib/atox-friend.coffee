@@ -20,17 +20,15 @@ class Friend extends ToxFriendBase
     }
 
   REQ_joinCollab: (d) ->
-    @rCollabID = ""
     for i in @aTox.collab.collabList
-      if i.name is d.name
-        @rCollabID = i.id
+      if i.id is d.cID
+        @aTox.TOX.invite {"fID": @fID, "gID": i.group.gID}
         @rCollabInviteReturn = "success"
         return
     @rCollabInviteReturn = "not found"
 
   RESP_joinCollab: (d) ->
     if d.inviteReturn is "success"
-      @inf "Recieved"
       @rInviteRequestToCollabSuccess = true
     else
       @aTox.term.warn {

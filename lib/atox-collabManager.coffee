@@ -11,7 +11,7 @@ class CollabManager
   constructor: (params) ->
     @aTox = params.aTox
 
-    @collabList   = [] # Array of strings
+    @collabList   = [] # Array of Collab
     @joinableList = [] # Array of objects: {"name": "<n>", "fIDs": [], "id": <random string>}
     @editors = []
 
@@ -42,7 +42,7 @@ class CollabManager
     if index is p.array.length
       return @aTox.term.err {"title": "Failed to join collab", "msg": p.path}
 
-    id = @aTox.TOX.friends[p.array[index]].pSendCommand "joinCollab", {"name": p.path, "id": p.id}
+    id = @aTox.TOX.friends[p.array[index]].pSendCommand "joinCollab", {"name": p.path, "cID": p.id}
     index++
 
     timeout = @__setTimeout 5000, =>
@@ -50,14 +50,14 @@ class CollabManager
         "title": "collab: timeout"
         "msg":   "invite from peer #{index} of #{p.array.length} timed out!"
       }
-      return @tryToJoinCollab p.path, p.array, index
+      return @tryToJoinCollab p, index
 
     @aTox.TOX.collabWaitCBs[p.id] = {
       "done": false
       "cb": (gID, name) =>
         clearTimeout timeout
         @aTox.term.success {"title": "Joined collab #{p.path}", "msg": "ID: #{p.id}"}
-        @aTox.term.collabCBs[p.id].done = true
+        @aTox.TOX.collabWaitCBs[p.id].done = true
         group = new CollabGroup {
           "aTox": @aTox
           "gID":  gID
@@ -75,14 +75,14 @@ class CollabManager
     }
 
     @aTox.manager.pWaitForResponses [id], 2000, (t) =>
-      return if @aTox.term.collabCBs[p.id].done
+      return if @aTox.TOX.collabWaitCBs[p.id].done
       if t.timeout is true
         clearTimeout timeout
         @aTox.term.warn {
           "title": "collab: timeout"
           "msg":   "peer #{index} of #{p.array.length} timed out"
         }
-        return @tryToJoinCollab p.path, p.array, index
+        return @tryToJoinCollab p, index
 
       unless @aTox.TOX.friends[p.array[index - 1]].rInviteRequestToCollabSuccess
         clearTimeout timeout
