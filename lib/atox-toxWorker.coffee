@@ -204,7 +204,7 @@ class ToxWorker
     catch err
       return @err "Failed to join group chat: #{err.stack}"
 
-    title = TOX.old().getGroupchatTitle gID
+    title = @TOX.old().getGroupchatTitle gID
     data  = {}
 
     try

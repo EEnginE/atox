@@ -1,4 +1,5 @@
 {View, TextEditorView, $, $$} = require 'atom-space-pen-views'
+PeerList = require './atox-peerList'
 jQuery    = require 'jquery'
 require 'jquery-ui'
 
@@ -82,6 +83,8 @@ class Chatpanel extends View
       if isBot or params.tid is -1
         @scrollBot(cID)
     else
+      if isBot
+        @scrollPos[cID] = -1
       @coverview.find("[cID='#{cID}']").addClass 'status-modified'
 
   addChat: (params) ->
@@ -91,6 +94,8 @@ class Chatpanel extends View
 
     if params.group? and params.group is true
       aclass = 'groupchat'
+      @peerView = new PeerList {cID: params.cID}
+      @addPeerView({cID: params.cID, view: @peerView})
     else
       aclass = ''
 
@@ -118,7 +123,7 @@ class Chatpanel extends View
     else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @coverview.find("[cID='#{cID}']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
-    @addUser peer.content for peer in params.peerlist if params.peerlist?
+    @peerView.setList @chatClasses[cID].peerlist() if params.peers? and params.peers
 
   selectChat: (cID) ->
     cID = "#{cID}"
@@ -144,11 +149,11 @@ class Chatpanel extends View
       @chats.scrollTop(parseInt @scrollPos[cID])
     @coverview.find("[cID='#{cID}']").removeClass 'status-modified'
 
-  addUser: (view) ->
+  addPeerView: (params) ->
     #Call only if groupchat
     if @chats.find("[cID='#{params.cID}']").hasClass('groupchat') is false
       return
-    @ulist.find("[cID='#{params.cID}']").append view
+    @ulist.find("[cID='#{params.cID}']").append params.view
 
 
   scrollBot: (cID) -> #Must be fixed

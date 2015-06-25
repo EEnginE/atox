@@ -80,8 +80,10 @@ class Chat
   update: (what) ->
     @chatBox.update     what
     @contactView.update what
-
-    @aTox.gui.chatpanel.update {cID: @cID}
+    if what is 'peers'
+      @aTox.gui.chatpanel.update {cID: @cID, peers: true}
+    else
+      @aTox.gui.chatpanel.update {cID: @cID}
 
   markAsRead: (id) -> @msgViews[id].markAsRead() if @msgViews[id]?
 
