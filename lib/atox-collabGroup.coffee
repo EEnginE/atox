@@ -18,13 +18,14 @@ class CollabGroup
       throw {"id": 2, "message": "Invalid JSON"} unless d.id? and d.collab is true
       @id = d.id
     else
-      @id = genID()
+      @id = @genID()
       @name = JSON.stringify {"collab": true, "id": @id}
       @aTox.TOX.setGCtitle {"gID": @gID, "title": @name}
 
     @peerlist = []
 
   genID: ->
+    t = ""
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!$%&(){}[]_+-*/'#|;,:."
     t += chars[Math.floor(Math.random() * chars.length)] for i in [0..20]
     return t
