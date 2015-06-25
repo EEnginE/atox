@@ -46,7 +46,7 @@ class CollabGroup
 
     return -1
 
-  gNLC: (params) ->
+  gNLC: (data) ->
     if data.d is 1
       index = @getPeerListIndex -5, data.p
       return @aTox.term.err {cID: @cID, msg: "INDEX ERRPR peer: #{data.p}"} if index < 0

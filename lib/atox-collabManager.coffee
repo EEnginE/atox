@@ -88,6 +88,8 @@ class CollabManager
         clearTimeout timeout
         return @tryToJoinCollab p, index
 
+      console.log "  ---> RESPONSE VALID"
+
   closeCollab: (path) ->
     index = -1
     for i, ind in @collabList
