@@ -107,6 +107,16 @@ class CollabManager
       continue unless f.pCollabList? # botProtocol not valid / init
       for l in f.pCollabList
         listIndex = -1
+
+        # Check if we are already in this collab
+        for i in @collabList
+          if i.id is l.id
+            listIndex = -2
+            break
+
+        continue if listIndex is -2
+
+        # Check for duplicate entries from different peers / friends
         for i, index in list
           if i.id is l.id
             listIndex = index
