@@ -24,6 +24,9 @@ class CollabGroup
 
     @peerlist = []
 
+  destructor: ->
+    @aTox.TOX.deleteGroupChat {"gID": @gID}
+
   genID: ->
     t = ""
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!$%&(){}[]_+-*/'#|;,:."

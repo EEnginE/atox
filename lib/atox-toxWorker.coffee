@@ -176,8 +176,8 @@ class ToxWorker
     try
       gID = @TOX.old().addGroupchatSync()
     catch error
-      return @err "Failed to add group chat: #{e.stack}"
       console.log error
+      return @err "Failed to add group chat: #{e.stack}"
 
     @inf "Added group chat #{gID}"
 
@@ -194,6 +194,15 @@ class ToxWorker
       }
 
     return @groups[gID]
+
+  deleteGroupChat: (e) ->
+    try
+      @TOX.old().deleteGroupchatSync e.gID
+    catch error
+      console.log error
+      return @err "Failed to delete group chat", error.stack
+
+    @inf "Removed group chat #{e.gID}"
 
   groupInviteCB: (e) ->
     #return @stub 'groupInviteCB' # TODO -- rework for new tox API

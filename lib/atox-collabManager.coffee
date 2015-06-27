@@ -25,6 +25,7 @@ class CollabManager
       "editor": atom.workspace.getActiveTextEditor()
       "name":   path
     }
+    @aTox.term.success {"title": "Created collab: #{name}"}
 
   joinCollab: (path) ->
     fIDs = []
@@ -41,16 +42,6 @@ class CollabManager
   tryToJoinCollab: (p, index) ->
     if index is p.array.length
       return @aTox.term.err {"title": "Failed to join collab", "msg": p.path}
-
-    id = @aTox.TOX.friends[p.array[index]].pSendCommand "joinCollab", {"name": p.path, "cID": p.id}
-    index++
-
-    timeout = @__setTimeout 10000, =>
-      @aTox.term.err {
-        "title": "collab: timeout"
-        "msg":   "invite from peer #{index} of #{p.array.length} timed out!"
-      }
-      return @tryToJoinCollab p, index
 
     @aTox.TOX.collabWaitCBs[p.id] = {
       "done": false
@@ -73,6 +64,16 @@ class CollabManager
 
         return group
     }
+
+    id = @aTox.TOX.friends[p.array[index]].pSendCommand "joinCollab", {"name": p.path, "cID": p.id}
+    index++
+
+    timeout = @__setTimeout 10000, =>
+      @aTox.term.err {
+        "title": "collab: timeout"
+        "msg":   "invite from peer #{index} of #{p.array.length} timed out!"
+      }
+      return @tryToJoinCollab p, index
 
     @aTox.manager.pWaitForResponses [id], 5000, (t) =>
       return if @aTox.TOX.collabWaitCBs[p.id].done
@@ -97,9 +98,9 @@ class CollabManager
 
     return @aTox.term.err {"title": "#{path} is not a collabedit"} if index < 0
 
+    @collabList[index].destructor()
     @collabList.splice index, 1
-    @aTox.term.inf  {"title": "Closed collab #{path}"}
-    @aTox.term.stub {"msg": "CollabManager::closeCollab"}
+    @aTox.term.success {"title": "Closed collab #{path}"}
 
   generateJoinableList: ->
     list = []
@@ -152,12 +153,18 @@ class CollabManager
 
   getJoinableList: -> return @joinableList
 
-  getIsGitRepository: -> atom.project.getRepositories()?
-  getCurrentFile:     ->
-    editor   = atom.workspace.getActiveTextEditor()
-    rootPath = atom.project.getRepositories()[0].getPath().replace ".git", ''
-    return {error: true} unless editor?
+  getCurrentFile:  ->
+    return {"error": true} unless atom.workspace.getActiveTextEditor()?
 
-    path = editor.getPath().replace rootPath, ''
+    path = atom.workspace.getActiveTextEditor().getPath()
+    path = atom.project.relativizePath( path )[1] # 0 = project path, 1 = relative path
 
-    return {error: false, path: path, collabExists: false}
+    for i in @collabList
+      if path is i.name
+        return {"error": false, "path": path, "collabExists": 1}
+
+    for i in @joinableList
+      if path is i.name
+        return {"error": false, "path": path, "collabExists": 2}
+
+    return {"error": false, "path": path, "collabExists": 0}

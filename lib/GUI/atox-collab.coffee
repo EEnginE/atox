@@ -31,6 +31,8 @@ class Collab
     for d in @disposables
       d.dispose()
 
+    @group.destructor()
+
   internalChange: (e) ->
     if @pmutex and @icb.length > 0
       @internalchanges = @icb.concat(@internalchanges)

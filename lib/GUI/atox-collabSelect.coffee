@@ -56,17 +56,18 @@ class CollabSelect extends SelectListView
     @aTox.collab.updateJoinList (isTimeout) => @show isTimeout.timeout
 
   show: (isTimeout) ->
-    unless @aTox.collab.getIsGitRepository()
-      @setItems []
-      @panel.show()
-      @setError 'aTox CollabEdit needs a git repository!'
-      return
-
     items = []
 
     currentFile = @aTox.collab.getCurrentFile()
     unless currentFile.error
-      if currentFile.collabExists
+      if currentFile.collabExists is 1
+        items.push {
+          action:  "Close"
+          primary: "Collab for this file"
+          desc:    "Quit the current collab for this file (#{currentFile.path})"
+          path:    currentFile.path
+        }
+      else if currentFile.collabExists is 2
         items.push {
           action:  "Join"
           primary: "Collab for this file"
