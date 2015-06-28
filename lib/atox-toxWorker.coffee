@@ -252,10 +252,9 @@ class ToxWorker
 
     if fID < 0
       e.cb {key: key, fID: -1, name: name, color: "#AAA"} if e.cb?
-      return @inf "Peer #{e.peer} in GC #{e.gID} is '#{name}' and NOT A CONTACT (#{key})"
+      return
 
     e.cb {key: key, fID: fID, name: name, color: @friends[fID].color} if e.cb?
-    @inf "Peer #{e.peer} in GC #{e.gID} is '#{name}' (#{key})"
     #catch err
     #  console.log err
     #  return @err "Failed to get peer (#{e.peer}) info in group #{e.gID}"
