@@ -52,7 +52,8 @@ class CollabGroup
   gNLC: (data) ->
     if data.d is 1
       index = @getPeerListIndex -5, data.p
-      return @aTox.term.err {cID: @cID, msg: "INDEX ERRPR peer: #{data.p}"} if index < 0
+      return @aTox.term.err {"title": "INDEX ERRPR peer: #{data.p}"} if index < 0
+      @aTox.term.inf {"title": "Peer #{data.p} left collab #{@id}"}
       @peerlist.splice index, 1
       return
 
@@ -62,11 +63,6 @@ class CollabGroup
       cb: (params) =>
         switch data.d
           when 0
-            @aTox.term.inf {"title": "New peer in collab #{@id}", "msg": "peer #{data.p}"}
-            @peerlist.push {fID: params.fID, peer: data.p, name: params.name}
-          when 2
-            @aTox.term.inf {msg: "Peer #{data.p} changed name"}
-            index = @getPeerListIndex params.fID, data.p
-            return @aTox.term.err {cID: @cID, msg: "INDEX ERRPR peer: #{data.p}"} if index < 0
-            @peerlist[index] = {fID: params.fID, peer: data.p, name: params.name}
+            @aTox.term.inf {"title": "New peer '#{data.p}' in collab #{@id}"}
+            @peerlist.push {"fID": params.fID, "peer": data.p, "key": params.key}
     }

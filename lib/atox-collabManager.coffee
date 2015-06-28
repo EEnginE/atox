@@ -55,12 +55,31 @@ class CollabManager
           "name": name
         }
 
-        @collabList.push new Collab {
-          "aTox":   @aTox
-          "editor": atom.workspace.getActiveTextEditor() # TODO use real editor / file
-          "name":   p.path
-          "group":  group
-        }
+        paths      = atom.project.getPaths()
+        path       = "/#{p.path}"
+        currEditor = atom.workspace.getActiveTextEditor()
+
+        if currEditor?
+          currPath        = currEditor.getPath()
+          currProjectPath = atom.project.relativizePath(currPath)[0]
+          if currProjectPath?
+            path = currProjectPath + path
+          else
+            throw {"message": "No project open"} unless paths?
+            path = paths[0] + path
+        else
+          throw {"message": "No project open"} unless paths?
+          path = paths[0] + path
+
+        editorPromise = atom.workspace.open path
+
+        editorPromise.then (editor) =>
+          @collabList.push new Collab {
+            "aTox":   @aTox
+            "editor": editor
+            "name":   p.path
+            "group":  group
+          }
 
         return group
     }
