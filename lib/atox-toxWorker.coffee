@@ -1,12 +1,14 @@
 toxcore = require 'toxcore'
 fs = require 'fs'
 os = require 'os'
+path = require 'path'
 shell = require 'shell'
 
-Friend      = require './atox-friend'
-Bot         = require './atox-bot'
-Group       = require './atox-group'
-CollabGroup = require './atox-collabGroup'
+Friend       = require './atox-friend'
+Bot          = require './atox-bot'
+Group        = require './atox-group'
+CollabGroup  = require './atox-collabGroup'
+FileTransfer = require './atox-fileTransfer'
 
 # coffeelint: disable=max_line_length
 
@@ -30,6 +32,7 @@ class ToxWorker
       'stack': e.stack
       'description': 'Internal Error'
     }
+    console.log e
 
   startup: ->
     rawJSON     = fs.readFileSync "#{__dirname}/../nodes.json"
@@ -51,6 +54,10 @@ class ToxWorker
 
     @TOX.on 'avatarData',                 (e) => try @avatarDataCB e             catch a then @handleExept 'avatarData',             a
     @TOX.on 'avatarInfo',                 (e) => try @avatarInfCB e              catch a then @handleExept 'avatarInfo',             a
+    @TOX.on 'fileRecv',                   (e) => try @fileRecvCB e               catch a then @handleExept 'fileRecv',               a
+    @TOX.on 'fileRecvControl',            (e) => try @fileRecvControlCB e        catch a then @handleExept 'fileRecvControl',        a
+    @TOX.on 'fileRecvChunk',              (e) => try @fileRecvChunkCB e          catch a then @handleExept 'fileRecvChunk',          a
+    @TOX.on 'fileChunkRequest',           (e) => try @fileChunkRequestCB e       catch a then @handleExept 'fileChunkRequest',       a
     @TOX.on 'friendMessage',              (e) => try @friendMsgCB e              catch a then @handleExept 'friendMessage',          a
     @TOX.on 'friendReadReceipt',          (e) => try @friendReadReceiptCB e      catch a then @handleExept 'friendReadReceipt',      a
     @TOX.on 'friendRequest',              (e) => try @friendRequestCB e          catch a then @handleExept 'friendRequest',          a
@@ -67,6 +74,7 @@ class ToxWorker
     @friends      = []
     @groups       = []
     @sentRequests = []
+    @files        = []
 
     @collabWaitCBs = {}
 
@@ -111,6 +119,9 @@ class ToxWorker
   friendStatusMessageCB:    (e) -> @friends[e.friend()].friendStatusMessage    e.statusMessage()
   friendStatusCB:           (e) -> @friends[e.friend()].friendStatus           e.status()
   friendConnectionStatusCB: (e) -> @friends[e.friend()].friendConnectionStatus e.connectionStatus()
+  fileRecvControlCB:        (e) -> @files[e.friend()][e.file()].control        e.control(), e.controlName()
+  fileRecvChunkCB:          (e) -> @files[e.friend()][e.file()].chunk          e.position(), e.data(), e.isFinal()
+  fileChunkRequestCB:       (e) -> @files[e.friend()][e.file()].chunkRequest   e.position(), e.length()
   groupMessageCB:           (e) -> @groups[e.group()].groupMessage            {d: e.message(), p: e.peer()} unless @TOX.old().peernumberIsOursSync e.group(), e.peer()
   groupTitleCB:             (e) -> @groups[e.group()].groupTitle              {d: e.title(),   p: e.peer()} if @groups[e.group()]?
   groupNamelistChangeCB:    (e) -> @groups[e.group()].gNLC                    {d: e.change(),  p: e.peer()} if @groups[e.group()]?
@@ -159,6 +170,82 @@ class ToxWorker
       return i.fID if i.pubKey is key
 
     return -1
+
+#    ______ _ _        _____                    __
+#    |  ___(_) |      |_   _|                  / _|
+#    | |_   _| | ___    | |_ __ __ _ _ __  ___| |_ ___ _ __
+#    |  _| | | |/ _ \   | | '__/ _` | '_ \/ __|  _/ _ \ '__|
+#    | |   | | |  __/   | | | | (_| | | | \__ \ ||  __/ |
+#    \_|   |_|_|\___|   \_/_|  \__,_|_| |_|___/_| \___|_|
+#
+
+  fileRecvCB: (e) ->
+    @files[e.friend()] = [] unless @files[e.friend()]?
+    @files[e.friend()][e.file()] = new FileTransfer {
+      "aTox":     @aTox
+      "role":     'receiver'
+      "name":     e.filename()
+      "kind":     e.kind()
+      "size":     e.size()
+      "id": {
+        "friend": e.friend()
+        "file":   e.file()
+        "id":     @getFileID {"fID": e.friend(), "fileID": e.file()}
+      }
+      "doneCB": => @files[e.friend()][e.file()] = null
+    }
+
+  getFileID: (e) -> @TOX.getFileIdSync e.fID, e.fileID
+
+
+  # e: {"fID", "path"}
+  # e: {"fID", "path", "collabSync", "setSyncTransferID"}
+  sendFile: (e) ->
+    fs.stat e.path, (err, stats) =>
+      if err
+        @err "Failed to send File. Unable to get file stats"
+        return console.log err
+
+      size = stats["size"]
+      chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!$%&(){}[]_+-*/'#|;,:."
+      if e.collabSync
+        id = "aTox_collab="
+        missing = @consts.TOX_FILE_ID_LENGTH - id.length
+        colID   = ""
+        colID   += chars[Math.floor(Math.random() * chars.length)] for i in [1..missing]
+        e.setSyncTransferID colID
+        id = id + colID
+      else
+        id = ""
+        id += chars[Math.floor(Math.random() * chars.length)] for i in [1..@consts.TOX_FILE_ID_LENGTH]
+
+      fileID = @TOX.sendFileSync e.fID, @consts.TOX_FILE_KIND_DATA, path.basename( e.path ), size, new Buffer id
+
+      @files[e.fID] = [] unless @files[e.fID]?
+      @files[e.fID][fileID] = new FileTransfer {
+        "aTox":     @aTox
+        "role":     'sender'
+        "fullPath": e.path
+        "name":     path.basename( e.path )
+        "kind":     @consts.TOX_FILE_KIND_DATA
+        "size":     size
+        "id": {
+          "friend": e.fID
+          "file":   e.fileID
+          "id":     id
+        }
+        "doneCB": => @files[e.fID][e.fileID] = null
+      }
+
+  controlFile: (e) ->
+    switch e.control
+      when 'resume' then @TOX.controlFileSync e.fID, e.fileID, @consts.TOX_FILE_CONTROL_RESUME
+      when 'pause'  then @TOX.controlFileSync e.fID, e.fileID, @consts.TOX_FILE_CONTROL_PAUSE
+      when 'cancle' then @TOX.controlFileSync e.fID, e.fileID, @consts.TOX_FILE_CONTROL_CANCEL
+      else throw new Error "Unknown control cmd 'e.control'"
+
+  seekFileChunk: (e) -> @TOX.seekFileSync      e.id.friend, e.id.file, e.pos
+  sendFileChunk: (e) -> @TOX.sendFileChunkSync e.id.friend, e.id.file, e.pos, e.data
 
 #     _____                         _____ _          __  __
 #    |  __ \                       /  ___| |        / _|/ _|

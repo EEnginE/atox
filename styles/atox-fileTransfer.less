@@ -1,0 +1,25 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@import "./atox-vars";
+
+.aTox-FileTransferRoot {
+  display: flex;
+  align-items: center;
+  padding-left:  3px;
+  padding-right: 3px;
+
+  label, button {
+    flex-shrink: 0;
+  }
+
+  atom-text-editor {
+    flex-grow: 2;
+  }
+
+  progress {
+    flex-grow: 1;
+  }
+}

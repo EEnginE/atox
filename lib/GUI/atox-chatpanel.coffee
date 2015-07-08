@@ -5,6 +5,8 @@ require 'jquery-ui'
 
 StatusSelector = require './atox-statusSelector'
 
+# coffeelint: disable=max_line_length
+
 module.exports =
 class Chatpanel extends View
   @content: (params) ->
@@ -30,10 +32,10 @@ class Chatpanel extends View
 
     @panel = atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
-      @showHistory() unless @historyRendered or event.which is 27
+      @showHistory() unless @historyRendered or e.which is 27
 
       id = parseInt @coverview.find('.selected').attr('cID') #get cID of selected chat
-      switch event.which
+      switch e.which
         when 13
           @chatClasses[id].sendMSG @inputField.getText()
           @inputField.setText ''

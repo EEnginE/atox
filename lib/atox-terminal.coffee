@@ -22,6 +22,7 @@ class Terminal
       {cmd: 'setOnline', argc: 1, desc: 'Set online status to [a1]',                             icon: 'globe',              run: (cID, p) => @setOnline   p[0]      }
       {cmd: 'openChat',  argc: 1, desc: 'Opens chat with ID [a1]',                               icon: 'link-external',      run: (cID, p) => @openChat    p[0]      }
       {cmd: 'closeChat', argc: 1, desc: 'Closes the chat with ID [a1]',                          icon: 'x',                  run: (cID, p) => @closeChat   p[0]      }
+      {cmd: 'sendFile',  argc: 1, desc: 'Sends the current file to [a1]',                        icon: 'arrow-up',           run: (cID, p) => @sendFile    p[0]      }
       {cmd: 'sendMSG',   argc: 2, desc: 'Send message [a2] to user [a1]',                        icon: 'comment',            run: (cID, p) => @sendMSG     p[0], p[1]}
       {cmd: 'sendToGC',  argc: 2, desc: 'Send message [a2] to group chat [a1]',                  icon: 'comment-discussion', run: (cID, p) => @sendToGC    p[0], p[1]}
       {cmd: 'reqAvatar', argc: 0, desc: 'Send a avatar request to all friends',                  icon: 'cloud-download',     run: (cID)    => @reqAvatar()           }
@@ -40,6 +41,7 @@ class Terminal
   setAvatar: (p)        -> @aTox.TOX.setAvatar p
   setStatus: (p)        -> @aTox.TOX.setStatus p
   setOnline: (p)        -> @aTox.TOX.onlineStatus p; @aTox.gui.setUserOnlineStatus p
+  sendFile:  (f)        -> @aTox.TOX.sendFile {"fID": f, "path": atom.workspace.getActiveTextEditor().getPath()}
   sendMSG:   (f, m)     -> @aTox.TOX.sendToFriend      { fID: f,  msg: m }
   sendToGC:  (f, m)     -> @aTox.TOX.sendToGC          { gID: f,  msg: m }
   addFriend: (a, m)     -> @aTox.TOX.sendFriendRequest { addr: a, msg: m }
