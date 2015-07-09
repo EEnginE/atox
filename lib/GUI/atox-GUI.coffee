@@ -66,9 +66,6 @@ class GUI
 
     atom.config.observe 'aTox.userAvatar',  (newValue) => @correctPath         newValue
 
-    #@question      = new Question {name: "Test", question: "You there?", accept: "Ja", decline: "Nein", cb: this.callback}
-    #@question.ask()
-
   correctPath: (pathArg) ->
     pathArg = path.normalize(pathArg)
     pathArg = pathArg.replace(/\\/g, '/')
