@@ -130,7 +130,7 @@ class CollabManager
 
         # Check if we are already in this collab
         for i in @collabList
-          if i.id is l.id
+          if i.getID() is l.id
             listIndex = -2
             break
 
@@ -167,7 +167,7 @@ class CollabManager
 
   getCollabList: ->
     list = []
-    list.push {"name": i.name, "id": i.id} for i in @collabList
+    list.push {"name": i.getName(), "id": i.getID()} for i in @collabList
     return list
 
   getJoinableList: -> return @joinableList
@@ -179,7 +179,7 @@ class CollabManager
     path = atom.project.relativizePath( path )[1] # 0 = project path, 1 = relative path
 
     for i in @collabList
-      if path is i.name
+      if path is i.getName()
         return {"error": false, "path": path, "collabExists": 1}
 
     for i in @joinableList

@@ -1,8 +1,9 @@
+CollabGroupProtocol = require '../atox-collabGroupProtocol'
 
 newlineRegex: /\r\n|\n|\r/g
 
 module.exports =
-class Collab
+class Collab extends CollabGroupProtocol
   constructor: (params) ->
     @aTox   = params.aTox
     @editor = params.editor
@@ -20,18 +21,15 @@ class Collab
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
 
-    if params.group?
-      @group = params.group
-    else
-      @group = @aTox.TOX.createGroupChat {"collab": true}
+    super params
 
-    @id = @group.id
+  getName: -> @name
 
   destructor: ->
     for d in @disposables
       d.dispose()
 
-    @group.destructor()
+    super()
 
   internalChange: (e) ->
     if @pmutex and @icb.length > 0
@@ -120,3 +118,9 @@ class Collab
       changes[i].pos = changes[i].pos.toArray()
 
     return changes
+
+  CMD_startSyncing: -> # TODO implement
+  CMD_stopSyncing: (data) -> # TODO implement
+  CMD_getSyncData: -> {"TODO": "make sync data here"}
+
+  CMD_process: (data) -> {"TODO": "implement this", "temp": @pMyKey}

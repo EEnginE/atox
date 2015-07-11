@@ -70,6 +70,7 @@ class Group
       gID: @gID
       peer: data.p
       cb: (params) =>
+        return if params.isMe
         switch data.d
           when 0
             @inf {msg: "New peer in #{@name} - peer #{data.p}"}

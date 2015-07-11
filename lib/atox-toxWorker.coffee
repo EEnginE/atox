@@ -122,9 +122,39 @@ class ToxWorker
   fileRecvControlCB:        (e) -> @files[e.friend()][e.file()].control        e.control(), e.controlName()
   fileRecvChunkCB:          (e) -> @files[e.friend()][e.file()].chunk          e.position(), e.data(), e.isFinal()
   fileChunkRequestCB:       (e) -> @files[e.friend()][e.file()].chunkRequest   e.position(), e.length()
-  groupMessageCB:           (e) -> @groups[e.group()].groupMessage            {d: e.message(), p: e.peer()} unless @TOX.old().peernumberIsOursSync e.group(), e.peer()
-  groupTitleCB:             (e) -> @groups[e.group()].groupTitle              {d: e.title(),   p: e.peer()} if @groups[e.group()]?
-  groupNamelistChangeCB:    (e) -> @groups[e.group()].gNLC                    {d: e.change(),  p: e.peer()} if @groups[e.group()]?
+
+  # Sometimes thoese events are faster than our created objects created
+
+  __groupPlaceholder: -> {
+    "__isTempPlaceholder": true
+    "titles": []
+    "NLC": []
+    "msgs": []
+  }
+
+  groupMessageCB:           (e) ->
+    return if @TOX.old().peernumberIsOursSync e.group(), e.peer()
+    @groups[e.group()] = @__groupPlaceholder() unless @groups[e.group()]?
+
+    if @groups[e.group()].__isTempPlaceholder
+      @groups[e.group()].msgs.push {d: e.message(), p: e.peer()}
+    else
+      @groups[e.group()].groupMessage {d: e.message(), p: e.peer()}
+
+  groupTitleCB:             (e) ->
+    @groups[e.group()] = @__groupPlaceholder() unless @groups[e.group()]?
+
+    if @groups[e.group()].__isTempPlaceholder
+      @groups[e.group()].titles.push {d: e.title(), p: e.peer()}
+    else
+      @groups[e.group()].groupTitle {d: e.title(), p: e.peer()}
+  groupNamelistChangeCB:    (e) ->
+    @groups[e.group()] = @__groupPlaceholder() unless @groups[e.group()]?
+
+    if @groups[e.group()].__isTempPlaceholder
+      @groups[e.group()].NLC.push {d: e.change(),  p: e.peer()}
+    else
+      @groups[e.group()].gNLC {d: e.change(),  p: e.peer()}
 
   selfConnectionStatusCB: (e) ->
     if e.isConnected()
@@ -170,6 +200,14 @@ class ToxWorker
       return i.fID if i.pubKey is key
 
     return -1
+
+  getSelfPubKey: ->
+    try
+      return @TOX.getPublicKeyHexSync()
+    catch error
+      @handleExept "getSelfPubKey", error
+      return ""
+
 
 #    ______ _ _        _____                    __
 #    |  ___(_) |      |_   _|                  / _|
@@ -317,9 +355,30 @@ class ToxWorker
         data = JSON.parse title
         throw {} unless data.id?
         throw {} unless @collabWaitCBs[data.id]?
+        NLC = titles = msgs = []
+
+        # Check for early events
+        if @groups[gID]?
+          if @groups[gID].__isTempPlaceholder
+            titles = @groups[gID].titles
+            NLC    = @groups[gID].NLC
+            msgs   = @groups[gID].msgs
+
         @groups[gID] = @collabWaitCBs[data.id].cb gID, title
+        @groups[gID].groupTitle i   for i in titles
+        @groups[gID].gNLC       i   for i in NLC
+        @groups[gID].groupMessage i for i in msgs
       catch error
         @inf "Joined group chat #{gID}"
+
+        NLC = titles = msgs = []
+
+        # Check for early events
+        if @groups[gID]?
+          if @groups[gID].__isTempPlaceholder
+            titles = @groups[gID].titles
+            NLC    = @groups[gID].NLC
+            msgs   = @groups[gID].msgs
 
         @groups[gID] = new Group {
           name:   title
@@ -327,24 +386,40 @@ class ToxWorker
           aTox:   @aTox
         }
 
+        @groups[gID].groupTitle i   for i in titles
+        @groups[gID].gNLC       i   for i in NLC
+        @groups[gID].groupMessage i for i in msgs
+
     addGroup()
 
   getPeerInfo: (e) ->
     #return @stub 'getPeerInfo'  # TODO -- rework for new tox API
-    return if @TOX.old().peernumberIsOurs e.gID, e.peer
-    #try
-    key  = @TOX.old().getGroupchatPeerPublicKeyHexSync e.gID, e.peer
-    name = @TOX.old().getGroupchatPeernameSync         e.gID, e.peer
-    fID  = @getFIDfromKEY                              key
+    try
+      obj  = {}
+      obj.isMe = @TOX.old().peernumberIsOursSync             e.gID, e.peer
+      obj.key  = @TOX.old().getGroupchatPeerPublicKeyHexSync e.gID, e.peer
+      obj.name = @TOX.old().getGroupchatPeernameSync         e.gID, e.peer
+      obj.fID  = @getFIDfromKEY                              obj.key
 
-    if fID < 0
-      e.cb {key: key, fID: -1, name: name, color: "#AAA"} if e.cb?
-      return
+      if obj.fID < 0
+        obj.color = "#AAA"
+      else
+        obj.color = @friends[obj.fID].color
 
-    e.cb {key: key, fID: fID, name: name, color: @friends[fID].color} if e.cb?
-    #catch err
-    #  console.log err
-    #  return @err "Failed to get peer (#{e.peer}) info in group #{e.gID}"
+      e.cb obj if e.cb?
+      return obj
+
+    catch err
+      console.log err
+      @handleExept "getPeerInfo", err
+
+  getGCPeerCount: (e) ->
+    try
+      return @TOX.old().getGroupchatPeerCountSync e.gID
+    catch error
+      @handleExept "getGCPeerCount", error
+      throw error
+
 
   invite: (e) ->
     #return @stub 'invite' # TODO -- rework for new tox API

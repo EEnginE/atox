@@ -21,8 +21,8 @@ class Friend extends ToxFriendBase
 
   REQ_joinCollab: (d) ->
     for i in @aTox.collab.collabList
-      if i.id is d.cID
-        @aTox.TOX.invite {"fID": @fID, "gID": i.group.gID}
+      if i.getID() is d.cID
+        @aTox.TOX.invite {"fID": @fID, "gID": i.getGroup().gID}
         @rCollabInviteReturn = "success"
         return
     @rCollabInviteReturn = "not found"

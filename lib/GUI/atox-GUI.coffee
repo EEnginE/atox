@@ -1,5 +1,4 @@
 MainWindow    = require './atox-mainWin'
-Question      = require './atox-questions'
 Chatpanel     = require './atox-chatpanel'
 GitHubLogin   = require './atox-GitHubLogin'
 QuickChat     = require './atox-quickChat'
