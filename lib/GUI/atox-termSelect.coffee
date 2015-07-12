@@ -50,6 +50,12 @@ class Argument extends View
     else
       return @list.val()
 
+  focus: ->
+    if @inputType is 'editor'
+      return @editor.focus()
+    else
+      return @list.focus()
+
 class GetArgs extends View
   @content: (params) ->
     @div class: 'atox-termSelectGetArgs', =>
@@ -89,6 +95,7 @@ class GetArgs extends View
       @args.append  arg
 
     @panel.show()
+    @argsOBJ[0].focus()
 
   run: ->
     @panel.hide()
