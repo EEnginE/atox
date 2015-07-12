@@ -19,6 +19,9 @@ class ToxFriendBase extends ToxFriendProtBase
 
     super()
 
+  getName: -> @name
+  getID:   -> @fID
+
   friendName: (@name) ->
   friendStatusMessage: (@status) ->
   friendStatus: (newStatus) ->
@@ -28,8 +31,8 @@ class ToxFriendBase extends ToxFriendProtBase
       when @aTox.TOX.consts.TOX_USER_STATUS_NONE then status = 'online'
       when @aTox.TOX.consts.TOX_USER_STATUS_AWAY then status = 'away'
       when @aTox.TOX.consts.TOX_USER_STATUS_BUSY then status = 'busy'
-      when -1                                              then status = 'offline'
-      when -2                                              then status = @currentStatus
+      when -1                                    then status = 'offline'
+      when -2                                    then status = @currentStatus
 
     @online        = status
     @currentStatus = status

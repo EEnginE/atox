@@ -19,6 +19,8 @@ class Friend extends ToxFriendBase
       parent: this
     }
 
+  getIsHuman: -> @isHuman
+
   REQ_joinCollab: (d) ->
     for i in @aTox.collab.collabList
       if i.getID() is d.cID

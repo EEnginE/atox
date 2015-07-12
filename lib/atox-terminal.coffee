@@ -9,47 +9,108 @@ class Terminal
     @aTox    = params.aTox
 
     # Icons: https://octicons.github.com/
-    @cmds = [ #TODO: Test commands
-      {cmd: 'help',      argc: 0, desc: 'Prints help message',                                   icon: 'book',               run: (cID)    => @help        cID       }
-      {cmd: 'makeGC',    argc: 1, desc: 'Creates - or joins - a group chat with the id [a1]',    icon: 'ruby',               run: (cID, p) => @makeGC      p[0]      }
-      {cmd: 'invite',    argc: 2, desc: 'Invites [a1] to group [a2]',                            icon: 'gift',               run: (cID, p) => @invite      p[0], p[1]}
-      {cmd: 'addGC',     argc: 0, desc: 'Adds a new group chat',                                 icon: 'diff-added',         run: (cID)    => @addGC()               }
-      {cmd: 'login',     argc: 0, desc: 'Opens GitHub login popup',                              icon: 'key',                run: (cID)    => @login()               }
-      {cmd: 'addFriend', argc: 2, desc: 'Send friend request to user ID [a1] with message [a2]', icon: 'diff-added',         run: (cID, p) => @addFriend   p[0], p[1]}
-      {cmd: 'setName',   argc: 1, desc: 'Set name to [a1]',                                      icon: 'pencil',             run: (cID, p) => @setName     p[0]      }
-      {cmd: 'setAvatar', argc: 1, desc: 'Set avatar to [a1]',                                    icon: 'file-media',         run: (cID, p) => @setAvatar   p[0]      }
-      {cmd: 'setStatus', argc: 1, desc: 'Set status message to [a1]',                            icon: 'pencil',             run: (cID, p) => @setStatus   p[0]      }
-      {cmd: 'setOnline', argc: 1, desc: 'Set online status to [a1]',                             icon: 'globe',              run: (cID, p) => @setOnline   p[0]      }
-      {cmd: 'openChat',  argc: 1, desc: 'Opens chat with ID [a1]',                               icon: 'link-external',      run: (cID, p) => @openChat    p[0]      }
-      {cmd: 'closeChat', argc: 1, desc: 'Closes the chat with ID [a1]',                          icon: 'x',                  run: (cID, p) => @closeChat   p[0]      }
-      {cmd: 'sendFile',  argc: 1, desc: 'Sends the current file to [a1]',                        icon: 'arrow-up',           run: (cID, p) => @sendFile    p[0]      }
-      {cmd: 'sendMSG',   argc: 2, desc: 'Send message [a2] to user [a1]',                        icon: 'comment',            run: (cID, p) => @sendMSG     p[0], p[1]}
-      {cmd: 'sendToGC',  argc: 2, desc: 'Send message [a2] to group chat [a1]',                  icon: 'comment-discussion', run: (cID, p) => @sendToGC    p[0], p[1]}
-      {cmd: 'reqAvatar', argc: 0, desc: 'Send a avatar request to all friends',                  icon: 'cloud-download',     run: (cID)    => @reqAvatar()           }
+    # Currently supported parameter types:
+    #  - none:   string
+    #  - friend: for a friend ID
+    #  - group:  for a group ID
+    #  - list:   manualy make a list (REQUIRES the list option)
+    @cmds = [
+      {
+        "cmd":  'help'
+        "args": []
+        "desc": 'Prints help message'
+        "icon": 'book'
+      }
+      {
+        "cmd": 'invite'
+        "args": [
+          {"desc": 'The friend to invite', "type": 'friend'}
+          {"desc": 'The group',            "type": 'group'}
+        ]
+        "desc": 'Invites a friend to a group'
+        "icon": 'gift'
+      }
+      {
+        "cmd": 'addFriend'
+        "args": [
+          {"desc": 'The TOX ID of your friend'}
+          {"desc": "The friend request message"}
+        ]
+        "desc": 'Sends a friend request'
+        "icon": 'diff-added'
+      }
+      {"cmd": 'makeGC',    "args": [{"desc": 'Name/ID of the GC'}],          "desc": 'Creates/joins a group chat',  "icon": 'ruby'      }
+      {"cmd": 'addGC',     "args": [],                                       "desc": 'Adds a new group chat',       "icon": 'diff-added'}
+      {"cmd": 'login',     "args": [],                                       "desc": 'Opens GitHub login popup',    "icon": 'key'       }
+      {"cmd": 'setName',   "args": [{"desc": 'The new name'}],               "desc": 'Set the user name',           "icon": 'pencil'    }
+      {"cmd": 'setAvatar', "args": [{"desc": 'The new avatar (full path)'}], "desc": 'Set the user avatar',         "icon": 'file-media'}
+      {"cmd": 'setStatus', "args": [{"desc": 'The new status message'}],     "desc": 'Set the user status message', "icon": 'pencil'    }
+      {
+        "cmd": 'setOnline'
+        "args": [
+          {
+            "desc": 'The new online status'
+            "type": 'list'
+            "list": ['away', 'online', 'busy']
+          }
+        ]
+        "desc": 'Set the user online status'
+        "icon": 'globe'
+      }
+      {
+        "cmd": 'sendFile'
+        "args": [{"desc": 'The friend ID', "type": "friend"}]
+        "desc": 'Sends the current file to a friend'
+        "icon": 'arrow-up'
+      }
     ]
 
-  help: (cID) ->
-    @inf   {cID: cID, msg: ' Commands start with a /. Use // to send a /'}
-    @inf   {cID: cID, msg: ' (Strings are encased with "s)'}
+  help: (p) ->
+    if p.argv[0]?
+      cmd = p.argv[0]
+      arg = null
+      for i in @cmds
+        if i.cmd.toUpperCase() is cmd.toUpperCase()
+          arg = i
+          break
 
-    for i in @cmds
-      @inf {cID: cID, msg: "     \"/#{i.cmd}\":  #{i.desc}"}
+      if arg is null
+        @warn {"cID": p.cID, "title": "HELP: Command #{cmd} not found"}
+        return
 
-  closeChat: (id)       -> @aTox.gui.chats[parseInt id].closeChat()
-  openChat:  (id)       -> @aTox.gui.chats[parseInt id].openChat()
-  setName:   (p)        -> @aTox.TOX.setName   p
-  setAvatar: (p)        -> @aTox.TOX.setAvatar p
-  setStatus: (p)        -> @aTox.TOX.setStatus p
-  setOnline: (p)        -> @aTox.TOX.onlineStatus p; @aTox.gui.setUserOnlineStatus p
-  sendFile:  (f)        -> @aTox.TOX.sendFile {"fID": f, "path": atom.workspace.getActiveTextEditor().getPath()}
-  sendMSG:   (f, m)     -> @aTox.TOX.sendToFriend      { fID: f,  msg: m }
-  sendToGC:  (f, m)     -> @aTox.TOX.sendToGC          { gID: f,  msg: m }
-  addFriend: (a, m)     -> @aTox.TOX.sendFriendRequest { addr: a, msg: m }
-  reqAvatar:            -> @aTox.TOX.reqAvatar()
-  addGC:                -> @aTox.TOX.createGroupChat()
-  invite:    (f,g)      -> @aTox.TOX.invite            { fID: f, gID: g }
-  login:                -> @aTox.authManager.requestNewToken()
-  makeGC:    (n)        -> return @stub 'makeGCfromName'
+      @inf   {"cID": p.cID, "title": "Command #{cmd} takes at least #{arg.args.length} arguments", "notify": false}
+      for i, index in arg.args
+        if i.type?
+          switch i.type
+            when "friend" then @inf {"cID": p.cID, "title": "  - arg #{index+1}: #{i.desc} - the friend ID is an integer", "notify": false}
+            when "group"  then @inf {"cID": p.cID, "title": "  - arg #{index+1}: #{i.desc} - the group ID is an integer",  "notify": false}
+            when "list"   then @inf {"cID": p.cID, "title": "  - arg #{index+1}: #{i.desc} - possible values: #{i.list}",  "notify": false}
+            else @inf {"cID": p.cID, "title": "  - arg #{index+1}: #{i.desc}", "notify": false}
+        else
+          @inf {"cID": p.cID, "title": "  - arg #{index+1}: #{i.desc}", "notify": false}
+    else
+      @inf   {"cID": p.cID, "title": ' Commands start with a /. Use // to send a /', "notify": false}
+      @inf   {"cID": p.cID, "title": ' (Strings are encased with "s)',               "notify": false}
+
+      for i in @cmds
+        @inf {"cID": p.cID, "title": "     \"/#{i.cmd}\":  #{i.desc}", "notify": false}
+
+  setName:   (p) -> @aTox.TOX.setName   p.argv[0]
+  setAvatar: (p) -> @aTox.TOX.setAvatar p.argv[0]
+  setStatus: (p) -> @aTox.TOX.setStatus p.argv[0]
+  setOnline: (p) -> @aTox.TOX.onlineStatus p.argv[0]; @aTox.gui.setUserOnlineStatus p.argv[0]
+  sendFile:  (p) -> @aTox.TOX.sendFile {"fID": p.argv[0], "path": atom.workspace.getActiveTextEditor().getPath()}
+  addFriend: (p) -> @aTox.TOX.sendFriendRequest {"addr": p.argv[0], "msg": p.argv[1]}
+  addGC:     (p) -> @aTox.TOX.createGroupChat()
+  invite:    (p) -> @aTox.TOX.invite            {"fID": p.argv[0], "gID": p.argv[1]}
+  login:     (p) -> @aTox.authManager.requestNewToken()
+  makeGC:    (p) -> return @stub 'makeGCfromName'
+
+  run: (cmd, args) ->
+    unless this[cmd]?
+      @err {"title": "Fatal internal error", "msg": "Failed to execute comand #{cmd}"}
+
+    this[cmd] args
 
   process: (data) ->
     cmd = data.cmd
@@ -58,24 +119,22 @@ class Terminal
 
     args = @handleArgs cmd
 
-    @err {msg: "Empty cmd", cID: data.cID} if args.length == 0
-    return           if args.length == 0
-    @cmd = args[0]
+    if args.length == 0
+      @err {msg: "Empty cmd", cID: data.cID}
+      return
+    cmd = args[0]
     args.shift()
 
     for arg in @cmds
-      if arg.cmd.toUpperCase() == @cmd.toUpperCase()
-        if args.length < arg.argc
-          @err "/#{@cmd} requires #{arg.argc} arguments (You gave #{args.length})"
+      if arg.cmd.toUpperCase() == cmd.toUpperCase()
+        if args.length < arg.args.length
+          @err "/#{cmd} requires #{arg.argc} arguments (You gave #{args.length})"
           return
-        if arg.argc == 0
-          arg.run data.cID #TODO: Stop sending the message when a command is found
-        else
-          arg.run data.cID, args
+        @run cmd, {"cID": data.cID, "argv": args}
 
         return
 
-    @err {msg: "Command /#{@cmd} not found", cID: data.cID}
+    @err {msg: "Command /#{cmd} not found", cID: data.cID}
 
   handleArgs: (args) ->
     args = args.split /\"/
@@ -128,7 +187,7 @@ class Terminal
       else
         @aTox.gui.chats[data.cID].addMSG msg
 
-    return if data.notify if data.msg? is false
+    return if data.notify is false
     opts.func data.title.replace( /<[^<]*>/g, '' ), {
       'detail':      data.msg.replace /<[^<]*>/g, '' if data.msg?
       'description': data.description.replace /<[^<]*>/g, '' if data.description?

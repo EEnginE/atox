@@ -279,7 +279,7 @@ class ToxWorker
     switch e.control
       when 'resume' then @TOX.controlFileSync e.fID, e.fileID, @consts.TOX_FILE_CONTROL_RESUME
       when 'pause'  then @TOX.controlFileSync e.fID, e.fileID, @consts.TOX_FILE_CONTROL_PAUSE
-      when 'cancle' then @TOX.controlFileSync e.fID, e.fileID, @consts.TOX_FILE_CONTROL_CANCEL
+      when 'cancel' then @TOX.controlFileSync e.fID, e.fileID, @consts.TOX_FILE_CONTROL_CANCEL
       else throw new Error "Unknown control cmd 'e.control'"
 
   seekFileChunk: (e) -> @TOX.seekFileSync      e.id.friend, e.id.file, e.pos

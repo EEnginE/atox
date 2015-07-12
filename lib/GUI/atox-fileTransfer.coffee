@@ -52,7 +52,7 @@ MODES = {
   }
 
   # canceled
-  "cancle": {
+  "cancel": {
     "input":  false
     "bar":    false
     "status": {"cls":  'error', "text": 'CANCELED'}
@@ -109,7 +109,7 @@ class FileTransferPanel extends View
       when 'Decline' then @parent.decline()
       when 'Pause'   then @parent.pause()
       when 'Resume'  then @parent.resume()
-      when 'Cancel'  then @parent.cancle()
+      when 'Cancel'  then @parent.cancel()
 
   setMode: (mode) ->
     throw new Error "Unknown mode '#{mode}'" unless MODES[mode]?

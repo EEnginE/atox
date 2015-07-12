@@ -15,6 +15,10 @@ class Group
 
     @createChat()
 
+  getID:    -> @gID
+  getName:  -> @name
+  isCollab: -> false
+
   sendMSG: (msg) -> @aTox.TOX.sendToGC {gID: @gID, msg: msg}
   needChat: -> @createChat() unless @chat? # Creates chat if needed
 

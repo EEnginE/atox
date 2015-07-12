@@ -1,0 +1,36 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@import "./atox-vars";
+
+.atox-termSelectArgument {
+  // Copied from the settings-view package because there is no global class
+  select.form-control {
+    color: @text-color;
+    border-color: @button-border-color;
+    background-color: @button-background-color;
+    &:hover,
+    &:focus {
+      box-shadow: none;
+      background-color: @button-background-color-hover;
+    }
+    margin-bottom: @component-padding;
+  }
+}
+
+.atox-termSelectGetArgs {
+  .icon {
+    float: right;
+  }
+
+  .btns {
+    padding-left:  50px;
+    padding-right: 50px;
+
+    .btn2 {
+      float: right;
+    }
+  }
+}

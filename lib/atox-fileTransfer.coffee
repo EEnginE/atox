@@ -46,18 +46,18 @@ class FileTransfer
     @panel.setMode ctrl
     @aTox.term.inf {"title": "#{name} File Transfer", "msg": @name}
     @aTox.TOX.controlFile {"fID": @id.friend, "fileID": @id.file, "control": ctrl}
-    @destructor() if ctrl is 'cancle'
+    @destructor() if ctrl is 'cancel'
 
   accept:  -> @sendCTRL 'resume', 'Accepted',
-  decline: -> @sendCTRL 'cancle', 'Declined',
+  decline: -> @sendCTRL 'cancel', 'Declined',
   pause:   -> @sendCTRL 'pause',  'Paused',
   resume:  -> @sendCTRL 'resume', 'Resumed',
-  cancle:  -> @sendCTRL 'cancle', 'Canceled',
+  cancel:  -> @sendCTRL 'cancel', 'Canceled',
 
 
   control: (ctrl, ctrlName) ->
     @panel.setMode ctrlName
-    @destructor() if ctrlName is 'cancle'
+    @destructor() if ctrlName is 'cancel'
 
   chunkRequest: (pos, length) ->
     if length is 0

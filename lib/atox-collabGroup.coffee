@@ -28,6 +28,10 @@ class CollabGroup
   destructor: ->
     @aTox.TOX.deleteGroupChat {"gID": @gID}
 
+  getID:    -> @gID
+  getName:  -> @name
+  isCollab: -> true
+
   genID: ->
     t = ""
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!$%&(){}[]_+-*/'#|;,:."
