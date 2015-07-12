@@ -19,6 +19,10 @@ class Friend extends ToxFriendBase
       parent: this
     }
 
+  destructor: ->
+    super()
+    @chat.destructor() if @chat?
+
   getIsHuman: -> @isHuman
 
   REQ_joinCollab: (d) ->

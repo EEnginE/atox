@@ -26,6 +26,8 @@ class ContactView extends View
     else
       @attr {class: "aTox-Contact-#{@parent.online()}"}
 
+  destructor: -> # Class will be removed soon
+
   update: (what) ->
     switch what
       when 'name'   then @name.text @parent.name()

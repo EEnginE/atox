@@ -61,7 +61,19 @@ class Terminal
         "cmd": 'sendFile'
         "args": [{"desc": 'The friend ID', "type": "friend"}]
         "desc": 'Sends the current file to a friend'
-        "icon": 'arrow-up'
+        "icon": 'cloud-upload'
+      }
+      {
+        "cmd":  'delFriend'
+        "args": [{"desc": 'The friend ID to delete', "type": 'friend'}]
+        "desc": 'Deletes the selected friend'
+        "icon": 'diff-removed'
+      }
+      {
+        "cmd":  'delGroup'
+        "args": [{"desc": 'The group ID to delete', "type": 'group'}]
+        "desc": 'Deletes the selected groupchat'
+        "icon": 'diff-removed'
       }
     ]
 
@@ -105,6 +117,8 @@ class Terminal
   invite:    (p) -> @aTox.TOX.invite            {"fID": p.argv[0], "gID": p.argv[1]}
   login:     (p) -> @aTox.authManager.requestNewToken()
   makeGC:    (p) -> return @stub 'makeGCfromName'
+  delFriend: (p) -> @aTox.TOX.deleteFriend    {"fID": p.argv[0]}
+  delGroup:  (p) -> @aTox.TOX.deleteGroupChat {"gID": p.argv[0]}
 
   run: (cmd, args) ->
     unless this[cmd]?

@@ -19,6 +19,8 @@ class ToxFriendBase extends ToxFriendProtBase
 
     super()
 
+  destructor: ->
+
   getName: -> @name
   getID:   -> @fID
 

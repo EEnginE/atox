@@ -148,6 +148,7 @@ class ToxWorker
       @groups[e.group()].titles.push {d: e.title(), p: e.peer()}
     else
       @groups[e.group()].groupTitle {d: e.title(), p: e.peer()}
+
   groupNamelistChangeCB:    (e) ->
     @groups[e.group()] = @__groupPlaceholder() unless @groups[e.group()]?
 
@@ -327,6 +328,8 @@ class ToxWorker
       console.log error
       return @err "Failed to delete group chat", error.stack
 
+    @groups[e.gID].destructor() if @groups[e.gID].destructor?
+    @groups.splice e.gID
     @inf "Removed group chat #{e.gID}"
 
   groupInviteCB: (e) ->
@@ -505,6 +508,17 @@ class ToxWorker
     @success "Friend request (#{fID}) sent", e.addr
 
     return @friends[fID]
+
+  deleteFriend: (e) ->
+    try
+      @TOX.deleteFriendSync e.fID
+    catch error
+      @handleExept error
+      return
+
+    @friends[e.fID].destructor()
+    @inf "Deleted friend #{@friends[e.fID].getName()}"
+    @friends.splice e.fID
 
   sendToFriend: (e) ->
     try

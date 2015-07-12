@@ -44,6 +44,12 @@ class Chat
     @userHistory       = []
     @currentHistoryPos = 0
 
+  destructor: ->
+    @chatBox.destructor()
+    @contactView.destructor()
+    @aTox.gui.chatpanel.removeChat {"cID": @cID}
+    @aTox.gui.chats.splice @cID
+
   genAndAddMSG: (params) -> @addMSG new Message params unless params.msg is ''
 
   addMSG: (msg) ->

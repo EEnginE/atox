@@ -42,6 +42,8 @@ class ChatBox extends View
 
     @hide()
 
+  destructor: -> @remove()
+
   addMessage: (msg) ->
     @chathistory.append msg
     @chathistory.scrollTop(@chathistory.prop('scrollHeight'));

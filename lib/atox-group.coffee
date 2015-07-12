@@ -22,6 +22,9 @@ class Group
   sendMSG: (msg) -> @aTox.TOX.sendToGC {gID: @gID, msg: msg}
   needChat: -> @createChat() unless @chat? # Creates chat if needed
 
+  destructor: ->
+    @chat.destructor() if @chat?
+
   createChat: ->
     @chat = new Chat {
       aTox: @aTox
