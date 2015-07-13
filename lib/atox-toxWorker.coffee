@@ -9,6 +9,7 @@ Bot          = require './atox-bot'
 Group        = require './atox-group'
 CollabGroup  = require './atox-collabGroup'
 FileTransfer = require './atox-fileTransfer'
+BigMessage   = require './botProtocol/prot-bigMessage'
 
 # coffeelint: disable=max_line_length
 
@@ -109,9 +110,9 @@ class ToxWorker
 
   friendMsgCB: (e) ->
     if e.messageType() is @consts.TOX_MESSAGE_TYPE_ACTION
-      @friends[e.friend()].pReceivedCommand e.message() # in Base class ToxFriendProtBase
+      BigMessage.receive e.message(), (msg) => @friends[e.friend()].pReceivedCommand "#{msg}" # in Base class ToxFriendProtBase
     else
-      @friends[e.friend()].receivedMsg      e.message()
+      BigMessage.receive e.message(), (msg) => @friends[e.friend()].receivedMsg      "#{msg}"
 
 
   friendNameCB:             (e) -> @friends[e.friend()].friendName             e.name()
@@ -137,9 +138,9 @@ class ToxWorker
     @groups[e.group()] = @__groupPlaceholder() unless @groups[e.group()]?
 
     if @groups[e.group()].__isTempPlaceholder
-      @groups[e.group()].msgs.push {d: e.message(), p: e.peer()}
+      BigMessage.receive e.message(), (msg) => @groups[e.group()].msgs.push    {"d": "#{msg}", "p": e.peer()}
     else
-      @groups[e.group()].groupMessage {d: e.message(), p: e.peer()}
+      BigMessage.receive e.message(), (msg) => @groups[e.group()].groupMessage {"d": "#{msg}", "p": e.peer()}
 
   groupTitleCB:             (e) ->
     @groups[e.group()] = @__groupPlaceholder() unless @groups[e.group()]?
@@ -434,7 +435,8 @@ class ToxWorker
   sendToGC: (e) ->
     #return @stub 'sendToGC' # TODO -- rework for new tox API
     try
-      @TOX.old().sendGroupchatMessageSync e.gID, e.msg
+      BigMessage.send e.msg, @consts.TOX_MAX_MESSAGE_LENGTH, (msg) =>
+        @TOX.old().sendGroupchatMessageSync e.gID, "#{msg}"
     catch err
       @err "Failed to send MSG to group chat #{e.gID}"
       console.log err
@@ -522,15 +524,19 @@ class ToxWorker
 
   sendToFriend: (e) ->
     try
-      return @TOX.sendFriendMessageSync e.fID, e.msg
-    catch e
+      return BigMessage.send e.msg, @consts.TOX_MAX_MESSAGE_LENGTH, (msg) =>
+        @TOX.sendFriendMessageSync e.fID, "#{msg}"
+    catch err
       @warn "Failed to send MSG to #{e.fID}"
+      @handleExept err
       return -1
 
   sendToFriendCMD: (e) ->
     try
-      return @TOX.sendFriendMessageSync e.fID, e.msg, @consts.TOX_MESSAGE_TYPE_ACTION
-    catch e
+      return BigMessage.send e.msg, @consts.TOX_MAX_MESSAGE_LENGTH, (msg) =>
+        @TOX.sendFriendMessageSync e.fID, msg, @consts.TOX_MESSAGE_TYPE_ACTION
+    catch err
+      @handleExept err
       return -1
 
   onlineStatus: (newS) ->

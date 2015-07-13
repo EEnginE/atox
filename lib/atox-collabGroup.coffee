@@ -34,7 +34,7 @@ class CollabGroup
 
   genID: ->
     t = ""
-    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!$%&(){}[]_+-*/'#|;,:."
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"$&(){}[]_+-*/%=?^'#|;,:.<>~`"
     t += chars[Math.floor(Math.random() * chars.length)] for i in [0..20]
     return t
 
