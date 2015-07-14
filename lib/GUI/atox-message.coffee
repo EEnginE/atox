@@ -2,10 +2,20 @@
 
 module.exports =
 class Message extends View
+  @getTime: ->
+    d = new Date
+    t = []
+    for i, index in [d.getHours(), d.getMinutes(), d.getSeconds()]
+      t[index] = if i < 10 then "0#{i}" else "#{i}"
+
+    "#{t[0]}:#{t[1]}:#{t[2]}"
+
   @content: (params) ->
+
     @div      class: "historyName", =>
       @p      outlet: 'main', =>
         @span outlet: 'status'
+        @span outlet: 'time', @getTime()
         @b    outlet: 'title'
         @b    outlet: 'cmdType'
         @span outlet: 'cmdTitle'
@@ -14,6 +24,9 @@ class Message extends View
   initialize: (params) ->
     params.type = 'normal' unless params.type?
     @type = params.type
+
+    @time.addClass 'text-subtle'
+    @time.css   {"margin-right": "7px"}
 
     @status.css {"float": "right"}
     @setStatus 'comment', 1, 'highlight', 'info'
