@@ -2,6 +2,8 @@ ChatBox     = require './GUI/atox-chatbox'
 ContactView = require './GUI/atox-contactView'
 Message     = require './GUI/atox-message'
 
+# coffeelint: disable=max_line_length
+
 module.exports =
 class Chat
   constructor: (params) ->
@@ -94,6 +96,8 @@ class Chat
   markAsRead: (id) -> @msgViews[id].markAsRead() if @msgViews[id]?
 
   sendMSGcallback: (msgId, view) ->
+    return view.markAsOffline() if msgId is 'offline'
+
     if msgId < 0 or not msgId?
       view.markAsError()
       @aTox.term.warn {"title": "Failed to send message"}

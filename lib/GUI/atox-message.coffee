@@ -3,16 +3,32 @@
 module.exports =
 class Message extends View
   @content: (params) ->
-    @div class: "historyName", => # TODO use p instead of div
-      @p outlet: 'main'           # TODO remove this line
+    @div      class: "historyName", =>
+      @p      outlet: 'main', =>
+        @span outlet: 'status'
+        @b    outlet: 'title'
+        @b    outlet: 'cmdType'
+        @span outlet: 'cmdTitle'
+        @span outlet: 'msg'
 
   initialize: (params) ->
     params.type = 'normal' unless params.type?
     @type = params.type
 
+    @status.css {"float": "right"}
+    @setStatus 'comment', 1, 'highlight', 'info'
+
     switch @type
       when 'normal' then @normalMSG params
       when 'term'   then @termMSG   params
+
+  setStatus: (icon, opacity, textClass, iconClass) ->
+    @status.removeClass()
+    @main.removeClass()
+    @status.addClass "icon icon-#{icon}"
+    @status.addClass "text-#{iconClass}" if iconClass?
+    @main.addClass   "text-#{textClass}" if textClass?
+    @main.css {"opacity": opacity}
 
   handleURLs: (msg) ->
     nstr = ['http://', 'https://', 'ftp://']
@@ -29,30 +45,31 @@ class Message extends View
     throw {"what": "Empty Message"} if not params.msg or params.msg is ''
     params.msg = @handleURLs params.msg
 
-    @main.append "<b style='color:#{params.color};'>#{params.name}: </b></span><span>#{params.msg}</span>"
+    @cmdType.remove()
+    @cmdTitle.remove()
 
-  markAsError:   ->
-    @main.css {"color": "", "opacity": 1}
-    @main.addClass "text-error"
+    @title.text params.name + ': '
+    @msg.text   params.msg
+    @title.css  {"color": params.color}
 
-  markAsWaiting: -> @main.css {"opacity": 0.25}
-  markAsRead:    -> @main.css {"opacity": 1}
+  markAsError:   -> @setStatus 'alert',        1,    'error'
+  markAsWaiting: -> @setStatus 'cloud-upload', 0.25, 'highlight'
+  markAsRead:    -> @setStatus 'check',        1,    'highlight', 'success'
+  markAsOffline: -> @setStatus 'cloud-upload', 0.75, 'warning'
 
   termMSG: (params) ->
-    @main.append "<b style='color:#FFFFFF'>aTox: </b>" if not params.defaultChat
     params.title = @handleURLs params.title
-
+    @setStatus 'chevron-left', 1, params.colorClass
     if params.msg?
-      params.msg = @handleURLs params.msg
-
-      str  = "<span class='#{params.colorClass}'>"
-      str +=   "<b style='font-style:#{params.style}'>#{params.typeName}: </b>"
-      str +=   "#{params.title}: "
-      str +=   "<span style='font-style:#{params.style}'>#{params.msg}</span>"
-      str += "</span>"
+      params.title += ': '
+      @msg.text @handleURLs params.msg
+      @msg.css {"font-style": params.style}
     else
-      str  = "<span class='#{params.colorClass}', style='font-style:#{params.style}'>"
-      str +=   "<b>#{params.typeName}: </b>#{params.title}"
-      str += "</span>"
+      @msg.remove()
 
-    @main.append str
+    @title.text   'aTox: '
+    @cmdType.text  params.typeName + ': '
+    @cmdTitle.text params.title
+
+    @title.css   {"color":      "#FFFFFF"}
+    @cmdType.css {"font-style": params.style}

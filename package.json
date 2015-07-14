@@ -14,5 +14,18 @@
      "jquery":               "*",
      "jquery-mousewheel":    "*",
      "toxcore":              "git://github.com/saneki/node-toxcore.git"
+  },
+  "coffeelintConfig": {
+    "indentation" : {
+      "level": "error",
+      "value": 2
+    },
+    "line_endings" : {
+      "value": "unix",
+      "level": "error"
+    },
+    "max_line_length": {
+      "level": "ignore"
+    }
   }
 }

@@ -11,8 +11,6 @@ CollabGroup  = require './atox-collabGroup'
 FileTransfer = require './atox-fileTransfer'
 BigMessage   = require './botProtocol/prot-bigMessage'
 
-# coffeelint: disable=max_line_length
-
 module.exports =
 class ToxWorker
   constructor: (params) ->
@@ -515,7 +513,7 @@ class ToxWorker
     try
       @TOX.deleteFriendSync e.fID
     catch error
-      @handleExept error
+      @handleExept "deleteFriend", error
       return
 
     @friends[e.fID].destructor()
@@ -528,7 +526,7 @@ class ToxWorker
         @TOX.sendFriendMessageSync e.fID, "#{msg}"
     catch err
       @warn "Failed to send MSG to #{e.fID}"
-      @handleExept err
+      @handleExept "sendToFriend", err
       return -1
 
   sendToFriendCMD: (e) ->
@@ -536,7 +534,7 @@ class ToxWorker
       return BigMessage.send e.msg, @consts.TOX_MAX_MESSAGE_LENGTH, (msg) =>
         @TOX.sendFriendMessageSync e.fID, msg, @consts.TOX_MESSAGE_TYPE_ACTION
     catch err
-      @handleExept err
+      @handleExept "sendToFriendCMD", err
       return -1
 
   onlineStatus: (newS) ->

@@ -213,7 +213,7 @@ class Terminal
   success: (data) ->
     @generateNotificationEntry data, {
       'type':       'Success'
-      'color':      'text-success'
+      'color':      'success'
       'dismissable': false
       'func': (t, o) -> atom.notifications.addSuccess t, o
     }
@@ -221,7 +221,7 @@ class Terminal
   inf: (data) ->
     @generateNotificationEntry data, {
       'type':       'Info'
-      'color':      'text-info'
+      'color':      'info'
       'dismissable': false
       'func': (t, o) -> atom.notifications.addInfo t, o
     }
@@ -229,7 +229,7 @@ class Terminal
   warn: (data) ->
     @generateNotificationEntry data, {
       'type':       'Warning'
-      'color':      'text-warning'
+      'color':      'warning'
       'dismissable': true
       'func': (t, o) -> atom.notifications.addWarning t, o
     }
@@ -237,7 +237,7 @@ class Terminal
   err: (data) ->
     @generateNotificationEntry data, {
       'type':       'ERROR'
-      'color':      'text-error'
+      'color':      'error'
       'dismissable': true
       'func': (t, o) -> atom.notifications.addError t, o
     }

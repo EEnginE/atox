@@ -19,6 +19,8 @@ class Friend extends ToxFriendBase
       parent: this
     }
 
+    @msgBuffer = []
+
   destructor: ->
     super()
     @chat.destructor() if @chat?
@@ -44,6 +46,9 @@ class Friend extends ToxFriendBase
       @rInviteRequestToCollabSuccess = false
 
   sendMSG: (msg, cb) ->
+    if @online is 'offline'
+      @msgBuffer.push {"msg": msg, "cb": cb}
+      return cb 'offline'
     cb @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
 
   # TOX events
@@ -92,6 +97,9 @@ class Friend extends ToxFriendBase
     unless @online is oldOnline
       @inf {msg: "#{@name} is now #{@online}", notify: not @hidden}
       @chat.update 'online'
+      unless @online is 'offline'
+        @sendMSG i.msg, i.cb for i in @msgBuffer
+        @msgBuffer = []
 
   # Utils
   randomNumber: (min, max) ->
