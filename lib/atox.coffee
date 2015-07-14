@@ -34,9 +34,13 @@ module.exports =
       default: false
     githubToken:
       title: "Github Access Token"
-      description: "Github access token"
       type: "string"
       default: "none"
+    showGithubLogin:
+      title: "Show Github login window"
+      description: "Automatically ask for Github login data every startup when the token is invalid"
+      type:  "boolean"
+      default: true
 
 
   activate: (state) ->

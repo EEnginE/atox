@@ -115,7 +115,7 @@ class Terminal
   addFriend: (p) -> @aTox.TOX.sendFriendRequest {"addr": p.argv[0], "msg": p.argv[1]}
   addGC:     (p) -> @aTox.TOX.createGroupChat()
   invite:    (p) -> @aTox.TOX.invite            {"fID": p.argv[0], "gID": p.argv[1]}
-  login:     (p) -> @aTox.authManager.requestNewToken()
+  login:     (p) -> @aTox.manager.requestNewToken()
   makeGC:    (p) -> return @stub 'makeGCfromName'
   delFriend: (p) -> @aTox.TOX.deleteFriend    {"fID": p.argv[0]}
   delGroup:  (p) -> @aTox.TOX.deleteGroupChat {"gID": p.argv[0]}

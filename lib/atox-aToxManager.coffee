@@ -21,6 +21,7 @@ class aToxManager extends BotManager
 
   aToxAuth: ->
     unless @testToken @token
+      return unless atom.config.get 'aTox.showGithubLogin'
       @requestNewToken()
       return
 
