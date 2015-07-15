@@ -129,6 +129,7 @@ class ToxWorker
     "titles": []
     "NLC": []
     "msgs": []
+    "isCollab": -> false
   }
 
   groupMessageCB:           (e) ->
@@ -350,13 +351,14 @@ class ToxWorker
       }
 
 
-    addGroup = (counter) =>
+    addGroup = (counter=0) =>
       try
         title = @TOX.old().getGroupchatTitleSync gID
       catch err
         counter++
-        if counter is 20
-          @err "Can't get GC title of GC #{gID}"
+        if counter is 5
+          title = ""
+          @warn "Can't get GC title of GC #{gID}"
         else
           @myTimeout 500, -> addGroup counter
           return
