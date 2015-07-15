@@ -131,8 +131,8 @@ class Collab extends CollabGroupProtocol
     return changes
 
   CMD_startSyncing: (changes) ->
-    for c in changes if changes?
-      @externalChange(c)
+    if changes?
+      @externalChange(c) for c in changes
     @patchLines()
     @applyExternal()
 
@@ -147,6 +147,6 @@ class Collab extends CollabGroupProtocol
     return {"lines": @sLines, "lineEndings": @sLineEndings}
 
   CMD_process: (changes) ->
-    for c in changes if changes?
-      @externalChange(c)
+    if changes?
+      @externalChange(c) for c in changes
     @process()
