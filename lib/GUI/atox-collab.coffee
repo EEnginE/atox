@@ -21,7 +21,10 @@ class Collab extends CollabGroupProtocol
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
 
-    super params
+    try
+      super params
+    catch error
+      console.log error
 
   getName: -> @name
 
@@ -69,8 +72,6 @@ class Collab extends CollabGroupProtocol
     @externalchanges.push {'pos': e.pos, 'text': e.text}
 
   changedSelection: (e) ->
-    console.log e.newBufferRange
-    console.log e.selection.getText()
 
   process: ->
     @pmutex = false
@@ -119,7 +120,7 @@ class Collab extends CollabGroupProtocol
 
     return changes
 
-  CMD_startSyncing: -> # TODO implement
+  CMD_startSyncing: (data) -> # TODO implement
   CMD_stopSyncing: (data) -> # TODO implement
   CMD_getSyncData: -> {"TODO": "make sync data here"}
 

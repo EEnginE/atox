@@ -338,6 +338,18 @@ class ToxWorker
     catch err
       return @err "Failed to join group chat: #{err.stack}"
 
+    title = ""
+
+    addCollabG = (data) => @groups[gID] = @collabWaitCBs[data.id].cb gID, title
+    addNormalG =        =>
+      @inf "Joined group chat #{gID}"
+      @groups[gID] = new Group {
+        name:   title
+        gID:    gID
+        aTox:   @aTox
+      }
+
+
     addGroup = (counter) =>
       try
         title = @TOX.old().getGroupchatTitleSync gID
@@ -353,44 +365,33 @@ class ToxWorker
 
       @inf "Received group invite from #{e.friend()}", title
 
+      isCollab = false
+      data     = null
       try
         data = JSON.parse title
         throw {} unless data.id?
         throw {} unless @collabWaitCBs[data.id]?
-        NLC = titles = msgs = []
-
-        # Check for early events
-        if @groups[gID]?
-          if @groups[gID].__isTempPlaceholder
-            titles = @groups[gID].titles
-            NLC    = @groups[gID].NLC
-            msgs   = @groups[gID].msgs
-
-        @groups[gID] = @collabWaitCBs[data.id].cb gID, title
-        @groups[gID].groupTitle i   for i in titles
-        @groups[gID].gNLC       i   for i in NLC
-        @groups[gID].groupMessage i for i in msgs
+        isCollab = true
       catch error
-        @inf "Joined group chat #{gID}"
 
-        NLC = titles = msgs = []
+      NLC = titles = msgs = []
 
-        # Check for early events
-        if @groups[gID]?
-          if @groups[gID].__isTempPlaceholder
-            titles = @groups[gID].titles
-            NLC    = @groups[gID].NLC
-            msgs   = @groups[gID].msgs
+      # Check for early events
+      if @groups[gID]?
+        if @groups[gID].__isTempPlaceholder
+          titles = @groups[gID].titles
+          NLC    = @groups[gID].NLC
+          msgs   = @groups[gID].msgs
 
-        @groups[gID] = new Group {
-          name:   title
-          gID:    gID
-          aTox:   @aTox
-        }
+      if isCollab
+        addCollabG data
+      else
+        addNormalG()
 
-        @groups[gID].groupTitle i   for i in titles
-        @groups[gID].gNLC       i   for i in NLC
-        @groups[gID].groupMessage i for i in msgs
+      @groups[gID].groupTitle i   for i in titles if titles?
+      @groups[gID].gNLC       i   for i in NLC    if NLC?
+      @groups[gID].groupMessage i for i in msgs   if msgs?
+
 
     addGroup()
 

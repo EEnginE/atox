@@ -3,7 +3,6 @@ https = require('https')
 module.exports =
 class Github
   constructor: ->
-    console.log "constructed"
     @client_id = '0b093d563346476729fb'
     @client_secret = '8fdsfdsgfdsg98d7'
     @htoken = ''

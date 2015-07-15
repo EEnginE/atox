@@ -5,7 +5,7 @@ class CollabGroup
   constructor: (params) ->
     @gID      = params.gID
     @aTox     = params.aTox
-    @msgCB    = => @aTox.term.error {"title": "msgCB not set!"}
+    @msgCB    = ->
 
     if params.name?
       @name = params.name
@@ -42,7 +42,7 @@ class CollabGroup
     try
       msg = JSON.parse params.d
       console.log ""
-      console.log "COLLAB: <---"
+      console.log "COLLAB: #{@__tMyID} <---"
       console.log msg
     catch error
       @aTox.term.warn {"title": "Invalid collab event", "msg": "Message is not JSON"}
@@ -56,7 +56,7 @@ class CollabGroup
   send: (msg) ->
     try
       console.log ""
-      console.log "COLLAB: --->"
+      console.log "COLLAB: #{@__tMyID} --->"
       console.log msg
       msgString = JSON.stringify msg
       @aTox.TOX.sendToGC {"gID": @gID, "msg": msgString}

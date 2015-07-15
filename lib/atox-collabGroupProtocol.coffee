@@ -7,8 +7,13 @@ class CollabGroupProtocol
   constructor: (params) ->
     @aTox = params.aTox
 
-    @pHasToken  = false
-    @pIsSyncing = false
+    @pHasToken   = false
+    @pIsSyncing  = true
+    @sendTimeout = -1
+
+    @pSyncIDs       = {}
+    @peerSyncStatus = []
+    @peers          = []
 
     if params.group?
       @pGroup  = params.group
@@ -20,10 +25,8 @@ class CollabGroupProtocol
     @pGroup.msgCB = (msg) => @pHandleMSG msg
     @pID          = @pGroup.id
     @pMyKey       = @aTox.TOX.getSelfPubKey()
+    @pGroup.__tMyID = @pMyKey
     @pSendSync() if sendSync
-
-    @peerSyncStatus = []
-    @peers          = []
 
   destructor: ->
     @pGroup.destructor()
@@ -52,6 +55,12 @@ class CollabGroupProtocol
 
   pProcessNext: (msg) ->
     return unless @pExpect msg, ["next", "data", "isStart"]
+    if msg.isStart # Ends a sync
+      return unless @pExpect msg, ["sID"]
+      @pSyncIDs[msg.sID].done = true
+      @peerSyncStatus = []
+      @pIsSyncing     = false
+
     if msg.next is @pMyKey
       @pHasToken = true
 
@@ -97,11 +106,15 @@ class CollabGroupProtocol
     console.log data
     console.log ""
 
-    @__timeout 250, =>
+    sendData = @CMD_process data
+
+    @sendTimeout = @__timeout 250, =>
+      @sendTimeout = -1
+      return if @pIsSyncing
       @pGroup.send {
         "cmd":     "next"
         "next":    @peers[next].key
-        "data":    @CMD_process data
+        "data":    sendData
         "isStart": false
       }
 
@@ -115,12 +128,25 @@ class CollabGroupProtocol
 #            __/ |
 #           |___/
 
-  pProcessSync: (msg) ->
-    return unless @pExpect msg, ["syncPeer"]
+  pInitSyncIfNeeded: (msg) ->
+    @pSyncIDs[msg.sID] = {"done": false} unless @pSyncIDs[msg.sID]?
+    return false                         if     @pSyncIDs[msg.sID].done is true
+    clearTimeout @sendTimeout unless @sendTimeout is -1
+    @sendTimeout = -1
+    return true if @pIsSyncing
     @pIsSyncing = true
     @pHasToken  = false
-    @peers      = []
-    @CMD_startSyncing()
+    unless @peers.length is 0
+      data = []
+      data.push i.data for i in @peers
+      @peers = []
+      @CMD_startSyncing data
+
+    return true
+
+  pProcessSync: (msg) ->
+    return unless @pExpect msg, ["syncPeer", "sID"]
+    return unless @pInitSyncIfNeeded msg
     return unless msg.syncPeer is @pMyKey
 
     @peerSyncStatus = []
@@ -142,11 +168,13 @@ class CollabGroupProtocol
       "cmd":      "syncData"
       "peerlist": peerlist
       "data":     @CMD_getSyncData()
+      "sID":      msg.sID
     }
 
   pProcessSyncAccept: (msg) ->
-    return if @peerSyncStatus.length is 0 # I am not the main sync porvider
-    return unless @pExpect msg, ["key"]
+    return unless @pInitSyncIfNeeded msg
+    return if     @peerSyncStatus.length is 0 # I am not the main sync porvider
+    return unless @pExpect msg, ["key", "sID"]
 
     for i, index in @peerSyncStatus
       if i.key is msg.key
@@ -164,6 +192,7 @@ class CollabGroupProtocol
       "next":    @peers[0].key
       "data":    {}
       "isStart": true
+      "sID":     msg.sID
     }
 
 
@@ -173,18 +202,23 @@ class CollabGroupProtocol
       console.log _counter
       return @__timeout 100, => @pSendSync ++_counter
 
+    sID            = @pGroup.genID()
+    @pSyncIDs[sID] = {"done": false}
+
+    @pInitSyncIfNeeded {"sID": sID}
     @pGroup.send {
       "cmd":     "sync"
       "syncPeer": @pGroup.peerlist[0].key
+      "sID":      sID
     }
 
 
   pProcessSyncData: (msg) ->
-    return unless @pExpect msg, ["peerlist", "data"]
+    return unless @pExpect msg, ["peerlist", "data", "sID"]
+    return unless @pInitSyncIfNeeded msg
     @pSetPeerlistAfetSync msg.peerlist
     @CMD_stopSyncing      msg.data
-    @pIsSyncing = false
-    @pGroup.send {"cmd": "syncAccept"}
+    @pGroup.send {"cmd": "syncAccept", "sID": msg.sID}
 
   # After a sync the token starts at @peers[0]
   pSetPeerlistAfetSync: (peerlist) ->
