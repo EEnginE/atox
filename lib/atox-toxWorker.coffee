@@ -436,11 +436,10 @@ class ToxWorker
   sendToGC: (e) ->
     #return @stub 'sendToGC' # TODO -- rework for new tox API
     try
-      BigMessage.send e.msg, @consts.TOX_MAX_MESSAGE_LENGTH, (msg) =>
+      BigMessage.send e.msg, 1360, (msg) => # @consts.TOX_MAX_MESSAGE_LENGTH is to big
         @TOX.old().sendGroupchatMessageSync e.gID, "#{msg}"
     catch err
-      @err "Failed to send MSG to group chat #{e.gID}"
-      console.log err
+      return @handleExept err
 
   setGCtitle: (params) ->
     try
