@@ -328,7 +328,7 @@ class ToxWorker
       return @err "Failed to delete group chat", error.stack
 
     @groups[e.gID].destructor() if @groups[e.gID].destructor?
-    @groups.splice e.gID
+    @groups.splice e.gID, 1
     @inf "Removed group chat #{e.gID}"
 
   groupInviteCB: (e) ->
@@ -519,7 +519,7 @@ class ToxWorker
 
     @friends[e.fID].destructor()
     @inf "Deleted friend #{@friends[e.fID].getName()}"
-    @friends.splice e.fID
+    @friends.splice e.fID, 1
 
   sendToFriend: (e) ->
     try
