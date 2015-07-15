@@ -72,8 +72,7 @@ class Collab extends CollabGroupProtocol
     console.log e.newBufferRange
     console.log e.selection.getText()
 
-  process: ->
-    @pmutex = false
+  patchLines: ->
     #Fix pos of external changes
     rshift = 0
     for ec, i in @externalchanges #Shift
@@ -89,6 +88,7 @@ class Collab extends CollabGroupProtocol
         else if ic.pos.row() is ec.pos[0] and ic.pos.column() > ec.pos[1]
           @internalchanges[j].pos.translate([0, ic.pos.column() - ec.pos[1]])
 
+  applyExternal: ->
     #Concat both and patch local buffer
     for ec in @externalchanges
       if ec.nline? and ec.nline is not false
@@ -99,11 +99,22 @@ class Collab extends CollabGroupProtocol
         @sLines[ec.pos[0]] = @sLines[ec.pos[0]].slice(0, ec.pos[1]) + ec.text +
           @sLines[ec.pos[0]].slice(ec.pos[1])
 
+  swap: ->
     @editor.getBuffer().lines = @sLines
     @editor.getBuffer().lineEndings = @sLineEndings
+
+  applyInternal: ->
     #Apply internal changes
     for ic in @internalchanges
       @editor.getBuffer().insert(ic.pos, ic.text)
+
+  process: ->
+    @pmutex = false
+
+    @patchLines()
+    @applyExternal()
+    @swap()
+    @applyInternal()
 
     changes = @internalchanges.slice(0)
     @internalchanges = []
@@ -119,8 +130,23 @@ class Collab extends CollabGroupProtocol
 
     return changes
 
-  CMD_startSyncing: -> # TODO implement
-  CMD_stopSyncing: (data) -> # TODO implement
-  CMD_getSyncData: -> {"TODO": "make sync data here"}
+  CMD_startSyncing: (changes) ->
+    for c in changes if changes?
+      @externalChange(c)
+    @patchLines()
+    @applyExternal()
 
-  CMD_process: (data) -> {"TODO": "implement this", "temp": @pMyKey}
+  CMD_stopSyncing: (data) ->
+    if not data?
+      return
+    @sLines = data.lines if data.lines?
+    @sLineEndings = data.lineEndings if data.lineEndings?
+    @externalchanges = []
+
+  CMD_getSyncData: ->
+    return {"lines": @sLines, "lineEndings": @sLineEndings}
+
+  CMD_process: (changes) ->
+    for c in changes if changes?
+      @externalChange(c)
+    @process()
