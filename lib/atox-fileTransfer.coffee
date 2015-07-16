@@ -1,6 +1,7 @@
 fs = require 'fs'
 
 FileTransferPanel = require './GUI/atox-fileTransfer'
+ExtensionResolver = require './atox-extensionResolver'
 
 # coffeelint: disable=max_line_length
 
@@ -23,13 +24,13 @@ class FileTransfer
       when 'receiver' then fs.open @fullPath, 'w', (err, fd) => @fd = fd unless @checkErr err
       else throw new Error "Unsupported role: '#{role}'"
 
-    @aTox.term.inf {"title": "#{@role}: New file Transfer", "msg": "Path: #{@fullPath}; ID: #{@id.id}"}
+    @inf "#{@role}: New file Transfer", "Path: #{@fullPath}; ID: #{@id.id}"
     console.log @id.id
 
     @panel = new FileTransferPanel {
       "aTox":     @aTox
       "parent":   this
-      "fileType": "code" # TODO: check file extensions, etc.
+      "fileType": ExtensionResolver.resolve @name
       "name":     @name
       "size":     @size
     }
@@ -44,7 +45,7 @@ class FileTransfer
 
   sendCTRL: (ctrl, name) ->
     @panel.setMode ctrl
-    @aTox.term.inf {"title": "#{name} File Transfer", "msg": @name}
+    @inf "#{name} File Transfer", @name
     @aTox.TOX.controlFile {"fID": @id.friend, "fileID": @id.file, "control": ctrl}
     @destructor() if ctrl is 'cancel'
 
@@ -56,12 +57,13 @@ class FileTransfer
 
 
   control: (ctrl, ctrlName) ->
+    ctrlName = 'peerPause' if ctrlName is 'pause'
     @panel.setMode ctrlName
     @destructor() if ctrlName is 'cancel'
 
   chunkRequest: (pos, length) ->
     if length is 0
-      @aTox.term.inf {"title": "File transfer completed", "msg": "Sent file '#{@name}'"}
+      @inf "File transfer completed", "Sent file '#{@name}'"
       @destructor()
       return
 
@@ -77,7 +79,8 @@ class FileTransfer
 
   chunk: (pos, data, final) ->
     if final is true
-      @aTox.term.inf {"title": "File transfer completed", "msg": "Received file '#{@name}'"}
+      @success "File transfer completed", "Received file '#{@name}'"
+      @panel.setMode 'completed'
       @destructor()
       return
 
@@ -91,3 +94,17 @@ class FileTransfer
   checkErr: (err) ->
     if err
       console.log err
+
+  inf: (title, msg) ->
+    @aTox.term.inf {
+      "title": title
+      "msg":   msg
+      "cID":   @id.cID
+    }
+
+  success: (title, msg) ->
+    @aTox.term.success {
+      "title": title
+      "msg":   msg
+      "cID":   @id.cID
+    }

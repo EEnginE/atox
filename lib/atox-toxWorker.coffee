@@ -230,6 +230,7 @@ class ToxWorker
         "friend": e.friend()
         "file":   e.file()
         "id":     @getFileID {"fID": e.friend(), "fileID": e.file()}
+        "cID":    if @friends[e.friend()].chat? then @friends[e.friend()].chat.cID else null
       }
       "doneCB": => @files[e.friend()][e.file()] = null
     }
