@@ -25,7 +25,7 @@ class PeerListItem extends View
 module.exports =
 class PeerList extends View
   @content: (params) ->
-    @div id: "aTox-chatbox-#{params.id}-PeerList", class: "aTox-PeerList"
+    @div class: "aTox-PeerList", cID: params.cID
 
   initialize: (params) ->
     @list  = []
@@ -58,5 +58,5 @@ class PeerList extends View
 
       continue if found is true
       temp = new PeerListItem i
-      temp.appendTo @element
+      @append temp
       @list.push temp

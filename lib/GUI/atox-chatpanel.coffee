@@ -27,6 +27,7 @@ class Chatpanel extends View
   initialize: (params) ->
     @scrollPos   = []
     @chatClasses = []
+    @peerViews   = []
 
     @aTox  = params.aTox
 
@@ -96,16 +97,14 @@ class Chatpanel extends View
 
     if params.group? and params.group is true
       aclass = 'groupchat'
-      @peerView = new PeerList {cID: params.cID}
-      @addPeerView({cID: params.cID, view: @peerView})
+      perrList = new PeerList {"cID": params.cID}
+      @ulist.append perrList # perrList has attr cID
+      @peerViews[params.cID] = perrList
     else
       aclass = ''
 
     @coverview.append $$ -> @li  class: "aTox-chatpanel-chat-status #{aclass}", cID: "#{params.cID}"
     @chats.append     $$ -> @div class: "aTox-chatpanel-chat #{aclass}",        cID: "#{params.cID}"
-
-    if params.group? and params.group is true
-      @ulist.append $$ -> @div class: "aTox-chatpanel-groupchat-ulist-con groupchat", cID: "#{params.cID}"
 
     @coverview.find("[cID='#{params.cID}']").click => @selectChat(params.cID)
     @coverview.find("[cID='#{params.cID}']").addClass('icon icon-octoface')                  if params.cID < 0
@@ -125,7 +124,8 @@ class Chatpanel extends View
     else if atom.config.get('aTox.userAvatar') != 'none'
       # TODO add placeholder avatar
       @coverview.find("[cID='#{cID}']").css({'background-image': "url(#{atom.config.get 'aTox.userAvatar'})"})
-    @peerView.setList @chatClasses[cID].peerlist() if params.peers? and params.peers
+
+    @peerViews[cID].setList @chatClasses[cID].peerlist() if params.peers? and params.peers
 
   selectChat: (cID) ->
     cID = "#{cID}"
@@ -137,7 +137,7 @@ class Chatpanel extends View
         @scrollPos[id] = -1
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cID='#{cID}']").addClass('selected')
-    @ulist.find(".aTox-chatpanel-groupchat-ulist-con").css({display: 'none'})
+    @ulist.find(".aTox-PeerList").css({display: 'none'})
     @chats.find(".aTox-chatpanel-chat").css({display: 'none'})
     @ulist.find("[cID='#{cID}']").css({display: 'block'})
     @chats.find("[cID='#{cID}']").css({display: 'block'})
@@ -150,13 +150,6 @@ class Chatpanel extends View
     else if @scrollPos[cID]?
       @chats.scrollTop(parseInt @scrollPos[cID])
     @coverview.find("[cID='#{cID}']").removeClass 'status-modified'
-
-  addPeerView: (params) ->
-    #Call only if groupchat
-    if @chats.find("[cID='#{params.cID}']").hasClass('groupchat') is false
-      return
-    @ulist.find("[cID='#{params.cID}']").append params.view
-
 
   scrollBot: (cID) -> #Must be fixed
     history = @chats.find("[cID='#{cID}']")
