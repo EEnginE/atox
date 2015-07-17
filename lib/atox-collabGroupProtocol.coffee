@@ -29,7 +29,7 @@ class CollabGroupProtocol
     @pSendSync() if sendSync
 
   destructor: ->
-    @pGroup.destructor()
+    @aTox.TOX.deleteGroupChat {"gID": @pGroup.getID()}
 
   getID:    -> @pID
   getGroup: -> @pGroup

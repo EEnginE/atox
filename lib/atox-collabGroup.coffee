@@ -26,7 +26,6 @@ class CollabGroup
     @peerlist = []
 
   destructor: ->
-    @aTox.TOX.deleteGroupChat {"gID": @gID}
 
   getID:    -> @gID
   getName:  -> @name
