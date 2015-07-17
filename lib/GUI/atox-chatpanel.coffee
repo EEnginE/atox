@@ -1,5 +1,5 @@
 {View, TextEditorView, $, $$} = require 'atom-space-pen-views'
-PeerList = require './atox-peerList'
+PeerList = require './atox-peerlist'
 jQuery    = require 'jquery'
 require 'jquery-ui'
 
@@ -137,7 +137,7 @@ class Chatpanel extends View
         @scrollPos[id] = -1
     @coverview.find('.selected').removeClass('selected')
     @coverview.find("[cID='#{cID}']").addClass('selected')
-    @ulist.find(".aTox-PeerList").css({display: 'none'})
+    @ulist.find(".aTox-peerlist").css({display: 'none'})
     @chats.find(".aTox-chatpanel-chat").css({display: 'none'})
     @ulist.find("[cID='#{cID}']").css({display: 'block'})
     @chats.find("[cID='#{cID}']").css({display: 'block'})

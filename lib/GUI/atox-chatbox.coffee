@@ -1,6 +1,6 @@
 {View, TextEditorView, $, $$} = require 'atom-space-pen-views'
 jQuery   = require 'jquery'
-PeerList = require './atox-peerList'
+PeerList = require './atox-peerlist'
 require 'jquery-ui'
 
 module.exports =

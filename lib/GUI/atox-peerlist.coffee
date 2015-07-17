@@ -2,7 +2,7 @@
 
 class PeerListItem extends View
   @content: (params) ->
-    @p id: "aTox-LI-#{params.peer}-#{params.fID}", class: 'aTox-PeerList-item'
+    @p id: "aTox-LI-#{params.peer}-#{params.fID}", class: 'aTox-peerlist-item'
 
   initialize: (params) ->
     @text  params.name
@@ -25,7 +25,7 @@ class PeerListItem extends View
 module.exports =
 class PeerList extends View
   @content: (params) ->
-    @div class: "aTox-PeerList", cID: params.cID
+    @div class: "aTox-peerlist", cID: params.cID
 
   initialize: (params) ->
     @list  = []
