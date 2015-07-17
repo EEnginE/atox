@@ -1,4 +1,6 @@
 ToxFriendProtBase = require './botProtocol/prot-toxFriendProtBase'
+os = require 'os'
+fs = require 'fs'
 
 module.exports =
 class ToxFriendBase extends ToxFriendProtBase
@@ -46,6 +48,7 @@ class ToxFriendBase extends ToxFriendProtBase
       "sendCB":  (msg) => @aTox.TOX.sendToFriendCMD {"fID": @fID, "msg": msg}
       "pubKey":  @pubKey
     }
+    @aTox.TOX.sendAvatar {"fID": @fID}
 
   friendConnectionStatus: (newConnectionStatus) ->
     if newConnectionStatus is @aTox.TOX.consts.TOX_CONNECTION_NONE
@@ -59,6 +62,17 @@ class ToxFriendBase extends ToxFriendProtBase
   receivedMsg: (msg) -> @stub "receivedMsg"
   sendMSG: (msg, cb) -> @stub "sendMSG"
   friendRead: (id)   -> @stub "firendRead"
+
+  genAvatarPath:    (hash) -> "#{os.tmpdir()}/atox-Avatar-#{hash}"
+  isAvatarUpTpDate: (hash) -> return if fs.existsSync @genAvatarPath hash then true else false
+  setAvatar:        (hash) ->
+    if hash is 'none'
+      newAvatar = 'none'
+    else
+      newAvatar = @genAvatarPath hash
+    unless @img is newAvatar
+      @img = newAvatar
+      @newAvatar() if @newAvatar?
 
   stub: (func) ->
     @aTox.term.stub {msg: "CLASS: ToxFriendBase -- Unimplemeted base function #{func}!", cID: -1}

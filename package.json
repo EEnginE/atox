@@ -12,7 +12,7 @@
      "atom-space-pen-views": "*",
      "jquery-ui":            "*",
      "jquery":               "*",
-     "jquery-mousewheel":    "*",
+     "buffertools":          "*",
      "toxcore":              "git://github.com/saneki/node-toxcore.git"
   },
   "coffeelintConfig": {

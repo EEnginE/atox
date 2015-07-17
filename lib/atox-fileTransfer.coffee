@@ -1,9 +1,15 @@
 fs = require 'fs'
+buffertools = require 'buffertools'
 
 FileTransferPanel = require './GUI/atox-fileTransfer'
 ExtensionResolver = require './atox-extensionResolver'
 
-# coffeelint: disable=max_line_length
+buffertools.extend()
+
+class DummyPanel
+  destructor: ->
+  setMode:    ->
+  setValue:   ->
 
 module.exports=
 class FileTransfer
@@ -16,44 +22,66 @@ class FileTransfer
     @size     = params.size
     @id       = params.id
     @doneCB   = params.doneCB
+    @fd       = params.fd # Sending ONLY
+
+    @DATA_KIND   = @aTox.TOX.consts.TOX_FILE_KIND_DATA
+    @AVATAR_KIND = @aTox.TOX.consts.TOX_FILE_KIND_AVATAR
+    @friend      = @aTox.TOX.friends[@id.friend]
 
     @fullPath = "./#{@name}" unless @fullPath?
 
+    @id.idHex = @id.id.toHex().toString().toUpperCase()
+
     switch @role
-      when 'sender'   then fs.open @fullPath, 'r', (err, fd) => @fd = fd unless @checkErr err
-      when 'receiver' then fs.open @fullPath, 'w', (err, fd) => @fd = fd unless @checkErr err
+      when 'sender'   then throw new Error "No file descriptor provided" unless @fd?
+      when 'receiver'
+        fs.close @fd if @fd?
+        @fullPath = @friend.genAvatarPath @id.idHex if @kind is @AVATAR_KIND
       else throw new Error "Unsupported role: '#{role}'"
 
-    @inf "#{@role}: New file Transfer", "Path: #{@fullPath}; ID: #{@id.id}"
-    console.log @id.id
+    if @kind is @AVATAR_KIND
+      @panel = new DummyPanel
+      if @role is 'receiver'
+        if @friend.isAvatarUpTpDate @id.idHex
+          @friend.setAvatar         @id.idHex
+          return @cancel()
 
-    @panel = new FileTransferPanel {
-      "aTox":     @aTox
-      "parent":   this
-      "fileType": ExtensionResolver.resolve @name
-      "name":     @name
-      "size":     @size
-    }
+        @accept()
+    else
+      @panel = new FileTransferPanel {
+        "aTox":     @aTox
+        "parent":   this
+        "fileType": ExtensionResolver.resolve @name
+        "name":     @name
+        "size":     @size
+        "role":     @role
+      }
 
-    @panel.setMode @role
+      @panel.setMode @role
+      @inf "#{@role}: New file Transfer", @name
 
   destructor: ->
-    fs.closeSync @fd
+    fs.closeSync @fd if @fd?
     @fd = null
     @panel.destructor()
     @doneCB()
 
   sendCTRL: (ctrl, name) ->
+    if ctrl is 'resume' and not @fd?
+      return fs.open @fullPath, 'w+', (err, fd) =>
+        unless @checkErr err
+          @fd = fd
+          @sendCTRL ctrl, name
     @panel.setMode ctrl
     @inf "#{name} File Transfer", @name
     @aTox.TOX.controlFile {"fID": @id.friend, "fileID": @id.file, "control": ctrl}
     @destructor() if ctrl is 'cancel'
 
-  accept:  -> @sendCTRL 'resume', 'Accepted',
-  decline: -> @sendCTRL 'cancel', 'Declined',
-  pause:   -> @sendCTRL 'pause',  'Paused',
-  resume:  -> @sendCTRL 'resume', 'Resumed',
-  cancel:  -> @sendCTRL 'cancel', 'Canceled',
+  accept:  -> @sendCTRL 'resume', 'Accepted'
+  decline: -> @sendCTRL 'cancel', 'Declined'
+  pause:   -> @sendCTRL 'pause',  'Paused'
+  resume:  -> @sendCTRL 'resume', 'Resumed'
+  cancel:  -> @sendCTRL 'cancel', 'Canceled'
 
 
   control: (ctrl, ctrlName) ->
@@ -64,6 +92,7 @@ class FileTransfer
   chunkRequest: (pos, length) ->
     if length is 0
       @inf "File transfer completed", "Sent file '#{@name}'"
+      @panel.setMode 'completed'
       @destructor()
       return
 
@@ -81,6 +110,7 @@ class FileTransfer
     if final is true
       @success "File transfer completed", "Received file '#{@name}'"
       @panel.setMode 'completed'
+      @friend.setAvatar @id.idHex if @kind is @AVATAR_KIND
       @destructor()
       return
 
@@ -96,6 +126,7 @@ class FileTransfer
       console.log err
 
   inf: (title, msg) ->
+    return if @kind is @AVATAR_KIND
     @aTox.term.inf {
       "title": title
       "msg":   msg
@@ -103,6 +134,7 @@ class FileTransfer
     }
 
   success: (title, msg) ->
+    return if @kind is @AVATAR_KIND
     @aTox.term.success {
       "title": title
       "msg":   msg

@@ -1,6 +1,4 @@
 Chat = require './atox-chat'
-os   = require 'os'
-fs   = require 'fs'
 
 ToxFriendBase = require './atox-toxFriendBase'
 
@@ -23,7 +21,7 @@ class Friend extends ToxFriendBase
 
   destructor: ->
     super()
-    @chat.destructor() if @chat?
+    @chat.destructor()
 
   getIsHuman: -> @isHuman
 
@@ -52,28 +50,9 @@ class Friend extends ToxFriendBase
     cb @aTox.TOX.sendToFriend {fID: @fID, msg: msg}
 
   # TOX events
-
-  # TODO add avatar support for the new Tox API
-  avatarData: (params) ->
-    if params.format() == 0
-      @inf { msg: "#{@name} has no Avatar" }
-      @img = 'none'
-      @chat.update 'img'
-      return
-
-    if ! params.isValid()
-      @inf { msg: "#{@name} has an invalid (or no) Avatar" }
-      @img = 'none'
-      @chat.update 'img'
-      return
-
-    @inf { msg: "#{@name} has a new Avatar (Format: #{params.format()})"}
-    @img = "#{os.tmpdir()}/atox-Avatar-#{params.hashHex()}"
+  newAvatar: ->
+    @inf {"msg": "New Avatar"}
     @chat.update 'img'
-    @inf { msg: "Avatar Path: #{@img}"}
-    fs.writeFile @img, params.data(), (error) =>
-      return if error
-      @chat.update()
 
   receivedMsg: (msg) ->
     @chat.genAndAddMSG {"msg": msg, "color": @color, "name": @name }
@@ -83,19 +62,19 @@ class Friend extends ToxFriendBase
 
   friendName: (newName) ->
     super newName
-    @inf {"msg": "#{@name} is now '#{newName}'", "notify": not @hidden}
+    @inf {"msg": "#{@name} is now '#{newName}'"}
     @chat.update 'name'
 
   friendStatusMessage: (newStatus) ->
     super newStatus
-    @inf {"msg": "Status of #{@name} is now '#{@status}'", "notify": not @hidden}
+    @inf {"msg": "Status of #{@name} is now '#{@status}'"}
     @chat.update 'status'
 
   friendStatus: (newStatus) ->
     oldOnline = @online
     super newStatus
     unless @online is oldOnline
-      @inf {msg: "#{@name} is now #{@online}", notify: not @hidden}
+      @inf {"msg": "#{@name} is now #{@online}"}
       @chat.update 'online'
       unless @online is 'offline'
         @sendMSG i.msg, i.cb for i in @msgBuffer
@@ -122,6 +101,5 @@ class Friend extends ToxFriendBase
       "title": "#{@name}"
       "msg": "#{params.msg}"
       "cID": @chat.cID
-      "notify": params.notify
       "noChat": params.noChat if params.noChat?
     }

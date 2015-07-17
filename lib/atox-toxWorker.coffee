@@ -51,8 +51,6 @@ class ToxWorker
 
     @aTox.gui.setUserOnlineStatus 'disconnected'
 
-    @TOX.on 'avatarData',                 (e) => try @avatarDataCB e             catch a then @handleExept 'avatarData',             a
-    @TOX.on 'avatarInfo',                 (e) => try @avatarInfCB e              catch a then @handleExept 'avatarInfo',             a
     @TOX.on 'fileRecv',                   (e) => try @fileRecvCB e               catch a then @handleExept 'fileRecv',               a
     @TOX.on 'fileRecvControl',            (e) => try @fileRecvControlCB e        catch a then @handleExept 'fileRecvControl',        a
     @TOX.on 'fileRecvChunk',              (e) => try @fileRecvChunkCB e          catch a then @handleExept 'fileRecvChunk',          a
@@ -169,12 +167,6 @@ class ToxWorker
       @inf "Disconnected from the TOX network"
       @isConnected = false
 
-  reqAvatar: ->
-    return @stub 'reqAvatar'
-    #for i in @TOX.getFriendListSync()
-    #  @inf "Requesting Avatar (Friend ID: <span style='color:rgba(100, 100, 255, 1)'>#{i}</span>)"
-    #  @TOX.requestAvatarData( i )
-
   friendRequestCB: (e) ->
     @inf "Friend request", "#{e.publicKeyHex()} (Autoaccept)"
     fID = 0
@@ -237,9 +229,26 @@ class ToxWorker
 
   getFileID: (e) -> @TOX.getFileIdSync e.fID, e.fileID
 
+  broadcastAvatar: ->
+    file = atom.config.get 'aTox.userAvatar'
+    return if file is 'none'
+    fs.readFile file, (err, data) =>
+      if err then throw err
+      @TOX.hash data, (err2, hash) =>
+        if err2 then throw err2
+        for i in @friends
+          @sendFile {"fID": i.getID(), "path": file, "isAvatar": true, "id": hash}
 
-  # e: {"fID", "path"}
-  # e: {"fID", "path", "collabSync", "setSyncTransferID"}
+  sendAvatar: (e) ->
+    file = atom.config.get 'aTox.userAvatar'
+    return if file is 'none'
+    fs.readFile file, (err, data) =>
+      if err then throw err
+      @TOX.hash data, (err2, hash) =>
+        if err2 then throw err2
+        @sendFile {"fID": e.fID, "path": file, "isAvatar": true, "id": hash}
+
+  # e: {"fID", "path", "isAvatar": <boolean optional>, "id": <optional for normal dat>}
   sendFile: (e) ->
     fs.stat e.path, (err, stats) =>
       if err
@@ -247,35 +256,41 @@ class ToxWorker
         return console.log err
 
       size = stats["size"]
-      chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!$%&(){}[]_+-*/'#|;,:."
-      if e.collabSync
-        id = "aTox_collab="
-        missing = @consts.TOX_FILE_ID_LENGTH - id.length
-        colID   = ""
-        colID   += chars[Math.floor(Math.random() * chars.length)] for i in [1..missing]
-        e.setSyncTransferID colID
-        id = id + colID
-      else
+      id = e.id
+      unless id?
+        chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!$%&(){}[]_+-*/'#|;,:."
         id = ""
         id += chars[Math.floor(Math.random() * chars.length)] for i in [1..@consts.TOX_FILE_ID_LENGTH]
+        id = new Buffer id
 
-      fileID = @TOX.sendFileSync e.fID, @consts.TOX_FILE_KIND_DATA, path.basename( e.path ), size, new Buffer id
+      if e.isAvatar
+        kind = @consts.TOX_FILE_KIND_AVATAR
+        name = ''
+      else
+        kind = @consts.TOX_FILE_KIND_DATA
+        name = path.basename e.path
 
-      @files[e.fID] = [] unless @files[e.fID]?
-      @files[e.fID][fileID] = new FileTransfer {
-        "aTox":     @aTox
-        "role":     'sender'
-        "fullPath": e.path
-        "name":     path.basename( e.path )
-        "kind":     @consts.TOX_FILE_KIND_DATA
-        "size":     size
-        "id": {
-          "friend": e.fID
-          "file":   e.fileID
-          "id":     id
+      fs.open e.path, 'r', (err, fd) =>
+        return @err "Failed to open file #{e.path} for sending" if err?
+        fileID = @TOX.sendFileSync e.fID, kind, name, size, new Buffer id
+
+        @files[e.fID] = [] unless @files[e.fID]?
+        @files[e.fID][fileID] = new FileTransfer {
+          "aTox":     @aTox
+          "role":     'sender'
+          "fullPath": e.path
+          "name":     name
+          "kind":     kind
+          "size":     size
+          "fd":       fd
+          "id": {
+            "friend": e.fID
+            "file":   e.fileID
+            "id":     id
+            "cID":    if @friends[e.fID].chat? then @friends[e.fID].chat.cID else null
+          }
+          "doneCB": => @files[e.fID][e.fileID] = null
         }
-        "doneCB": => @files[e.fID][e.fileID] = null
-      }
 
   controlFile: (e) ->
     switch e.control
@@ -461,15 +476,6 @@ class ToxWorker
 
   setName: (name) ->
     @TOX.setNameSync "#{name}"
-
-  setAvatar: (path) ->
-    return @stub "setAvatar"  # TODO -- rework for new tox API
-    #if path != 'none'
-    #  fs.readFile "#{path}", (err, data) =>
-    #    if err
-    #      @err "Failed to load #{path}"
-    #      return
-    #    @TOX.setAvatar 1, data
 
   setStatus: (s) ->
     @TOX.setStatusMessageSync "#{s}"

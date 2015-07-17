@@ -41,11 +41,11 @@ MODES =
     "btn1":   "cls": 'success', "text": 'Accept',  "icon": 'cloud-download'
     "btn2":   "cls": 'error',   "text": 'Decline', "icon": 'x'
 
-  # receiving data
+  # receiving / sending data
   "resume":
     "input":  false
     "bar":    true
-    "status": "cls": 'success', "text": 'receiving (%p of %s)'
+    "status": "cls": 'success', "text": '%t (%p of %s)'
     "btn1":   "cls": 'warning', "text": 'Pause',   "icon": 'playback-pause'
     "btn2":   "cls": 'error',   "text": 'Cancel',  "icon": 'x'
 
@@ -101,6 +101,7 @@ class FileTransferPanel extends View
     @parent   = params.parent
     @fileName = params.name
     @size     = params.size
+    @role     = params.role
 
     tSize = @size
     for i in ['B', 'kiB', 'MiB', 'GiB', 'TiB']
@@ -172,6 +173,7 @@ class FileTransferPanel extends View
     text = @status.prop 'rawText'
     text = text.replace /%s/g, @sizeSTR
     text = text.replace /%p/g, "#{Math.floor (@currentValue / @size) * 100}%"
+    text = text.replace /%t/g, if @role is 'sender' then 'sending' else 'receiving'
     @status.text text
 
   setBTN: (btn, mode) ->

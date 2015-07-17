@@ -39,12 +39,13 @@ class Terminal
         "desc": 'Sends a friend request'
         "icon": 'diff-added'
       }
-      {"cmd": 'makeGC',    "args": [{"desc": 'Name/ID of the GC'}],          "desc": 'Creates/joins a group chat',  "icon": 'ruby'      }
-      {"cmd": 'addGC',     "args": [],                                       "desc": 'Adds a new group chat',       "icon": 'diff-added'}
-      {"cmd": 'login',     "args": [],                                       "desc": 'Opens GitHub login popup',    "icon": 'key'       }
-      {"cmd": 'setName',   "args": [{"desc": 'The new name'}],               "desc": 'Set the user name',           "icon": 'pencil'    }
-      {"cmd": 'setAvatar', "args": [{"desc": 'The new avatar (full path)'}], "desc": 'Set the user avatar',         "icon": 'file-media'}
-      {"cmd": 'setStatus', "args": [{"desc": 'The new status message'}],     "desc": 'Set the user status message', "icon": 'pencil'    }
+      {"cmd": 'makeGC',     "args": [{"desc": 'Name/ID of the GC'}],          "desc": 'Creates/joins a group chat',  "icon": 'ruby'       }
+      {"cmd": 'addGC',      "args": [],                                       "desc": 'Adds a new group chat',       "icon": 'diff-added' }
+      {"cmd": 'login',      "args": [],                                       "desc": 'Opens GitHub login popup',    "icon": 'key'        }
+      {"cmd": 'setName',    "args": [{"desc": 'The new name'}],               "desc": 'Set the user name',           "icon": 'pencil'     }
+      {"cmd": 'setAvatar',  "args": [{"desc": 'The new avatar (full path)'}], "desc": 'Set the user avatar',         "icon": 'file-media' }
+      {"cmd": 'sendAvatar', "args": [],                                       "desc": 'Sends your current avatar',   "icon": 'radio-tower'}
+      {"cmd": 'setStatus',  "args": [{"desc": 'The new status message'}],     "desc": 'Set the user status message', "icon": 'pencil'     }
       {
         "cmd": 'setOnline'
         "args": [
@@ -107,18 +108,19 @@ class Terminal
       for i in @cmds
         @inf {"cID": p.cID, "title": "     \"/#{i.cmd}\":  #{i.desc}", "notify": false}
 
-  setName:   (p) -> @aTox.TOX.setName   p.argv[0]
-  setAvatar: (p) -> @aTox.TOX.setAvatar p.argv[0]
-  setStatus: (p) -> @aTox.TOX.setStatus p.argv[0]
-  setOnline: (p) -> @aTox.TOX.onlineStatus p.argv[0]; @aTox.gui.setUserOnlineStatus p.argv[0]
-  sendFile:  (p) -> @aTox.TOX.sendFile {"fID": p.argv[0], "path": atom.workspace.getActiveTextEditor().getPath()}
-  addFriend: (p) -> @aTox.TOX.sendFriendRequest {"addr": p.argv[0], "msg": p.argv[1]}
-  addGC:     (p) -> @aTox.TOX.createGroupChat()
-  invite:    (p) -> @aTox.TOX.invite            {"fID": p.argv[0], "gID": p.argv[1]}
-  login:     (p) -> @aTox.manager.requestNewToken()
-  makeGC:    (p) -> return @stub 'makeGCfromName'
-  delFriend: (p) -> @aTox.TOX.deleteFriend    {"fID": p.argv[0]}
-  delGroup:  (p) -> @aTox.TOX.deleteGroupChat {"gID": p.argv[0]}
+  setName:    (p) -> @aTox.TOX.setName   p.argv[0]
+  setAvatar:  (p) -> atom.config.set 'aTox.userAvatar', p.argv[0]; @snedAvatar()
+  sendAvatar: (p) -> @aTox.TOX.broadcastAvatar()
+  setStatus:  (p) -> @aTox.TOX.setStatus p.argv[0]
+  setOnline:  (p) -> @aTox.TOX.onlineStatus p.argv[0]; @aTox.gui.setUserOnlineStatus p.argv[0]
+  sendFile:   (p) -> @aTox.TOX.sendFile {"fID": p.argv[0], "path": atom.workspace.getActiveTextEditor().getPath()}
+  addFriend:  (p) -> @aTox.TOX.sendFriendRequest {"addr": p.argv[0], "msg": p.argv[1]}
+  addGC:      (p) -> @aTox.TOX.createGroupChat()
+  invite:     (p) -> @aTox.TOX.invite            {"fID": p.argv[0], "gID": p.argv[1]}
+  login:      (p) -> @aTox.manager.requestNewToken()
+  makeGC:     (p) -> return @stub 'makeGCfromName'
+  delFriend:  (p) -> @aTox.TOX.deleteFriend    {"fID": p.argv[0]}
+  delGroup:   (p) -> @aTox.TOX.deleteGroupChat {"gID": p.argv[0]}
 
   run: (cmd, args) ->
     unless this[cmd]?
