@@ -18,6 +18,7 @@ class Friend extends ToxFriendBase
     }
 
     @msgBuffer = []
+    @inf {"msg": "Added Friend #{@getID()}"}
 
   destructor: ->
     super()

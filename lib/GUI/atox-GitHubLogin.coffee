@@ -10,7 +10,7 @@ class GitHubLogin extends View
       @div outlet: 'working', class: 'loading loading-spinner-tiny inline-block'
       @div outlet: 'info',    class: 'icon icon-info inline-block info-icon-position'
       @h1  outlet: 'h1', "GitHub Connection"
-      @div class: 'form', =>
+      @div class: 'block form', =>
         @h2 outlet: 'h2', "Please enter username and password"
         @subview "uname", new TextEditorView(mini: true, placeholderText: "Username")
         @subview "pw",    new TextEditorView(mini: true, placeholderText: "Password")
@@ -75,7 +75,7 @@ class GitHubLogin extends View
     @panel.show() unless @panel.isVisible() is true
     i.removeClass 'working' for i in [@h1, @h2, @working]
     i.addClass    'error'   for i in [@h1, @h2]
-    @aTox.term.err {"tile": "Failed to create token", "msg": desc}
+    @aTox.term.err {"title": "Failed to create token", "msg": desc}
     @doTimeout 2500, =>
       i.removeClass 'error' for i in [@h1, @h2]
 

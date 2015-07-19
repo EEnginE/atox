@@ -1,4 +1,5 @@
-BotManager = require './botProtocol/prot-botManager'
+BotManager        = require './botProtocol/prot-botManager'
+FriendRequestView = require './GUI/atox-friendRequest'
 
 module.exports =
 class aToxManager extends BotManager
@@ -9,6 +10,15 @@ class aToxManager extends BotManager
     @bots  = []
 
   getCollabList: -> @aTox.collab.getCollabList()
+
+  handleFriendRequest: (event) ->
+    # TODO autoaccept friends for joining chats
+    new FriendRequestView
+      "aTox":    @aTox
+      "id":      event.publicKeyHex().toUpperCase()
+      "msg":     event.message()
+      "accept":  => @aTox.TOX.addFriendNoRequest event
+      "decline": ->
 
 #     _                 _
 #    | |               (_)
@@ -27,7 +37,10 @@ class aToxManager extends BotManager
 
     # TODO do more stuff (sign user name, etc.)
     @aTox.github.setToken @token
-    @aTox.term.inf {"cID": -2, "title": "Loaded Github token from settings", "msg": "#{atom.config.get('aTox.githubToken')}"}
+    @aTox.term.inf
+      "title":  "Loaded Github token from settings"
+      "msg":    "#{atom.config.get('aTox.githubToken')}"
+      "notify": false
 
   requestNewToken: -> @aTox.gui.GitHubLogin.show()
 

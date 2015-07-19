@@ -85,8 +85,8 @@ class ToxWorker
     @TOX.start()
     return @err "Failed to start TOX" unless @TOX.isStarted()
     @success "Started TOX"
-    @inf "Name:  <span style='color:rgba( #{(atom.config.get 'aTox.chatColor').red}, #{(atom.config.get 'aTox.chatColor').green}, #{(atom.config.get 'aTox.chatColor').blue}, 1 )'>#{atom.config.get 'aTox.userName'}</span>"
-    @inf "My ID", "#{@TOX.getAddressHexSync()}"
+    @inf "Name:  #{atom.config.get 'aTox.userName'}", null, false
+    @inf "My ID", "#{@TOX.getAddressHexSync()}", false
 
     @isConnected  = false
     @firstConnect = true
@@ -169,6 +169,9 @@ class ToxWorker
 
   friendRequestCB: (e) ->
     @inf "Friend request", "#{e.publicKeyHex()} (Autoaccept)"
+    @aTox.manager.handleFriendRequest e
+
+  addFriendNoRequest: (e) ->
     fID = 0
 
     try
@@ -185,8 +188,6 @@ class ToxWorker
       aTox:   @aTox
       pubKey: e.publicKeyHex()
     }
-
-    @inf "Added Friend #{fID}" #TODO: Move this into the contacts, add the randomized color to this string within the contact
 
   getFIDfromKEY: (key) ->
     for i in @friends
@@ -514,7 +515,8 @@ class ToxWorker
         pubKey: e.addr
       }
 
-    @success "Friend request (#{fID}) sent", e.addr
+    notify = if e.bot? and e.bot is true then false else true
+    @success "Friend request (#{fID}) sent", e.addr, notify
 
     return @friends[fID]
 
@@ -555,7 +557,7 @@ class ToxWorker
       when 'busy'   then status = @consts.TOX_USER_STATUS_BUSY
 
     @TOX.setStatusSync status
-    @success "You are now <span class='#{@getClassByStatus newS}'>#{newS}</span>" # TODO send this to all chats
+    @success "You are now #{newS}" # TODO send this to all chats
 
   getClassByStatus: (status) ->
     if status is "online"
@@ -567,14 +569,16 @@ class ToxWorker
     else if status is "away"
       return "text-warning"
 
-  success: (msg, desc) -> @aTox.term.success {
-    'title': "TOX: #{msg}"
-    'msg':   desc
+  success: (msg, desc, notify) -> @aTox.term.success {
+    'title':  "TOX: #{msg}"
+    'msg':    desc
+    'notify': notify
   }
 
-  inf:  (msg, desc) -> @aTox.term.inf  {
-    'title': "TOX: #{msg}"
-    'msg':   desc
+  inf:  (msg, desc, notify) -> @aTox.term.inf  {
+    'title':  "TOX: #{msg}"
+    'msg':    desc
+    'notify': notify
   }
 
   err:  (msg, stack) -> @aTox.term.err  {
