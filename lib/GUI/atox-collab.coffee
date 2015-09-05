@@ -1,6 +1,5 @@
 CollabGroupProtocol = require '../atox-collabGroupProtocol'
-
-newlineRegex: /\r\n|\n|\r/g
+{Range, Point} = require 'atom'
 
 module.exports =
 class Collab extends CollabGroupProtocol
@@ -14,7 +13,7 @@ class Collab extends CollabGroupProtocol
     @pmutex = true
     @icb = []
 
-    @disposables.push @editor.onDidInsertText (e) => @internalChange e
+    @disposables.push @editor.getBuffer().onDidChange (e) => @internalChange e
     @disposables.push @editor.onDidChangeSelectionRange (e) =>
       @changedSelection e
 
@@ -38,83 +37,100 @@ class Collab extends CollabGroupProtocol
     if @pmutex and @icb.length > 0
       @internalchanges = @icb.concat(@internalchanges)
       @icb = []
-    for pos in @editor.getCursorBufferPositions()
-      if @pmutex
-        @internalchanges.push {'pos': pos, 'text': e.text}
-      else
-        @icb.push {'pos': pos, 'text': e.text}
+
+    if (e.originFlag? and e.originFlag) or (e.newRange.originFlag? and e.newRange.originFlag)
+      console.log "ignore change"
+      return
+
+    {oldRange, newRange, oldText, newText} = e
+    oldRange = Range(oldRange.start, oldRange.end)
+    newRange = Range(newRange.start, newRange.end)
+    newRange.originFlag = true #dirty stuff - don't think about
+    normalizeLineEndings = true
+    e = {oldRange, newRange, oldText, newText, normalizeLineEndings}
+    if @pmutex
+      @internalchanges.push e
+    else
+      @icb.push e
+      console.log @icb
 
   externalChange: (e) ->
-    lineStartIndex = 0
-    while result = newlineRegex.exec(e.text)
-      line = e.text[lineStartIndex...result.index]
-      ending = result[0]
-      @externalchanges.push {'pos': e.pos, 'text': line, 'nline': ending}
-      lineStartIndex = newlineRegex.lastIndex
-    @externalchanges.push {'pos': e.pos, 'text': line, 'nline': false}
+    return unless e?
+    console.log e
+
+    {oldRange, newRange, oldText, newText} = e
+    oldRange = Range(oldRange.start, oldRange.end)
+    newRange = Range(newRange.start, newRange.end)
+    newRange.originFlag = true #dirty stuff - don't think about
+    normalizeLineEndings = true
+    e = {oldRange, newRange, oldText, newText, normalizeLineEndings}
+    @externalchanges.push e
     return
-
-    #Alternate (old) code
-    #for i in [0 .. e.text.length]
-    for c, i in e.text
-      #c = e.text[i]
-      if c is '\n' or (c is '\r' and e.text[i+1] != '\n')
-        @externalchanges.push {'pos': e.pos, 'text': e.text.slice(0, c)
-          'nline': c}
-        @externalChange {'pos': e.pos, 'text': e.text.slice(c + 1)}
-        return
-      else if c is '\r'
-        @externalchanges.push {'pos': e.pos, 'text': e.text.slice(0, c)
-          'nline': e.text.slice(c, c + 2)}
-        @externalChange {'pos': e.pos, 'text': e.text.slice(c + 2)}
-        return
-
-    @externalchanges.push {'pos': e.pos, 'text': e.text}
 
   changedSelection: (e) ->
 
   patchLines: ->
-    #Fix pos of external changes
-    rshift = 0
+    ###Fix pos of external changes
     for ec, i in @externalchanges #Shift
-      @externalchanges[i].pos[0] += rshift
-      if ec.nline? and ec.nline is not false
-        rshift++
+      for e in @externalchanges
+        if ec != e and ec.oldRange.compare(e.oldRange) == 1
+          @externalchanges[i].oldRange.translate(Point(e.newRange.getRowCount() - e.oldRange.getRowCount(), 0))
+          @externalchanges[i].newRange.translate(Point(e.newRange.getRowCount() - e.oldRange.getRowCount(), 0))###
 
     #Fix pos of internal changes
     for ec, i in @externalchanges
       for ic, j in @internalchanges
-        if ec.nline? and ec.nline is not false and ic.pos.row() >= ec.pos[0]
-          @internalchanges[j].pos.translate([1, 0]) #Shift row by 1
-        else if ic.pos.row() is ec.pos[0] and ic.pos.column() > ec.pos[1]
-          @internalchanges[j].pos.translate([0, ic.pos.column() - ec.pos[1]])
+        if ic.oldRange.start.row() > ec.oldRange.start.row()
+          @internalchanges[j].newRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), 0])
+          @internalchanges[j].oldRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), 0]) #Shift row by 1
+        else if ic.oldRange.start.row() is ec.oldRange.start.row() and ic.oldRange.start.column() > ec.oldRange.start.column()
+          @internalchanges[j].newRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), ec.newRange.end.column() - ec.oldRange.end.column()])
+          @internalchanges[j].oldRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), ec.newRange.end.column() - ec.oldRange.end.column()])
 
   applyExternal: ->
     #Concat both and patch local buffer
     for ec in @externalchanges
-      if ec.nline? and ec.nline is not false
-        @sLines[ec.pos[0]] = @sLines[ec.pos[0]].slice(0, ec.pos[1]) + ec.text
-        @sLines.splice(ec.pos[0] + 1, 0, @sLines[ec.pos[0]].slice(ec.pos[1]))
-        @sLineEndings.splice(ec.pos[0], 0, ec.nline)
-      else
-        @sLines[ec.pos[0]] = @sLines[ec.pos[0]].slice(0, ec.pos[1]) + ec.text +
-          @sLines[ec.pos[0]].slice(ec.pos[1])
+      console.log ec
+      @editor.getBuffer().applyChange(ec, false)
+      return
 
   swap: ->
+    oldText = @editor.getText()
+
+    #@editor.displayBuffer.updateAllLines() #doesn't work
+
+    #Combine the two arrays and use @editor.getBuffer().setText()
+    newText = ''
+    for row in [0 .. @sLines.length - 1]
+      newText += (@sLines[row] + @sLineEndings[row])
+    #@editor.setText(text) #use function of editor instead
+
+    oldRange = @editor.getBuffer().getRange()
+    oldRange.freeze()
+    newRange = Range.fromText(oldRange.start, newText)
+    newRange.freeze()
+    originFlag = true
+    changeEvent = Object.freeze({oldRange, newRange, oldText, newText, originFlag})
+
+    @editor.getBuffer().emitter.emit 'will-change', changeEvent
+
     @editor.getBuffer().lines = @sLines
     @editor.getBuffer().lineEndings = @sLineEndings
 
+    @editor.getBuffer().emitter.emit 'did-change', changeEvent
+    @editor.displayBuffer.updateAllScreenLines()
+
   applyInternal: ->
     #Apply internal changes
-    for ic in @internalchanges
-      @editor.getBuffer().insert(ic.pos, ic.text)
+    for ic in @internalchanges #maybe have to fix array -> normalizeLineEndings
+      @editor.getBuffer().applyChange(ic, true)
 
   process: ->
     @pmutex = false
 
     @patchLines()
-    @applyExternal()
     @swap()
+    @applyExternal()
     @applyInternal()
 
     changes = @internalchanges.slice(0)
@@ -125,9 +141,6 @@ class Collab extends CollabGroupProtocol
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
     @pmutex = true
-
-    for c, i in changes
-      changes[i].pos = changes[i].pos.toArray()
 
     return changes
 
@@ -149,6 +162,10 @@ class Collab extends CollabGroupProtocol
     return {"lines": @sLines, "lineEndings": @sLineEndings}
 
   CMD_process: (changes) ->
+    @externalchanges = []
+    console.log "External Changes:"
+    console.log changes
     if changes?
-      @externalChange(c) for c in changes
+      for pchanges in changes
+        @externalChange(c) for c in pchanges
     @process()
