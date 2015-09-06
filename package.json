@@ -13,6 +13,7 @@
      "jquery-ui":            "*",
      "jquery":               "*",
      "buffertools":          "*",
+     "season":               "*",
      "toxcore":              "git://github.com/saneki/node-toxcore.git"
   },
   "coffeelintConfig": {

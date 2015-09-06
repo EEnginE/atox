@@ -39,11 +39,14 @@ class ToxWorker
     @nodes      = paresedJSON.bootstrapNodes
     @aToxNodes  = paresedJSON.aToxNodes
 
+    toxSaveData = null
+    toxSaveData = @aTox.gSave.getBuf 'TOX' if atom.config.get 'aTox.useToxSave'
+
     try
       if os.platform().indexOf('win') > -1
-        @TOX = new toxcore.Tox({"path": "#{@DLL}", "old": true})
+        @TOX = new toxcore.Tox({"old": true, "data": toxSaveData, "path": "#{@DLL}"})
       else
-        @TOX = new toxcore.Tox({"old": true})
+        @TOX = new toxcore.Tox({"old": true, "data": toxSaveData})
     catch e
       @err "Failed to init Tox", e
       console.log e, e.stack
@@ -92,6 +95,7 @@ class ToxWorker
     @firstConnect = true
 
   deactivate: ->
+    @aTox.gSave.setBuf 'TOX', @TOX.getSavedataSync() #if @atom.config.get 'aTox.useToxSave'
     @TOX.stop()
 
   firstConnectCB: ->
@@ -493,7 +497,7 @@ class ToxWorker
     try
       fID = @TOX.addFriendSync "#{e.addr}", "#{e.msg}"
     catch err
-      @err "Failed to send friend request\n#{err.message}", err.stack
+      @err "Failed to send friend request: #{err.message}", err.stack
       return
 
     if e.bot? and e.bot is true

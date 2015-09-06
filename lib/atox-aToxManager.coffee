@@ -6,8 +6,8 @@ class aToxManager extends BotManager
   constructor: (params) ->
     super params
     @aTox  = params.aTox
-    @token = atom.config.get 'aTox.githubToken'
     @bots  = []
+    @aTox.gSave.onInitDone => @token = @aTox.gSave.get 'githubToken'
 
   getCollabList: -> @aTox.collab.getCollabList()
 
@@ -39,14 +39,14 @@ class aToxManager extends BotManager
     @aTox.github.setToken @token
     @aTox.term.inf
       "title":  "Loaded Github token from settings"
-      "msg":    "#{atom.config.get('aTox.githubToken')}"
+      "msg":    "#{@aTox.gSave.get('githubToken')}"
       "notify": false
 
   requestNewToken: -> @aTox.gui.GitHubLogin.show()
 
   testToken: (token) ->
-    return false if @token is 'none'
-    return true # TODO add some 'real' tests
+    if @token then true else false
+    # TODO add some 'real' tests
 
 
   login: (data, cbs) ->
@@ -56,7 +56,7 @@ class aToxManager extends BotManager
     @aTox.github.createUserToken data, (params) =>
       if params.token?
         @token = params.token
-        atom.config.set 'aTox.githubToken', params.token
+        @aTox.gSave.set 'githubToken', params.token
         if @testToken @token
           cbs.success @token
         else

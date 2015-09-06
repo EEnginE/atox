@@ -1,5 +1,6 @@
 path          = require 'path'
 {$}           = require 'atom-space-pen-views'
+GlobalSave    = require './atox-globalSave'
 GUI           = require './GUI/atox-GUI'
 Terminal      = require './atox-terminal'
 ToxWorker     = require './atox-toxWorker'
@@ -32,10 +33,11 @@ module.exports =
       description: "When activated displays debug notifications"
       type:  "boolean"
       default: false
-    githubToken:
-      title: "Github Access Token"
-      type: "string"
-      default: "none"
+    useToxSave:
+      title: "Save and load the tox state"
+      description: "When activated a permament TOX ID will be used. Disable only for debugging"
+      type:  "boolean"
+      default: true
     showGithubLogin:
       title: "Show Github login window"
       description: "Automatically ask for Github login data every startup when the token is invalid"
@@ -55,23 +57,24 @@ module.exports =
     @currCID     = 0
     @hasOpenChat = false
 
+    @gSave   = new GlobalSave    {'aTox': this, 'name': 'aTox.cson'}
     @term    = new Terminal      {'aTox': this}
     @TOX     = new ToxWorker     {'aTox': this, 'dll': "#{__dirname}\\..\\bin\\libtox.dll"}
     @github  = new Github
     @collab  = new CollabManager {'aTox': this}
     @manager = new aToxManager   {'aTox': this}
 
-    atom.config.observe 'aTox.githubToken', (newValue)  => @github.setToken newValue
-
     $ =>
-      @gui     = new GUI           {'aTox': this, 'state': state.gui}
-      @TOX.startup()
+      @gui   = new GUI           {'aTox': this, 'state': state.gui}
+
+      @gSave.onInitDone => @TOX.startup()
 
   deactivate: ->
-    @subscriptions.dispose()
-
     @TOX.deactivate()
+    @gSave.deactivate()
     @gui.deactivate()
+
+    @subscriptions.dispose()
 
   getCID: -> return @currCID++
 
