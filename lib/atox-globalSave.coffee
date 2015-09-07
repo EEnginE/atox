@@ -11,14 +11,8 @@ module.exports =
       @afterInit = []
       @isInit    = false
 
-      if fs.existsSync @filePath
-        @readFile  => i() for i in @afterInit
-      else
-        @writeFile => i() for i in @afterInit
-
       watcherCB = (evt) =>
-        console.log evt
-        return unless @watcher
+        return unless @watcher?
         if evt is 'rename'
           @watcher.close
           @watcher = null
@@ -40,10 +34,16 @@ module.exports =
 
         @readFile()
 
-      @watcher = fs.watch @filePath, watcherCB
+      if fs.existsSync @filePath
+        @readFile  => i() for i in @afterInit
+        @watcher = fs.watch @filePath, watcherCB
+      else
+        @data = {}
+        @afterInit.push => @watcher = fs.watch @filePath, watcherCB
+        @writeFile => i() for i in @afterInit
 
     deactivate: ->
-      @watcher.close() if @watcher
+      @watcher.close() if @watcher?
       @writeFileSync()
 
     readFile: (cb) ->
@@ -55,10 +55,11 @@ module.exports =
 
       CSON.readFile @filePath, (err, dataSTR) =>
         throw err if err
+        dataSTR = {} unless dataSTR # Empty file: dataSTR == null
         @data = dataSTR
         cb() if cb
 
-    writeFile: (cb) -> CSON.writeFile     @filePath, @data
+    writeFile: (cb) -> CSON.writeFile   @filePath, @data, cb
     writeFileSync:  -> fs.writeFileSync @filePath, CSON.stringify @data
 
     exists: (id)      -> @data[id] isnt null
@@ -71,5 +72,5 @@ module.exports =
 
     onInitDone: (cb) ->
       throw new Error "Callback is undefined" unless cb
-      return cb() if @data
+      return cb() if @data?
       @afterInit.push cb

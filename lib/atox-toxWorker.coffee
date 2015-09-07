@@ -73,8 +73,9 @@ class ToxWorker
 
     @friends      = []
     @groups       = []
-    @sentRequests = []
     @files        = []
+
+    @updateFriendList()
 
     @collabWaitCBs = {}
 
@@ -95,8 +96,53 @@ class ToxWorker
     @firstConnect = true
 
   deactivate: ->
-    @aTox.gSave.setBuf 'TOX', @TOX.getSavedataSync() #if @atom.config.get 'aTox.useToxSave'
+    if atom.config.get 'aTox.useToxSave'
+      @aTox.gSave.setBuf 'TOX', @TOX.getSavedataSync()
+
+      saveFriends = {}
+      for i in @friends
+        tmp = {}
+        tmp[j] = i[j] for j in ['fID', 'name', 'pubKey', 'status', 'img', 'online', 'isHuman']
+        saveFriends[i.fID] = tmp
+
+      @aTox.gSave.set 'friends', saveFriends
+
     @TOX.stop()
+
+  updateFriendList: ->
+    return unless atom.config.get 'aTox.useToxSave'
+    fList = @TOX.getFriendListSync()
+    sList = @aTox.gSave.get 'friends'
+    sList = {} unless sList?
+
+    for i in fList
+      isBot  = false
+      friend = sList[i]
+
+      if friend? and friend.fID is i
+        isBot = not friend.isHuman
+      else
+        friend = {
+          'fID':    i
+          'img':    'none'
+        }
+
+      friend.aTox   = @aTox
+      friend.online = 'offline'
+
+      try friend.name   = @TOX.getFriendNameSync          i unless friend.name?
+      try friend.status = @TOX.getFriendStatusMessageSync i unless friend.status?
+      try friend.pubKey = @TOX.getFriendPublicKeyHexSync  i unless friend.key?
+
+      try friend.name   = friend.name.slice   0, @TOX.getFriendNameSizeSync          i
+      try friend.status = friend.status.slice 0, @TOX.getFriendStatusMessageSizeSync i
+
+      if isBot
+        @friends[i] = new Bot    friend
+        @inf "Loaded bot '#{name}' from TOX save",    friend.pubKey, false
+      else
+        @friends[i] = new Friend friend
+        @inf "Loaded friend '#{name}' from TOX save", friend.pubKey, false
 
   firstConnectCB: ->
     for n in @aToxNodes
@@ -205,6 +251,13 @@ class ToxWorker
     catch error
       @handleExept "getSelfPubKey", error
       return ""
+
+  getFriendPubKey: (fID) ->
+    try
+      return @TOX.getFriendPublicKeyHexSync fID
+    catch error
+      @handleExept "getFriendPubKey", error
+      return "ERROR"
 
 
 #    ______ _ _        _____                    __
@@ -486,17 +539,15 @@ class ToxWorker
     @TOX.setStatusMessageSync "#{s}"
 
   sendFriendRequest: (e) ->
-    for i in @sentRequests
-      return @warn "Friend Request already sent!", e.addr if i is e.addr
-
-    @sentRequests.push e.addr
-
     fID   = 0
     e.msg = "Hello" if e.msg is ""
 
     try
       fID = @TOX.addFriendSync "#{e.addr}", "#{e.msg}"
     catch err
+      if err.code is @consts.TOX_ERR_FRIEND_ADD_ALREADY_SENT
+        return if e.bot? and e.bot is true
+        return @warn "Friend Request already sent!", e.addr
       @err "Failed to send friend request: #{err.message}", err.stack
       return
 

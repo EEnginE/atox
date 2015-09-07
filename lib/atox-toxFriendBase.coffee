@@ -13,7 +13,7 @@ class ToxFriendBase extends ToxFriendProtBase
     @pubKey = params.pubKey.slice 0, 64
     @online = params.online
     @status = params.status
-    @img    = 'none'
+    @img    = if params.img? then params.img else 'none'
 
     @currentStatus = params.status
 
@@ -42,6 +42,7 @@ class ToxFriendBase extends ToxFriendProtBase
     @currentStatus = status
 
   firstConnect: ->
+    @pubKey = @aTox.TOX.getFriendPubKey @fID
     @pInitBotProtocol {
       "id":      @fID
       "manager": @aTox.manager
@@ -63,7 +64,11 @@ class ToxFriendBase extends ToxFriendProtBase
   sendMSG: (msg, cb) -> @stub "sendMSG"
   friendRead: (id)   -> @stub "firendRead"
 
-  genAvatarPath:    (hash) -> "#{os.tmpdir()}/atox-Avatar-#{hash}"
+  genAvatarPath:    (hash) ->
+    dir = "#{atom.getConfigDirPath()}/aTox"
+    unless fs.existsSync dir
+      fs.mkdirSync dir
+    "#{dir}/avatar-#{hash}"
   isAvatarUpTpDate: (hash) -> return if fs.existsSync @genAvatarPath hash then true else false
   setAvatar:        (hash) ->
     if hash is 'none'
