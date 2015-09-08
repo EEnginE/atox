@@ -6,15 +6,15 @@ GITHUB_LOGIN_LINK = "https://github.com/EEnginE/atox/blob/master/LoginInfo.md"
 module.exports =
 class GitHubLogin extends View
   @content: ->
-    @div class: 'aTox-GitHubLogin-root', =>
+    @div class: 'aTox-Form1-root', =>
       @div outlet: 'working', class: 'loading loading-spinner-tiny inline-block'
       @div outlet: 'info',    class: 'icon icon-info inline-block info-icon-position'
       @h1  outlet: 'h1', "GitHub Connection"
       @div class: 'block form', =>
         @h2 outlet: 'h2', "Please enter username and password"
-        @subview "uname", new TextEditorView(mini: true, placeholderText: "Username")
-        @subview "pw",    new TextEditorView(mini: true, placeholderText: "Password")
-        @subview "otp",   new TextEditorView(mini: true, placeholderText: "Two-factor authentication (leave empty if disabled)")
+        @subview "uname", new TextEditorView 'mini': true, 'placeholderText': "Username"
+        @subview "pw",    new TextEditorView 'mini': true, 'placeholderText': "Password"
+        @subview "otp",   new TextEditorView 'mini': true, 'placeholderText': "Two-factor authentication (leave empty if disabled)"
         @div class: 'checkbox', =>
           @input outlet: 'cBox', type: 'checkbox'
           @div   class: 'setting-title', "Don't ask again"
@@ -26,6 +26,9 @@ class GitHubLogin extends View
     @manager = @aTox.manager
 
     @panel = atom.workspace.addModalPanel {item: this, visible: false}
+
+    @uname.attr 'marg1': true
+    @pw.attr    'marg2': true, 'pw': true
 
     for i in [@uname, @pw, @otp]
       i.on 'keydown', {t: i}, (e) =>

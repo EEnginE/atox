@@ -46,6 +46,7 @@ class Terminal
       {"cmd": 'setAvatar',  "args": [{"desc": 'The new avatar (full path)'}], "desc": 'Set the user avatar',         "icon": 'file-media' }
       {"cmd": 'sendAvatar', "args": [],                                       "desc": 'Sends your current avatar',   "icon": 'radio-tower'}
       {"cmd": 'setStatus',  "args": [{"desc": 'The new status message'}],     "desc": 'Set the user status message', "icon": 'pencil'     }
+      {"cmd": 'changePW',   "args": [],                                       "desc": 'Set your TOX save password',  "icon": 'key'        }
       {
         "cmd": 'setOnline'
         "args": [
@@ -121,6 +122,7 @@ class Terminal
   makeGC:     (p) -> return @stub 'makeGCfromName'
   delFriend:  (p) -> @aTox.TOX.deleteFriend    {"fID": p.argv[0]}
   delGroup:   (p) -> @aTox.TOX.deleteGroupChat {"gID": p.argv[0]}
+  changePW:   (p) -> @aTox.TOX.changeTOXsaveKey()
 
   run: (cmd, args) ->
     unless this[cmd]?

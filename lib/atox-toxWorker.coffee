@@ -10,13 +10,16 @@ Group        = require './atox-group'
 CollabGroup  = require './atox-collabGroup'
 FileTransfer = require './atox-fileTransfer'
 BigMessage   = require './botProtocol/prot-bigMessage'
+PasswdPrompt = require './GUI/atox-passwd'
 
 module.exports =
 class ToxWorker
   constructor: (params) ->
-    @DLL    = params.dll
-    @aTox   = params.aTox
-    @consts = toxcore.Consts
+    @DLL      = params.dll
+    @aTox     = params.aTox
+    @consts   = toxcore.Consts
+    @pwPrompt = new PasswdPrompt {'aTox': @aTox}
+    @dataKey  = null
 
   myInterval: (s, cb) ->
     setInterval cb, s
@@ -34,19 +37,46 @@ class ToxWorker
     console.log e
 
   startup: ->
+    toxSaveData = null
+    toxSaveData = @aTox.gSave.getBuf 'TOX' if atom.config.get 'aTox.useToxSave'
+
+    @DLL = null unless os.platform().indexOf('win') > -1
+
+    try
+      @TOXes = new toxcore.ToxEncryptSave "path": @DLL
+    catch e
+      @err "Failed to init Tox", e
+      console.log e, e.stack
+      return
+
+    if toxSaveData?
+      if @TOXes.isDataEncryptedSync toxSaveData
+        @inf "The TOX save is encrypted", null, false
+
+        cbFunc = (pw) =>
+          salt        = @TOXes.getSaltSync           toxSaveData
+          @dataKey    = @TOXes.deriveKeyWithSaltSync pw, salt
+          try
+            decrypedData = @TOXes.decryptPassKeySync toxSaveData, @dataKey
+          catch err
+            @aTox.term.err {'title': 'Failed to decrypt TOX save', 'msg': 'Please check your password'}
+            console.log err
+            return @pwPrompt.prompt cbFunc
+          @success "Decrypted TOX data", null, true
+          @startTox decrypedData
+
+        return @pwPrompt.prompt cbFunc
+
+    @startTox toxSaveData
+
+  startTox: (toxSaveData) ->
     rawJSON     = fs.readFileSync "#{__dirname}/../nodes.json"
     paresedJSON = JSON.parse rawJSON
     @nodes      = paresedJSON.bootstrapNodes
     @aToxNodes  = paresedJSON.aToxNodes
 
-    toxSaveData = null
-    toxSaveData = @aTox.gSave.getBuf 'TOX' if atom.config.get 'aTox.useToxSave'
-
     try
-      if os.platform().indexOf('win') > -1
-        @TOX = new toxcore.Tox({"old": true, "data": toxSaveData, "path": "#{@DLL}"})
-      else
-        @TOX = new toxcore.Tox({"old": true, "data": toxSaveData})
+      @TOX = new toxcore.Tox "old": true, "data": toxSaveData, "path": @DLL
     catch e
       @err "Failed to init Tox", e
       console.log e, e.stack
@@ -97,7 +127,9 @@ class ToxWorker
 
   deactivate: ->
     if atom.config.get 'aTox.useToxSave'
-      @aTox.gSave.setBuf 'TOX', @TOX.getSavedataSync()
+      saveData = @TOX.getSavedataSync()
+      saveData = @TOXes.encryptPassKeySync saveData, @dataKey if @dataKey?
+      @aTox.gSave.setBuf 'TOX', saveData
 
       saveFriends = {}
       for i in @friends
@@ -108,6 +140,18 @@ class ToxWorker
       @aTox.gSave.set 'friends', saveFriends
 
     @TOX.stop()
+    @TOX.free()
+    @TOX   = null
+    @TOXes = null
+
+  changeTOXsaveKey: ->
+    @pwPrompt.promptNewPW (pw) =>
+      if pw is ''
+        @dataKey =  null
+        @success "TOX save password removed", null, true
+      else
+        @dataKey = @TOXes.deriveKeyFromPassSync pw
+        @success "TOX save password changed", null, true
 
   updateFriendList: ->
     return unless atom.config.get 'aTox.useToxSave'
@@ -139,10 +183,10 @@ class ToxWorker
 
       if isBot
         @friends[i] = new Bot    friend
-        @inf "Loaded bot '#{name}' from TOX save",    friend.pubKey, false
+        @inf "Loaded bot '#{friend.name}' from TOX save",    friend.pubKey, false
       else
         @friends[i] = new Friend friend
-        @inf "Loaded friend '#{name}' from TOX save", friend.pubKey, false
+        @inf "Loaded friend '#{friend.name}' from TOX save", friend.pubKey, false
 
   firstConnectCB: ->
     for n in @aToxNodes
