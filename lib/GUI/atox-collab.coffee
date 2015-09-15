@@ -1,5 +1,6 @@
 CollabGroupProtocol = require '../atox-collabGroupProtocol'
 {Range, Point} = require 'atom'
+newlineRegex: /\r\n|\n|\r/g
 
 module.exports =
 class Collab extends CollabGroupProtocol
@@ -12,6 +13,7 @@ class Collab extends CollabGroupProtocol
     @externalchanges = []
     @pmutex = true
     @icb = []
+    @diffs = []
 
     @disposables.push @editor.getBuffer().onDidChange (e) => @internalChange e
     @disposables.push @editor.onDidChangeSelectionRange (e) =>
@@ -19,7 +21,7 @@ class Collab extends CollabGroupProtocol
 
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
-    @newRange = @editor.getBuffer().getRange()
+    @offsetIndex = @editor.getBuffer().offsetIndex
 
     try
       super params
@@ -39,16 +41,10 @@ class Collab extends CollabGroupProtocol
       @internalchanges = @icb.concat(@internalchanges)
       @icb = []
 
-    if (e.originFlag? and e.originFlag) or (e.newRange.originFlag? and e.newRange.originFlag)
+    if e.originFlag? and e.originFlag
       console.log "ignore change"
       return
 
-    {oldRange, newRange, oldText, newText} = e
-    oldRange = Range(oldRange.start, oldRange.end)
-    newRange = Range(newRange.start, newRange.end)
-    newRange.originFlag = true #dirty stuff - don't think about
-    normalizeLineEndings = true
-    e = {oldRange, newRange, oldText, newText, normalizeLineEndings}
     if @pmutex
       @internalchanges.push e
     else
@@ -56,26 +52,16 @@ class Collab extends CollabGroupProtocol
 
   externalChange: (e) ->
     return unless e?
-
-    {oldRange, newRange, oldText, newText} = e
-    oldRange = Range(oldRange.start, oldRange.end)
-    newRange = Range(newRange.start, newRange.end)
-    newRange.originFlag = true #dirty stuff - don't think about
-    normalizeLineEndings = true
-    e = {oldRange, newRange, oldText, newText, normalizeLineEndings}
     @externalchanges.push e
-    return
+
+  generateDiff: ->
+    #TODO: implement this
+    console.log "Generate Diff"
+    @diffs = []
 
   changedSelection: (e) ->
 
   patchLines: ->
-    ###Fix pos of external changes
-    for ec, i in @externalchanges #Shift
-      for e in @externalchanges
-        if ec != e and ec.oldRange.compare(e.oldRange) == 1
-          @externalchanges[i].oldRange.translate(Point(e.newRange.getRowCount() - e.oldRange.getRowCount(), 0))
-          @externalchanges[i].newRange.translate(Point(e.newRange.getRowCount() - e.oldRange.getRowCount(), 0))###
-
     #Fix pos of internal changes
     for ec, i in @externalchanges
       for ic, j in @internalchanges
@@ -87,58 +73,117 @@ class Collab extends CollabGroupProtocol
           @internalchanges[j].oldRange.translate([ec.newRange.row - ec.oldRange.row, ec.newRange.end.column - ec.oldRange.end.column])
 
   applyExternal: ->
-    #Concat both and patch local buffer
     for ec in @externalchanges
-      @editor.getBuffer().applyChange(ec, false)
+      @applyChange(ec, false)
 
-  restore: ->
-    oldText = @editor.getText()
+  applyInternal: ->
+    for ic in @internalchanges
+      @applyChange(ic, true)
 
-    #@editor.displayBuffer.updateAllLines() #doesn't work
-
-    #Combine the two arrays and use @editor.getBuffer().setText()
-    newText = ''
-    for row in [0 .. @sLines.length - 1]
-      newText += (@sLines[row] + @sLineEndings[row])
-    #@editor.setText(text) #use function of editor instead
-
-    oldRange = @editor.getBuffer().getRange()
-    oldRange.freeze()
-    newRange = @newRange
-    newRange.freeze()
-    originFlag = true
-    changeEvent = Object.freeze({oldRange, newRange, oldText, newText, originFlag})
-
-    @editor.getBuffer().emitter.emit 'will-change', changeEvent
+  setBuffer: ->
+    for change in @diffs
+      @editor.getBuffer().emitter.emit 'will-change', change
 
     @editor.getBuffer().lines = @sLines
     @editor.getBuffer().lineEndings = @sLineEndings
+    @editor.getBuffer().offsetIndex = @offsetIndex
 
-    console.log changeEvent
-    @editor.getBuffer().emitter.emit 'did-change', changeEvent
-    @editor.displayBuffer.updateAllScreenLines()
+    for change in @diffs
+      @editor.getBuffer().emitter.emit 'did-change', change
 
-  applyInternal: ->
-    #Apply internal changes
-    for ic in @internalchanges #maybe have to fix array -> normalizeLineEndings
-      @editor.getBuffer().applyChange(ic, true)
+  applyChange: (change, skipUndo) ->
+    {oldRange, newRange, oldText, newText, normalizeLineEndings} = change
+    oldRange.freeze() if oldRange.freeze()?
+    newRange.freeze() if newRange.freeze()?
+    @cachedText = null
+
+    startRow = oldRange.start.row
+    endRow = oldRange.end.row
+    rowCount = endRow - startRow + 1
+    oldExtent = oldRange.getExtent()
+    newExtent = newRange.getExtent()
+
+    # Determine how to normalize the line endings of inserted text if enabled
+    if normalizeLineEndings
+      preferredLineEnding = @editor.getBuffer().getPreferredLineEnding()
+      normalizedEnding = @preferredLineEnding ? @sLineEndings[startRow]
+      unless normalizedEnding
+        if startRow > 0
+          normalizedEnding = @sLineEndings[startRow - 1]
+        else
+          normalizedEnding = null
+
+    # Split inserted text into lines and line endings
+    lines = []
+    lineEndings = []
+    lineStartIndex = 0
+    normalizedNewText = ""
+    while result = newlineRegex.exec(newText)
+      line = newText[lineStartIndex...result.index]
+      ending = normalizedEnding ? result[0]
+      lines.push(line)
+      lineEndings.push(ending)
+      normalizedNewText += line + ending
+      lineStartIndex = newlineRegex.lastIndex
+
+    lastLine = newText[lineStartIndex..]
+    lines.push(lastLine)
+    lineEndings.push('')
+    normalizedNewText += lastLine
+
+    newText = normalizedNewText
+    #Deactivated change event
+    #changeEvent = Object.freeze({oldRange, newRange, oldText, newText})
+    #@emitter.emit 'will-change', changeEvent
+
+    # Update first and last line so replacement preserves existing prefix and suffix of oldRange
+    prefix = @sLines[startRow][0...oldRange.start.column]
+    lines[0] = prefix + lines[0]
+    suffix = @sLines[endRow][oldRange.end.column...]
+    lastIndex = lines.length - 1
+    lines[lastIndex] += suffix
+    lastLineEnding = @sLineEndings[endRow]
+    lastLineEnding = normalizedEnding if lastLineEnding isnt '' and normalizedEnding?
+    lineEndings[lastIndex] = lastLineEnding
+
+    # Replace lines in oldRange with new lines
+    spliceArray(@lines, startRow, rowCount, lines)
+    spliceArray(@lineEndings, startRow, rowCount, lineEndings)
+
+    # Update the offset index for position <-> character offset translation
+    offsets = lines.map (line, index) ->
+      {rows: 1, characters: line.length + lineEndings[index].length}
+    @offsetIndex.spliceArray('rows', startRow, rowCount, offsets)
+    #TODO: check how to handle this
+
+    @markerStore?.splice(oldRange.start, oldRange.getExtent(), newRange.getExtent())
+    #@history?.pushChange(change) unless skipUndo
+
+    #@conflict = false if @conflict and !@isModified()
+    #@scheduleModifiedEvents()
+
+    @changeCount++
+    #Deactivated emit of change event
+    #@emitter.emit 'did-change', changeEvent
+    #@emit 'changed', changeEvent if Grim.includeDeprecatedAPIs
 
   process: ->
     @pmutex = false
 
     @patchLines()
-    @restore()
     @applyExternal()
     @applyInternal()
+    @generateDiff()
+    @setBuffer()
 
     changes = @internalchanges.slice(0)
     @internalchanges = []
     @externalchanges = []
 
     #Save state for next round
-    @sLines = @editor.getBuffer().getLines()
-    @sLineEndings = @editor.getBuffer().lineEndings
-    @newRange = @editor.getBuffer().getRange()
+    #@sLines = @editor.getBuffer().getLines()
+    #@sLineEndings = @editor.getBuffer().lineEndings
+
     @pmutex = true
 
     return changes
@@ -155,10 +200,11 @@ class Collab extends CollabGroupProtocol
       return
     @sLines = data.lines if data.lines?
     @sLineEndings = data.lineEndings if data.lineEndings?
+    @offsetIndex = data.offsetIndex if data.offsetIndex?
     @externalchanges = []
 
   CMD_getSyncData: ->
-    return {"lines": @sLines, "lineEndings": @sLineEndings}
+    return {"lines": @sLines, "lineEndings": @sLineEndings, "offsetIndex": @offsetIndex}
 
   CMD_process: (changes) ->
     @externalchanges = []
