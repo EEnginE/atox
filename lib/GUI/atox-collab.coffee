@@ -19,6 +19,7 @@ class Collab extends CollabGroupProtocol
 
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
+    @newRange = @editor.getBuffer().getRange()
 
     try
       super params
@@ -52,11 +53,9 @@ class Collab extends CollabGroupProtocol
       @internalchanges.push e
     else
       @icb.push e
-      console.log @icb
 
   externalChange: (e) ->
     return unless e?
-    console.log e
 
     {oldRange, newRange, oldText, newText} = e
     oldRange = Range(oldRange.start, oldRange.end)
@@ -80,21 +79,19 @@ class Collab extends CollabGroupProtocol
     #Fix pos of internal changes
     for ec, i in @externalchanges
       for ic, j in @internalchanges
-        if ic.oldRange.start.row() > ec.oldRange.start.row()
-          @internalchanges[j].newRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), 0])
-          @internalchanges[j].oldRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), 0]) #Shift row by 1
-        else if ic.oldRange.start.row() is ec.oldRange.start.row() and ic.oldRange.start.column() > ec.oldRange.start.column()
-          @internalchanges[j].newRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), ec.newRange.end.column() - ec.oldRange.end.column()])
-          @internalchanges[j].oldRange.translate([ec.newRange.getRowCount() - ec.oldRange.getRowCount(), ec.newRange.end.column() - ec.oldRange.end.column()])
+        if ic.oldRange.start.row > ec.oldRange.start.row
+          @internalchanges[j].newRange.translate([ec.newRange.row - ec.oldRange.row, 0])
+          @internalchanges[j].oldRange.translate([ec.newRange.row - ec.oldRange.row, 0]) #Shift row by 1
+        else if ic.oldRange.start.row is ec.oldRange.start.row and ic.oldRange.start.column > ec.oldRange.start.column
+          @internalchanges[j].newRange.translate([ec.newRange.row - ec.oldRange.row, ec.newRange.end.column - ec.oldRange.end.column])
+          @internalchanges[j].oldRange.translate([ec.newRange.row - ec.oldRange.row, ec.newRange.end.column - ec.oldRange.end.column])
 
   applyExternal: ->
     #Concat both and patch local buffer
     for ec in @externalchanges
-      console.log ec
       @editor.getBuffer().applyChange(ec, false)
-      return
 
-  swap: ->
+  restore: ->
     oldText = @editor.getText()
 
     #@editor.displayBuffer.updateAllLines() #doesn't work
@@ -107,7 +104,7 @@ class Collab extends CollabGroupProtocol
 
     oldRange = @editor.getBuffer().getRange()
     oldRange.freeze()
-    newRange = Range.fromText(oldRange.start, newText)
+    newRange = @newRange
     newRange.freeze()
     originFlag = true
     changeEvent = Object.freeze({oldRange, newRange, oldText, newText, originFlag})
@@ -117,6 +114,7 @@ class Collab extends CollabGroupProtocol
     @editor.getBuffer().lines = @sLines
     @editor.getBuffer().lineEndings = @sLineEndings
 
+    console.log changeEvent
     @editor.getBuffer().emitter.emit 'did-change', changeEvent
     @editor.displayBuffer.updateAllScreenLines()
 
@@ -129,7 +127,7 @@ class Collab extends CollabGroupProtocol
     @pmutex = false
 
     @patchLines()
-    @swap()
+    @restore()
     @applyExternal()
     @applyInternal()
 
@@ -140,6 +138,7 @@ class Collab extends CollabGroupProtocol
     #Save state for next round
     @sLines = @editor.getBuffer().getLines()
     @sLineEndings = @editor.getBuffer().lineEndings
+    @newRange = @editor.getBuffer().getRange()
     @pmutex = true
 
     return changes
