@@ -5,6 +5,7 @@ QuickChat     = require './atox-quickChat'
 CollabSelect  = require './atox-collabSelect'
 TermSelect    = require './atox-termSelect'
 Message       = require './atox-message'
+PasswdPrompt  = require './atox-passwd'
 
 path          = require 'path'
 
@@ -60,6 +61,7 @@ class GUI
     @quickChat     = new QuickChat     {'aTox': @aTox}
     @collabSelect  = new CollabSelect  {'aTox': @aTox}
     @termSelect    = new TermSelect    {'aTox': @aTox}
+    @pwPrompt      = new PasswdPrompt  {'aTox': @aTox}
 
     @chats = [] # Contains EVERY chat
 
@@ -77,12 +79,8 @@ class GUI
   openQuickChat: -> @quickChat.show @chatpanel.getSelectedChatCID()
 
   deactivate: ->
-    @chatpanel.deactivate()
-    @mainWin.deactivate()
-    @GitHubLogin.deactivate()
-    @quickChat.deactivate()
-    @collabSelect.deactivate()
-    @termSelect.deactivate()
+    for i in [@chatpanel, @mainWin, @GitHubLogin, @quickChat, @collabSelect, @termSelect, @pwPrompt]
+      i.deactivate()
 
   serialize: ->
     state = {}
