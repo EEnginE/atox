@@ -154,15 +154,14 @@ class Collab extends CollabGroupProtocol
     offsets = lines.map (line, index) ->
       {rows: 1, characters: line.length + lineEndings[index].length}
     @offsetIndex.spliceArray('rows', startRow, rowCount, offsets)
-    #TODO: check how to handle this
 
-    @markerStore?.splice(oldRange.start, oldRange.getExtent(), newRange.getExtent())
+    #@markerStore?.splice(oldRange.start, oldRange.getExtent(), newRange.getExtent())
     #@history?.pushChange(change) unless skipUndo
 
     #@conflict = false if @conflict and !@isModified()
     #@scheduleModifiedEvents()
 
-    @changeCount++
+    #@changeCount++
     #Deactivated emit of change event
     #@emitter.emit 'did-change', changeEvent
     #@emit 'changed', changeEvent if Grim.includeDeprecatedAPIs
