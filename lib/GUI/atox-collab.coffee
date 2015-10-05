@@ -91,6 +91,11 @@ class Collab extends CollabGroupProtocol
     for ec in @externalchanges
       @editor.getBuffer().applyChange(ec, false)
 
+  patchCursors: ->
+    for [c, cpos] in @cursors
+      console.log ""
+      c.setBufferPosition cpos, false
+
   restore: ->
     oldText = @editor.getText()
 
@@ -126,10 +131,14 @@ class Collab extends CollabGroupProtocol
   process: ->
     @pmutex = false
 
+    @cursors = []
+    for c in @editor.getCursors()
+      @cursors.push [c, c.getBufferPosition()]
     @patchLines()
     @restore()
     @applyExternal()
     @applyInternal()
+    @patchCursors()
 
     changes = @internalchanges.slice(0)
     @internalchanges = []
