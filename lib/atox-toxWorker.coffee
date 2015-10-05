@@ -10,7 +10,6 @@ Group        = require './atox-group'
 CollabGroup  = require './atox-collabGroup'
 FileTransfer = require './atox-fileTransfer'
 BigMessage   = require './botProtocol/prot-bigMessage'
-PasswdPrompt = require './GUI/atox-passwd'
 
 module.exports =
 class ToxWorker
@@ -18,7 +17,6 @@ class ToxWorker
     @DLL      = params.dll
     @aTox     = params.aTox
     @consts   = toxcore.Consts
-    @pwPrompt = new PasswdPrompt {'aTox': @aTox}
     @dataKey  = null
 
   myInterval: (s, cb) ->
@@ -61,11 +59,11 @@ class ToxWorker
           catch err
             @aTox.term.err {'title': 'Failed to decrypt TOX save', 'msg': 'Please check your password'}
             console.log err
-            return @pwPrompt.prompt cbFunc
+            return @aTox.gui.pwPrompt.prompt cbFunc
           @success "Decrypted TOX data", null, true
           @startTox decrypedData
 
-        return @pwPrompt.prompt cbFunc
+        return @aTox.gui.pwPrompt.prompt cbFunc
 
     @startTox toxSaveData
 
@@ -145,7 +143,7 @@ class ToxWorker
     @TOXes = null
 
   changeTOXsaveKey: ->
-    @pwPrompt.promptNewPW (pw) =>
+    @aTox.gui.pwPrompt.promptNewPW (pw) =>
       if pw is ''
         @dataKey =  null
         @success "TOX save password removed", null, true
