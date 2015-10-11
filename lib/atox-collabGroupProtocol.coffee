@@ -100,12 +100,6 @@ class CollabGroupProtocol
       index++
       index = 0 if index is @peers.length
 
-    console.log ""
-    console.log ""
-    console.log "DATA:"
-    console.log data
-    console.log ""
-
     sendData = @CMD_process data
 
     @sendTimeout = @__timeout 250, =>

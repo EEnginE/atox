@@ -23,9 +23,7 @@ class Collab extends CollabGroupProtocol
     @sLineEndings = @editor.getBuffer().lineEndings.slice()
 
     @offsetIndex = new SpanSkipList('rows', 'characters')
-    offsets = @sLines.map (line, index) =>
-      {rows: 1, characters: line.length + @sLineEndings[index].length}
-    @offsetIndex.spliceArray('rows', 0, @sLines.length, offsets)
+    @updateOffsets()
 
     try
       super params
@@ -40,13 +38,32 @@ class Collab extends CollabGroupProtocol
 
   getName: -> @name
 
+  updateOffsets: ->
+    offsets = @sLines.map (line, index) =>
+      {rows: 1, characters: line.length + @sLineEndings[index].length}
+    @offsetIndex.spliceArray('rows', 0, @sLines.length, offsets)
+
+  patchCursors: ->
+    for c in @editor.getCursors()
+      for ec in @externalchanges
+        pos = c.getBufferPosition()
+        npos = {'row': pos.row, 'column': pos.column}
+        if pos.row > ec.newRange.start.row
+          npos.row += (ec.newRange.end.row - ec.newRange.start.row) - (ec.oldRange.end.row - ec.oldRange.start.row)
+        else if pos.row is ec.newRange.start.row and pos.column > ec.newRange.start.column
+          npos.row += (ec.newRange.end.row - ec.newRange.start.row) - (ec.oldRange.end.row - ec.oldRange.start.row)
+          npos.column += ec.newRange.end.column - ec.oldRange.end.column
+        else
+          continue
+        console.log npos
+        c.setBufferPosition npos, {'autoscroll': false}
+
   internalChange: (e) ->
     if @pmutex and @icb.length > 0
       @internalchanges = @icb.concat(@internalchanges)
       @icb = []
 
     if e.originFlag? and e.originFlag
-      console.log "ignore change"
       return
 
     if @pmutex
@@ -59,8 +76,6 @@ class Collab extends CollabGroupProtocol
     @externalchanges.push e
 
   generateDiff: ->
-    #TODO: implement this
-    console.log "Generate Diff"
     @diffs = []
 
     positionForCharacterIndex = (offset) =>
@@ -93,41 +108,24 @@ class Collab extends CollabGroupProtocol
     genDiff = (c, x, y, i, j) =>
       if i > 0 and j > 0 and x[i] == y[j]
         genDiff(c, x, y, i-1, j-1)
-        #console.log " " + x[i]
       else if j > 0 and (i == 0 or c[i][j-1] >= c[i-1][j])
-        console.log "-" + y[j]
-        console.log "Update j - 1:" + (j - 1) + " i - 1:" + (i - 1)
-        console.log "Values y[j]:" + y[j] + " y[i]:" + y[i]
         oldText = y[j]
         newText = ""
-        console.log @editor.getBuffer().positionForCharacterIndex(j - 1)
-        console.log positionForCharacterIndex(j - 1)
-        console.log @editor.getBuffer().positionForCharacterIndex(j)
-        console.log positionForCharacterIndex(j)
-        console.log @offsetIndex
-        console.log @editor.getBuffer().offsetIndex
-        console.log @offsetIndex == @editor.getBuffer().offsetIndex
         oldRange = Range(@editor.getBuffer().positionForCharacterIndex(j - 1), @editor.getBuffer().positionForCharacterIndex(j))
         newRange = Range(@editor.getBuffer().positionForCharacterIndex(j - 1), @editor.getBuffer().positionForCharacterIndex(j - 1))
         originFlag = true
         diff = {oldRange, newRange, oldText, newText, originFlag}
-        console.log diff
         @diffs.push diff
         genDiff(c, x, y, i, j - 1)
       else if i > 0 and (j == 0 or c[i][j-1] < c[i-1][j])
         genDiff(c, x, y, i-1, j)
-        console.log "+" + x[i]
-        console.log "Update line :" + (i - 1)
         oldText = ""
         newText = x[i]
         oldRange = Range(positionForCharacterIndex(i - 1), positionForCharacterIndex(i - 1))
         newRange = Range(positionForCharacterIndex(i - 1), positionForCharacterIndex(i))
         originFlag = true
         diff = {oldRange, newRange, oldText, newText, originFlag}
-        console.log diff
         @diffs.push diff
-      else
-        console.log " "
 
     xText = ''
     for row in [0 .. @sLines.length - 1]
@@ -137,16 +135,13 @@ class Collab extends CollabGroupProtocol
     for row in [0 .. @editor.getBuffer().getLines().length - 1]
       yText += (@editor.getBuffer().getLines()[row] + @editor.getBuffer().lineEndings[row])
 
+    if xText == yText
+      return
     x = xText.split("")
     y = yText.split("")
     x.unshift("")
     y.unshift("")
     genDiff(computeTable(x, y), x, y, x.length - 1, y.length - 1)
-
-
-    #diff = {oldRange, newRange, oldText, newText}
-    #@diffs.push diff
-
 
   changedSelection: (e) ->
 
@@ -205,8 +200,6 @@ class Collab extends CollabGroupProtocol
     startRow = oldRange.start.row
     endRow = oldRange.end.row
     rowCount = endRow - startRow + 1
-    #oldExtent = oldRange.getExtent()
-    #newExtent = newRange.getExtent()
 
     # Determine how to normalize the line endings of inserted text if enabled
     if normalizeLineEndings
@@ -235,11 +228,7 @@ class Collab extends CollabGroupProtocol
     lines.push(lastLine)
     lineEndings.push('')
     normalizedNewText += lastLine
-
     newText = normalizedNewText
-    #Deactivated change event
-    #changeEvent = Object.freeze({oldRange, newRange, oldText, newText})
-    #@emitter.emit 'will-change', changeEvent
 
     # Update first and last line so replacement preserves existing prefix and suffix of oldRange
     prefix = @sLines[startRow][0...oldRange.start.column]
@@ -260,19 +249,7 @@ class Collab extends CollabGroupProtocol
       {rows: 1, characters: line.length + lineEndings[index].length}
     @offsetIndex.spliceArray('rows', startRow, rowCount, offsets)
 
-    #@markerStore?.splice(oldRange.start, oldRange.getExtent(), newRange.getExtent())
-    #@history?.pushChange(change) unless skipUndo
-
-    #@conflict = false if @conflict and !@isModified()
-    #@scheduleModifiedEvents()
-
-    #@changeCount++
-    #Deactivated emit of change event
-    #@emitter.emit 'did-change', changeEvent
-    #@emit 'changed', changeEvent if Grim.includeDeprecatedAPIs
-
   process: ->
-    console.log "1"
     @pmutex = false
 
     @patchLines()
@@ -280,17 +257,13 @@ class Collab extends CollabGroupProtocol
     @applyInternal()
     @generateDiff()
     @setBuffer()
+    @patchCursors()
 
     changes = @internalchanges.slice(0)
     @internalchanges = []
     @externalchanges = []
 
-    #Save state for next round
-    #@sLines = @editor.getBuffer().getLines()
-    #@sLineEndings = @editor.getBuffer().lineEndings
-
     @pmutex = true
-
     return changes
 
   CMD_startSyncing: (changes) ->
@@ -302,22 +275,18 @@ class Collab extends CollabGroupProtocol
     @applyExternal()
 
   CMD_stopSyncing: (data) ->
-    return
     if not data?
       return
     @sLines = data.lines if data.lines?
     @sLineEndings = data.lineEndings if data.lineEndings?
-    @offsetIndex = data.offsetIndex if data.offsetIndex?
+    @updateOffsets()
     @externalchanges = []
 
   CMD_getSyncData: ->
-    return {}
-    return {"lines": @sLines, "lineEndings": @sLineEndings, "offsetIndex": @offsetIndex}
+    return {"lines": @sLines, "lineEndings": @sLineEndings}
 
   CMD_process: (changes) ->
     @externalchanges = []
-    console.log "External Changes:"
-    console.log changes
     if changes?
       for pchanges in changes
         @externalChange(c) for c in pchanges
