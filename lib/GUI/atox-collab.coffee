@@ -1,6 +1,6 @@
 CollabGroupProtocol = require '../atox-collabGroupProtocol'
 {Range, Point} = require 'atom'
-newlineRegex: /\r\n|\n|\r/g
+SpanSkipList = require 'span-skip-list'
 
 module.exports =
 class Collab extends CollabGroupProtocol
@@ -19,22 +19,26 @@ class Collab extends CollabGroupProtocol
     @disposables.push @editor.onDidChangeSelectionRange (e) =>
       @changedSelection e
 
-    @sLines = @editor.getBuffer().getLines()
-    @sLineEndings = @editor.getBuffer().lineEndings
-    @offsetIndex = @editor.getBuffer().offsetIndex
+    @sLines = @editor.getBuffer().getLines().slice()
+    @sLineEndings = @editor.getBuffer().lineEndings.slice()
+
+    @offsetIndex = new SpanSkipList('rows', 'characters')
+    offsets = @sLines.map (line, index) =>
+      {rows: 1, characters: line.length + @sLineEndings[index].length}
+    @offsetIndex.spliceArray('rows', 0, @sLines.length, offsets)
 
     try
       super params
     catch error
       console.log error
 
-  getName: -> @name
-
   destructor: ->
     for d in @disposables
       d.dispose()
 
     super()
+
+  getName: -> @name
 
   internalChange: (e) ->
     if @pmutex and @icb.length > 0
@@ -58,6 +62,91 @@ class Collab extends CollabGroupProtocol
     #TODO: implement this
     console.log "Generate Diff"
     @diffs = []
+
+    positionForCharacterIndex = (offset) =>
+      offset = Math.max(0, offset)
+      offset = Math.min(@offsetIndex.totalTo(Infinity, 'rows').characters, offset)
+
+      {rows, characters} = @offsetIndex.totalTo(offset, 'characters')
+      if rows > @sLines.length - 1
+        lastRow = @sLines.length - 1
+        new Point(lastRow, @sLines[lastRow].length)
+      else
+        new Point(rows, offset - characters)
+
+    computeTable = (x, y)->
+      c = []
+      for i in [0 .. x.length - 1]
+        c[i] = []
+      for i in [0 .. x.length - 1]
+        c[i][0] = 0
+      for j in [0 .. y.length - 1]
+        c[0][j] = 0
+      for i in [1 .. x.length - 1]
+        for j in [1 .. y.length - 1]
+          if x[i] == y[j]
+            c[i][j] = c[i-1][j-1] + 1
+          else
+            c[i][j] = if c[i][j-1] > c[i-1][j] then c[i][j-1] else c[i-1][j]
+      return c
+
+    genDiff = (c, x, y, i, j) =>
+      if i > 0 and j > 0 and x[i] == y[j]
+        genDiff(c, x, y, i-1, j-1)
+        #console.log " " + x[i]
+      else if j > 0 and (i == 0 or c[i][j-1] >= c[i-1][j])
+        console.log "-" + y[j]
+        console.log "Update j - 1:" + (j - 1) + " i - 1:" + (i - 1)
+        console.log "Values y[j]:" + y[j] + " y[i]:" + y[i]
+        oldText = y[j]
+        newText = ""
+        console.log @editor.getBuffer().positionForCharacterIndex(j - 1)
+        console.log positionForCharacterIndex(j - 1)
+        console.log @editor.getBuffer().positionForCharacterIndex(j)
+        console.log positionForCharacterIndex(j)
+        console.log @offsetIndex
+        console.log @editor.getBuffer().offsetIndex
+        console.log @offsetIndex == @editor.getBuffer().offsetIndex
+        oldRange = Range(@editor.getBuffer().positionForCharacterIndex(j - 1), @editor.getBuffer().positionForCharacterIndex(j))
+        newRange = Range(@editor.getBuffer().positionForCharacterIndex(j - 1), @editor.getBuffer().positionForCharacterIndex(j - 1))
+        originFlag = true
+        diff = {oldRange, newRange, oldText, newText, originFlag}
+        console.log diff
+        @diffs.push diff
+        genDiff(c, x, y, i, j - 1)
+      else if i > 0 and (j == 0 or c[i][j-1] < c[i-1][j])
+        genDiff(c, x, y, i-1, j)
+        console.log "+" + x[i]
+        console.log "Update line :" + (i - 1)
+        oldText = ""
+        newText = x[i]
+        oldRange = Range(positionForCharacterIndex(i - 1), positionForCharacterIndex(i - 1))
+        newRange = Range(positionForCharacterIndex(i - 1), positionForCharacterIndex(i))
+        originFlag = true
+        diff = {oldRange, newRange, oldText, newText, originFlag}
+        console.log diff
+        @diffs.push diff
+      else
+        console.log " "
+
+    xText = ''
+    for row in [0 .. @sLines.length - 1]
+      xText += (@sLines[row] + @sLineEndings[row])
+
+    yText = ''
+    for row in [0 .. @editor.getBuffer().getLines().length - 1]
+      yText += (@editor.getBuffer().getLines()[row] + @editor.getBuffer().lineEndings[row])
+
+    x = xText.split("")
+    y = yText.split("")
+    x.unshift("")
+    y.unshift("")
+    genDiff(computeTable(x, y), x, y, x.length - 1, y.length - 1)
+
+
+    #diff = {oldRange, newRange, oldText, newText}
+    #@diffs.push diff
+
 
   changedSelection: (e) ->
 
@@ -84,24 +173,40 @@ class Collab extends CollabGroupProtocol
     for change in @diffs
       @editor.getBuffer().emitter.emit 'will-change', change
 
-    @editor.getBuffer().lines = @sLines
-    @editor.getBuffer().lineEndings = @sLineEndings
-    @editor.getBuffer().offsetIndex = @offsetIndex
+    @editor.getBuffer().lines = @sLines.slice()
+    @editor.getBuffer().lineEndings = @sLineEndings.slice()
+
+    offsets = @sLines.map (line, index) =>
+      {rows: 1, characters: line.length + @sLineEndings[index].length}
+    @editor.getBuffer().offsetIndex.spliceArray('rows', 0, @sLines.length, offsets)
 
     for change in @diffs
       @editor.getBuffer().emitter.emit 'did-change', change
 
   applyChange: (change, skipUndo) ->
+    newlineRegex = /\r\n|\n|\r/g
+    spliceArray = (originalArray, start, length, insertedArray=[]) ->
+      SpliceArrayChunkSize = 100000
+      if insertedArray.length < SpliceArrayChunkSize
+        originalArray.splice(start, length, insertedArray...)
+      else
+        removedValues = originalArray.splice(start, length)
+        for chunkStart in [0..insertedArray.length] by SpliceArrayChunkSize
+          chunkEnd = chunkStart + SpliceArrayChunkSize
+          chunk = insertedArray.slice(chunkStart, chunkEnd)
+          originalArray.splice(start + chunkStart, 0, chunk...)
+        removedValues
+
     {oldRange, newRange, oldText, newText, normalizeLineEndings} = change
-    oldRange.freeze() if oldRange.freeze()?
-    newRange.freeze() if newRange.freeze()?
+    oldRange.freeze() if oldRange.freeze? and typeof oldRange.freeze is 'function'
+    newRange.freeze() if newRange.freeze? and typeof newRange.freeze is 'function'
     @cachedText = null
 
     startRow = oldRange.start.row
     endRow = oldRange.end.row
     rowCount = endRow - startRow + 1
-    oldExtent = oldRange.getExtent()
-    newExtent = newRange.getExtent()
+    #oldExtent = oldRange.getExtent()
+    #newExtent = newRange.getExtent()
 
     # Determine how to normalize the line endings of inserted text if enabled
     if normalizeLineEndings
@@ -147,8 +252,8 @@ class Collab extends CollabGroupProtocol
     lineEndings[lastIndex] = lastLineEnding
 
     # Replace lines in oldRange with new lines
-    spliceArray(@lines, startRow, rowCount, lines)
-    spliceArray(@lineEndings, startRow, rowCount, lineEndings)
+    spliceArray(@sLines, startRow, rowCount, lines)
+    spliceArray(@sLineEndings, startRow, rowCount, lineEndings)
 
     # Update the offset index for position <-> character offset translation
     offsets = lines.map (line, index) ->
@@ -167,6 +272,7 @@ class Collab extends CollabGroupProtocol
     #@emit 'changed', changeEvent if Grim.includeDeprecatedAPIs
 
   process: ->
+    console.log "1"
     @pmutex = false
 
     @patchLines()
@@ -188,6 +294,7 @@ class Collab extends CollabGroupProtocol
     return changes
 
   CMD_startSyncing: (changes) ->
+    return
     if changes?
       for c in changes
         @externalChange c if c?
@@ -195,6 +302,7 @@ class Collab extends CollabGroupProtocol
     @applyExternal()
 
   CMD_stopSyncing: (data) ->
+    return
     if not data?
       return
     @sLines = data.lines if data.lines?
@@ -203,6 +311,7 @@ class Collab extends CollabGroupProtocol
     @externalchanges = []
 
   CMD_getSyncData: ->
+    return {}
     return {"lines": @sLines, "lineEndings": @sLineEndings, "offsetIndex": @offsetIndex}
 
   CMD_process: (changes) ->
