@@ -14,6 +14,7 @@
      "jquery":               "*",
      "buffertools":          "*",
      "season":               "*",
+     "span-skip-list":       "~0.2.0",
      "toxcore":              "git://github.com/saneki/node-toxcore.git"
   },
   "coffeelintConfig": {

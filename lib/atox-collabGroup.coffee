@@ -54,9 +54,6 @@ class CollabGroup
 
   send: (msg) ->
     try
-      console.log ""
-      console.log "COLLAB: #{@__tMyID} --->"
-      console.log msg
       msgString = JSON.stringify msg
       @aTox.TOX.sendToGC {"gID": @gID, "msg": msgString}
     catch error
