@@ -73,8 +73,11 @@ class ToxWorker
     @nodes      = paresedJSON.bootstrapNodes
     @aToxNodes  = paresedJSON.aToxNodes
 
+    @cryptoDLL = @DLL
+    @cryptoDLL = null unless os.platform().indexOf('win') > -1
+
     try
-      @TOX = new toxcore.Tox "old": true, "data": toxSaveData, "path": @DLL, "crypto": {"path": @DLL}
+      @TOX = new toxcore.Tox "old": true, "data": toxSaveData, "path": @DLL, "crypto": {"path": @cryptoDLL}
     catch e
       @err "Failed to init Tox", e
       console.log e, e.stack
