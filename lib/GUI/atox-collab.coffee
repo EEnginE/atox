@@ -244,10 +244,7 @@ class Collab extends CollabGroupProtocol
     spliceArray(@sLines, startRow, rowCount, lines)
     spliceArray(@sLineEndings, startRow, rowCount, lineEndings)
 
-    # Update the offset index for position <-> character offset translation
-    offsets = lines.map (line, index) ->
-      {rows: 1, characters: line.length + lineEndings[index].length}
-    @offsetIndex.spliceArray('rows', startRow, rowCount, offsets)
+    @updateOffsets()
 
   process: ->
     @pmutex = false

@@ -74,7 +74,7 @@ class ToxWorker
     @aToxNodes  = paresedJSON.aToxNodes
 
     try
-      @TOX = new toxcore.Tox "old": true, "data": toxSaveData, "path": @DLL
+      @TOX = new toxcore.Tox "old": true, "data": toxSaveData, "path": @DLL, "crypto": {"path": @DLL}
     catch e
       @err "Failed to init Tox", e
       console.log e, e.stack
