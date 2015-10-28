@@ -48,7 +48,6 @@ module.exports =
   activate: (state) ->
     @subscriptions = new CompositeDisposable
 
-    @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:toggle',    => @gui.mainWin.toggle()
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:history',   => @gui.chatpanel.toggleHistory()
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:collab',    => @gui.collabSelect.requestOpen()
     @subscriptions.add atom.commands.add 'atom-workspace', 'aTox:quickChat', => @gui.quickChat()

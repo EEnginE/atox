@@ -1,5 +1,3 @@
-ChatBox     = require './GUI/atox-chatbox'
-ContactView = require './GUI/atox-contactView'
 Message     = require './GUI/atox-message'
 
 # coffeelint: disable=max_line_length
@@ -15,21 +13,6 @@ class Chat
 
     @isSelected = false
 
-    @chatBox = new ChatBox {
-      cID:    @cID
-      parent: this
-      group:  @group
-    }
-
-    @contactView = new ContactView {
-      cb: =>
-        if @isSelected is true
-          @closeChat()
-        else
-          @openChat()
-      parent: this
-    }
-
     @aTox.gui.chatpanel.addChat {
       group:  @group
       cID:    @cID
@@ -37,7 +20,6 @@ class Chat
     }
 
     @aTox.gui.chats[@cID] = this
-    @aTox.gui.mainWin.addContact @contactView
 
     @update 'img'
     @update 'name'
@@ -47,15 +29,12 @@ class Chat
     @currentHistoryPos = 0
 
   destructor: ->
-    @chatBox.destructor()
-    @contactView.destructor()
     @aTox.gui.chatpanel.removeChat {"cID": @cID}
     @aTox.gui.chats.splice @cID
 
   genAndAddMSG: (params) -> @addMSG new Message params unless params.msg is ''
 
   addMSG: (msg) ->
-    @chatBox.addMessage msg
     @aTox.gui.chatpanel.addMessage {'msg': msg, 'cID': @cID}
 
   name:     -> return @parent.name
@@ -64,15 +43,6 @@ class Chat
   peerlist: -> return @parent.peerlist
   img:      -> return @parent.img
   selected: -> return @isSelected is true
-
-  closeChat: ->
-    @isSelected = false
-    @chatBox.hide()
-    @update 'select'
-  openChat:  ->
-    @isSelected = true
-    @chatBox.show()
-    @update 'select'
 
   getPreviousEntry: ->
     return '' if @userHistory.length is 0
@@ -85,10 +55,8 @@ class Chat
     @currentHistoryPos++
     return @userHistory[@currentHistoryPos]
 
-  update: (what) ->
-    @chatBox.update     what
-    @contactView.update what
-    if what is 'peers'
+  update: (d) ->
+    if d is 'peers'
       @aTox.gui.chatpanel.update {cID: @cID, peers: true}
     else
       @aTox.gui.chatpanel.update {cID: @cID}

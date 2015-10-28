@@ -1,4 +1,3 @@
-MainWindow    = require './atox-mainWin'
 Chatpanel     = require './atox-chatpanel'
 GitHubLogin   = require './atox-GitHubLogin'
 CollabSelect  = require './atox-collabSelect'
@@ -55,7 +54,6 @@ class GUI
     @chatpanel     = new Chatpanel     {'aTox': @aTox, 'state': params.state.chatpanel}
     @chatpanel.addChat {cID: -1, img: 'none', group: false, parent: new TempChatHelper @aTox} # Terminal chat
 
-    @mainWin       = new MainWindow    {'aTox': @aTox, 'state': params.state.mainWin}
     @GitHubLogin   = new GitHubLogin   {'aTox': @aTox}
     @collabSelect  = new CollabSelect  {'aTox': @aTox}
     @termSelect    = new TermSelect    {'aTox': @aTox}
@@ -71,18 +69,16 @@ class GUI
     atom.config.set 'aTox.userAvatar', pathArg
 
   setUserOnlineStatus: (params) ->
-    @mainWin.statusSelector.setStatus   params
     @chatpanel.statusSelector.setStatus params
 
   quickChat: -> @chatpanel.quickFocus()
 
   deactivate: ->
-    for i in [@chatpanel, @mainWin, @GitHubLogin, @collabSelect, @termSelect, @pwPrompt]
+    for i in [@chatpanel, @GitHubLogin, @collabSelect, @termSelect, @pwPrompt]
       i.deactivate()
 
   serialize: ->
     state = {}
-    state.mainWin   = @mainWin.serialize()
     state.chatpanel = @chatpanel.serialize()
 
     return state
