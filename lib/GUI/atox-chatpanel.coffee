@@ -33,29 +33,28 @@ class Chatpanel extends View
 
     @panel = atom.workspace.addBottomPanel {item: @element}
     @input.on 'keydown', (e) =>
-      @showHistory() unless @historyRendered or e.which is 27
+      #@showHistory() unless @historyRendered or e.which is 27
 
       id = parseInt @coverview.find('.selected').attr('cID') #get cID of selected chat
       switch e.which
-        when 13
-          @chatClasses[id].sendMSG @inputField.getText()
-          @inputField.setText ''
-          @scrollBot @coverview.find('.selected').attr('cID')
+        when 13 then @sendMsg()
         when 38 then @inputField.setText @chatClasses[id].getPreviousEntry()
         when 40 then @inputField.setText @chatClasses[id].getNextEntry()
         when 27 then @toggleHistory()
 
-    @btn.click =>
-      id = @coverview.find('.selected').attr('cID') #get cID of selected chat
-      @chatClasses[parseInt id].sendMSG @inputField.getText()
-      @inputField.setText ''
+    @btn.click => @sendMsg()
 
     jQuery(@hbox).resizable
       handles: {n: @rborder}
       start: (event, ui) =>
         @resizePos = @chats.scrollTop()
+        console.log @resizePos
       resize: (event, ui) =>
-        @chats.scrollTop(@resizePos)
+        if @resizePos is 0
+          id = parseInt @coverview.find('.selected').attr('cID')
+          @scrollBot(id)
+        else
+          @chats.scrollTop(@resizePos)
     jQuery(@ulist).resizable {handles: {w: @lborder}}
 
     @statusSelector = new StatusSelector {aTox: @aTox, win: 'panel'}
@@ -66,6 +65,27 @@ class Chatpanel extends View
     @hbox.css 'height', params.state.height
     @historyRendered = !params.state.showHistory
     @toggleHistory()
+
+  quickFocus: ->
+    @lastFocused = document.activeElement
+    @quickFocused = true
+    @focus()
+
+  quickUnFocus: ->
+    @quickFocused = false
+    @lastFocused.focus()
+
+  focus: -> @inputField.focus()
+
+  sendMsg: ->
+    id = parseInt @coverview.find('.selected').attr('cID') #get cID of selected chat
+    @chatClasses[id].sendMSG @inputField.getText()
+    @inputField.setText ''
+    @scrollBot @coverview.find('.selected').attr('cID')
+    if @quickFocused? and @quickFocused is true
+      @quickUnFocus()
+    else
+      @showHistory()
 
   deactivate: -> @panel.destroy()
 

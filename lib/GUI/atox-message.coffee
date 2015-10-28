@@ -28,7 +28,7 @@ class Message extends View
     @time.addClass 'text-subtle'
     @time.css   {"margin-right": "7px"}
 
-    @status.css {"float": "right"}
+    @status.css {"position": "absolute", "right": "8px"}
     @setStatus 'comment', 1, 'highlight', 'info'
 
     switch @type

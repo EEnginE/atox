@@ -1,7 +1,6 @@
 MainWindow    = require './atox-mainWin'
 Chatpanel     = require './atox-chatpanel'
 GitHubLogin   = require './atox-GitHubLogin'
-QuickChat     = require './atox-quickChat'
 CollabSelect  = require './atox-collabSelect'
 TermSelect    = require './atox-termSelect'
 Message       = require './atox-message'
@@ -58,7 +57,6 @@ class GUI
 
     @mainWin       = new MainWindow    {'aTox': @aTox, 'state': params.state.mainWin}
     @GitHubLogin   = new GitHubLogin   {'aTox': @aTox}
-    @quickChat     = new QuickChat     {'aTox': @aTox}
     @collabSelect  = new CollabSelect  {'aTox': @aTox}
     @termSelect    = new TermSelect    {'aTox': @aTox}
     @pwPrompt      = new PasswdPrompt  {'aTox': @aTox}
@@ -76,10 +74,10 @@ class GUI
     @mainWin.statusSelector.setStatus   params
     @chatpanel.statusSelector.setStatus params
 
-  openQuickChat: -> @quickChat.show @chatpanel.getSelectedChatCID()
+  quickChat: -> @chatpanel.quickFocus()
 
   deactivate: ->
-    for i in [@chatpanel, @mainWin, @GitHubLogin, @quickChat, @collabSelect, @termSelect, @pwPrompt]
+    for i in [@chatpanel, @mainWin, @GitHubLogin, @collabSelect, @termSelect, @pwPrompt]
       i.deactivate()
 
   serialize: ->
