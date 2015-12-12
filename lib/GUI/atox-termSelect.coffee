@@ -127,6 +127,8 @@ class TermSelect extends SelectListView
     @panel   = atom.workspace.addModalPanel {item: this, visible: false}
     @getArgs = new GetArgs {"aTox": @aTox}
 
+  deactivate: -> @panel.destroy()
+
   viewForItem: (item) -> new Item item, this
   confirmed:   (item) ->
     @panel.hide()

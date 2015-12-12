@@ -14,10 +14,13 @@ BigMessage   = require './botProtocol/prot-bigMessage'
 module.exports =
 class ToxWorker
   constructor: (params) ->
-    @DLL      = params.dll
     @aTox     = params.aTox
     @consts   = toxcore.Consts
     @dataKey  = null
+
+    switch os.type() # TODO add mac / Linux support
+      when 'Windows_NT' then @DLL ="#{__dirname}\\..\\bin\\libtox.dll"
+      else                   @DLL = null
 
   myInterval: (s, cb) ->
     setInterval cb, s
@@ -38,13 +41,11 @@ class ToxWorker
     toxSaveData = null
     toxSaveData = @aTox.gSave.getBuf 'TOX' if atom.config.get 'aTox.useToxSave'
 
-    @DLL = null unless os.platform().indexOf('win') > -1
-
     try
       @TOXes = new toxcore.ToxEncryptSave "path": @DLL
     catch e
-      @err "Failed to init Tox", e
-      console.log e, e.stack
+      @aTox.term.err 'title': "TOX (libtoxcore / libtoxencryptsave) not found"
+      @aTox.gui.toxNotFound.show => @aTox.deactivate()
       return
 
     if toxSaveData?
@@ -127,6 +128,7 @@ class ToxWorker
     @firstConnect = true
 
   deactivate: ->
+    return unless @TOX?
     if atom.config.get 'aTox.useToxSave'
       saveData = @TOX.getSavedataSync()
       saveData = @TOXes.encryptPassKeySync saveData, @dataKey if @dataKey?

@@ -9,7 +9,7 @@ class GitHubLogin extends View
     @div class: 'aTox-Form1-root', =>
       @div outlet: 'working', class: 'loading loading-spinner-tiny inline-block'
       @div outlet: 'info',    class: 'icon icon-info inline-block info-icon-position'
-      @h1  outlet: 'h1', "GitHub Connection"
+      @h1  outlet: 'h1',      class: 'paddingLeft', "GitHub Connection"
       @div class: 'block form', =>
         @h2 outlet: 'h2', "Please enter username and password"
         @subview "uname", new TextEditorView 'mini': true, 'placeholderText': "Username"

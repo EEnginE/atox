@@ -58,7 +58,7 @@ module.exports =
 
     @gSave   = new GlobalSave    {'aTox': this, 'name': 'aTox.cson'}
     @term    = new Terminal      {'aTox': this}
-    @TOX     = new ToxWorker     {'aTox': this, 'dll': "#{__dirname}\\..\\bin\\libtox.dll"}
+    @TOX     = new ToxWorker     {'aTox': this}
     @github  = new Github
     @collab  = new CollabManager {'aTox': this}
     @manager = new aToxManager   {'aTox': this}

@@ -14,8 +14,11 @@
 
   h1 {
     text-align:   center;
-    padding-left: 30px;
     transition:   color 500ms;
+  }
+
+  h1.paddingLeft {
+    padding-left: 30px;
   }
 
   .info-icon-position {
@@ -62,6 +65,19 @@
     atom-text-editor {
       margin-bottom: 0px;
     }
+  }
+
+  // Copied from the settings-view package because there is no global class
+  select.form-control {
+    color: @text-color;
+    border-color: @button-border-color;
+    background-color: @button-background-color;
+    &:hover,
+    &:focus {
+      box-shadow: none;
+      background-color: @button-background-color-hover;
+    }
+    margin-bottom: @component-padding;
   }
 
   // Source: https://github.com/atom/settings-view/blob/master/styles/settings-view.less#L102-L178
